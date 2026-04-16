@@ -88,6 +88,7 @@ END SUPABASE NOTES
 
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 <title>DataBulge — Installment Data Plans by Vortexedge Limited</title>
 <meta name="application-name" content="DataBulge"/>
 <meta name="apple-mobile-web-app-title" content="DataBulge"/>
@@ -152,7 +153,6 @@ END SUPABASE NOTES
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
-button,a,[onclick]{-webkit-tap-highlight-color:rgba(0,0,0,0);touch-action:manipulation;}
 html{scroll-behavior:smooth;}
 
 /* ── BODY: Full deep blue background with orbs ── */
@@ -830,7 +830,7 @@ nav{
 .db-subline{max-width:300px;font-size:1rem;line-height:1.6;color:var(--text2);font-weight:500;}
 .db-subline strong{color:#fff;}
 .db-cta-stack{width:100%;max-width:300px;display:flex;flex-direction:column;gap:12px;margin-top:6px;}
-.db-main-btn{width:100%;border:none;border-radius:18px;padding:16px 18px;font-family:inherit;font-size:1rem;font-weight:800;cursor:pointer;transition:transform .18s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease, opacity .22s ease;color:#fff;position:relative;overflow:hidden;-webkit-tap-highlight-color:rgba(0,0,0,0);touch-action:manipulation;}
+.db-main-btn{width:100%;border:none;border-radius:18px;padding:16px 18px;font-family:inherit;font-size:1rem;font-weight:800;cursor:pointer;transition:transform .18s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease, opacity .22s ease;color:#fff;position:relative;overflow:hidden;}
 .db-main-btn:active{transform:scale(.985)}
 .db-main-btn.primary{background:linear-gradient(135deg, #7dd3fc 0%, #67e8f9 16%, #60a5fa 40%, #6366f1 70%, #818cf8 100%);background-size:200% 200%;box-shadow:0 0 0 1px rgba(255,255,255,.14) inset,0 10px 30px rgba(99,102,241,.32),0 0 24px rgba(103,232,249,.28);animation:dbGradientMove 5s linear infinite, dbGlowPulse 1.8s ease-in-out infinite;}
 .db-main-btn.primary::before{content:"";position:absolute;top:-120%;left:-35%;width:55%;height:340%;transform:rotate(20deg);background:linear-gradient(90deg, transparent, rgba(255,255,255,.42), transparent);animation:dbShine 2.8s ease-in-out infinite;}
@@ -1211,7 +1211,7 @@ html, body {
             <button class="forgot-link" onclick="openForgot()">Forgot password?</button>
           </div>
 
-          <button class="btn btn-primary btn-full" id="li-btn" onclick="doLogin()" ontouchstart="">Login</button>
+          <button class="btn btn-primary btn-full" id="li-btn" onclick="doLogin()">Login</button>
           <div class="db-divider">or</div>
 
           <div class="db-switch">Don’t have an account? <a onclick="showSignupScreen()">Create one</a></div>
@@ -1248,7 +1248,7 @@ html, body {
 
           </div>
 
-          <button class="btn btn-primary btn-full" id="su-btn" onclick="doSignup()" ontouchstart="">Create an Account</button>
+          <button class="btn btn-primary btn-full" id="su-btn" onclick="doSignup()">Create an Account</button>
           <div class="db-divider">or</div>
 
           <div class="db-hint"></div>
@@ -1555,7 +1555,7 @@ html, body {
 <script>
 var SUPA_URL  = 'https://dplxnpxxztkjczaoyetl.supabase.co';
 var ANON_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRwbHhucHh4enRramN6YW95ZXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5NzEwNTUsImV4cCI6MjA4ODU0NzA1NX0.Vhxv9UieuHwm4BBF9ziXPp8f5jeyka4m9sZbcQ_VlRQ';
-var FN        = SUPA_URL + '/functions/v1';
+var FN        = SUPA_URL + '/functions/v1'; // Huawei-safe: no template literal
 
 var sb, me=null, myData=null;
 var walBal=0, allPlans=[], providers=[];
@@ -1564,11 +1564,14 @@ var _cachedToken=null, _tokenExpiry=0;
 async function getToken(){
   if(_cachedToken&&Date.now()<_tokenExpiry)return _cachedToken;
   var tokenResult;
-  try { tokenResult = await sb.auth.getSession(); } catch(e) { return null; }
+  try { tokenResult = await sb.auth.getSession(); } catch(e) { return _cachedToken || null; }
   var tokenData = (tokenResult && tokenResult.data) ? tokenResult.data : {};
   var tokenSession = tokenData.session || null;
-  _cachedToken = (tokenSession && tokenSession.access_token) ? tokenSession.access_token : null;
-  _tokenExpiry=Date.now()+9*60*1000;
+  var newToken = (tokenSession && tokenSession.access_token) ? tokenSession.access_token : null;
+  if (newToken) {
+    _cachedToken = newToken;
+    _tokenExpiry = Date.now() + 9 * 60 * 1000;
+  }
   return _cachedToken;
 }
 var fProv='All', fCat='All';
@@ -1584,6 +1587,256 @@ var stuChecked=false, isStudent=false;
 //   Private/incognito mode (localStorage blocked)
 //   Low-memory devices (no structuredClone, no BroadcastChannel)
 // ═══════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════
+// HUAWEI EMUI 10 / ANDROID 10 CRITICAL POLYFILLS
+// These run BEFORE the Supabase CDN script is even evaluated.
+// Huawei LDN-L21 / EMUI 10 uses a stripped V8 67.x WebView that is
+// missing many APIs that Supabase @2 depends on.
+// ═══════════════════════════════════════════════════════════════════════
+
+// AbortController — Supabase uses it for request timeouts.
+// Missing on EMUI 10 WebView. Without this Supabase throws on import.
+if (typeof AbortController === 'undefined') {
+  window.AbortController = function() {
+    var _listeners = [];
+    this.signal = {
+      aborted: false,
+      reason: undefined,
+      _listeners: _listeners,
+      addEventListener: function(type, fn) { if (type === 'abort') _listeners.push(fn); },
+      removeEventListener: function(type, fn) {
+        var idx = _listeners.indexOf(fn);
+        if (idx > -1) _listeners.splice(idx, 1);
+      },
+      dispatchEvent: function() { return true; },
+      throwIfAborted: function() {}
+    };
+    this.abort = function(reason) {
+      if (this.signal.aborted) return;
+      this.signal.aborted = true;
+      this.signal.reason = reason || new DOMException('AbortError', 'AbortError');
+      var fns = _listeners.slice();
+      for (var i = 0; i < fns.length; i++) { try { fns[i]({ type:'abort' }); } catch(e) {} }
+    };
+  };
+  if (typeof DOMException === 'undefined') {
+    window.DOMException = function(msg, name) { this.message = msg; this.name = name || 'Error'; };
+    DOMException.prototype = Object.create(Error.prototype);
+  }
+}
+
+// AbortSignal static methods — used by newer Supabase internals
+if (typeof AbortSignal !== 'undefined' && !AbortSignal.timeout) {
+  AbortSignal.timeout = function(ms) {
+    var ctrl = new AbortController();
+    setTimeout(function() { ctrl.abort(new Error('TimeoutError')); }, ms);
+    return ctrl.signal;
+  };
+}
+
+// crypto.randomUUID — Supabase uses this for request IDs.
+// Missing on EMUI 10 (only available in HTTPS contexts on newer Chrome).
+if (typeof crypto === 'undefined') {
+  window.crypto = {};
+}
+if (!crypto.randomUUID) {
+  crypto.randomUUID = function() {
+    var chars = '0123456789abcdef';
+    var uuid = '';
+    for (var i = 0; i < 36; i++) {
+      if (i === 8 || i === 13 || i === 18 || i === 23) {
+        uuid += '-';
+      } else if (i === 14) {
+        uuid += '4';
+      } else if (i === 19) {
+        uuid += chars[(Math.random() * 4 | 0) + 8];
+      } else {
+        uuid += chars[Math.random() * 16 | 0];
+      }
+    }
+    return uuid;
+  };
+}
+
+// crypto.getRandomValues — needed by Supabase PKCE flow and UUID generation.
+// EMUI 10 may expose crypto but not getRandomValues.
+if (crypto && !crypto.getRandomValues) {
+  crypto.getRandomValues = function(array) {
+    for (var i = 0; i < array.length; i++) {
+      array[i] = Math.floor(Math.random() * 256);
+    }
+    return array;
+  };
+}
+
+// queueMicrotask — missing on EMUI 10. Used by Supabase realtime internals.
+if (typeof queueMicrotask === 'undefined') {
+  window.queueMicrotask = function(fn) {
+    Promise.resolve().then(fn).catch(function(e) {
+      setTimeout(function() { throw e; }, 0);
+    });
+  };
+}
+
+// Array.from — missing on EMUI 10 (Huawei stripped it out of their V8 build).
+// Supabase uses it to convert iterables.
+if (!Array.from) {
+  Array.from = function(arrayLike, mapFn) {
+    var arr = [];
+    if (!arrayLike) return arr;
+    if (arrayLike.length !== undefined) {
+      for (var i = 0; i < arrayLike.length; i++) {
+        arr.push(mapFn ? mapFn(arrayLike[i], i) : arrayLike[i]);
+      }
+    } else if (typeof Symbol !== 'undefined' && arrayLike[Symbol.iterator]) {
+      var iter = arrayLike[Symbol.iterator]();
+      var next;
+      while (!(next = iter.next()).done) {
+        arr.push(mapFn ? mapFn(next.value, arr.length) : next.value);
+      }
+    }
+    return arr;
+  };
+}
+
+// Array.prototype.flat — missing on EMUI 10
+if (!Array.prototype.flat) {
+  Array.prototype.flat = function(depth) {
+    depth = (depth === undefined) ? 1 : Math.floor(depth);
+    if (depth < 1) return this.slice();
+    return this.reduce(function(acc, val) {
+      return acc.concat(Array.isArray(val) && depth > 1 ? val.flat(depth - 1) : val);
+    }, []);
+  };
+}
+
+// Object.entries — missing on very old EMUI WebViews
+if (!Object.entries) {
+  Object.entries = function(obj) {
+    var entries = [];
+    for (var k in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, k)) entries.push([k, obj[k]]);
+    }
+    return entries;
+  };
+}
+
+// Object.values — missing on very old EMUI WebViews
+if (!Object.values) {
+  Object.values = function(obj) {
+    var values = [];
+    for (var k in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, k)) values.push(obj[k]);
+    }
+    return values;
+  };
+}
+
+// Object.fromEntries — used by Supabase query builder
+if (!Object.fromEntries) {
+  Object.fromEntries = function(entries) {
+    var obj = {};
+    var iter = entries && (entries[Symbol && Symbol.iterator] || entries.entries);
+    if (Array.isArray(entries)) {
+      for (var i = 0; i < entries.length; i++) { obj[entries[i][0]] = entries[i][1]; }
+    }
+    return obj;
+  };
+}
+
+// Promise.finally — missing on EMUI 10
+if (typeof Promise !== 'undefined' && !Promise.prototype.finally) {
+  Promise.prototype.finally = function(fn) {
+    return this.then(
+      function(v) { return Promise.resolve(fn()).then(function() { return v; }); },
+      function(e) { return Promise.resolve(fn()).then(function() { throw e; }); }
+    );
+  };
+}
+
+// URL constructor — EMUI 10 WebView has a broken URL parser for some inputs.
+// Supabase uses URL() for building query strings.
+// We only patch if URL is missing or broken.
+(function() {
+  try {
+    var testUrl = new URL('https://test.com/path?q=1');
+    if (!testUrl.searchParams) throw new Error('no searchParams');
+  } catch(e) {
+    // URL is broken — we can't fully polyfill it, but we can ensure
+    // Supabase's string building still works by patching fetch
+    var _origFetch = window.fetch;
+    if (_origFetch) {
+      window.fetch = function(url, opts) {
+        // Convert URL objects to strings
+        if (url && typeof url === 'object' && url.href) url = url.href;
+        return _origFetch.call(this, url, opts);
+      };
+    }
+  }
+})();
+
+// TextEncoder / TextDecoder — missing on EMUI 10, used by Supabase realtime
+if (typeof TextEncoder === 'undefined') {
+  window.TextEncoder = function() {};
+  TextEncoder.prototype.encode = function(str) {
+    var bytes = [];
+    for (var i = 0; i < str.length; i++) {
+      var code = str.charCodeAt(i);
+      if (code < 128) { bytes.push(code); }
+      else if (code < 2048) { bytes.push((code >> 6) | 192, (code & 63) | 128); }
+      else { bytes.push((code >> 12) | 224, ((code >> 6) & 63) | 128, (code & 63) | 128); }
+    }
+    return new Uint8Array(bytes);
+  };
+}
+if (typeof TextDecoder === 'undefined') {
+  window.TextDecoder = function() {};
+  TextDecoder.prototype.decode = function(bytes) {
+    var str = '';
+    if (!bytes) return str;
+    var arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    for (var i = 0; i < arr.length; i++) { str += String.fromCharCode(arr[i]); }
+    return str;
+  };
+}
+
+// CustomEvent — EMUI 10 WebView constructor is broken
+if (typeof CustomEvent === 'undefined' || typeof CustomEvent !== 'function') {
+  window.CustomEvent = function(event, params) {
+    params = params || { bubbles: false, cancelable: false, detail: null };
+    var evt;
+    try { evt = document.createEvent('CustomEvent'); }
+    catch(e) { evt = document.createEvent('Event'); }
+    if (evt.initCustomEvent) {
+      evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+    } else {
+      evt.initEvent(event, params.bubbles, params.cancelable);
+      evt.detail = params.detail;
+    }
+    return evt;
+  };
+  CustomEvent.prototype = window.Event.prototype;
+}
+
+// Symbol.iterator — Supabase uses for...of which requires this on iterables.
+// EMUI 10 has Symbol but sometimes not Symbol.iterator on non-native objects.
+if (typeof Symbol !== 'undefined' && !Symbol.iterator) {
+  Symbol.iterator = Symbol('Symbol.iterator');
+}
+
+// WeakRef — used by newer Supabase realtime. No-op polyfill.
+if (typeof WeakRef === 'undefined') {
+  window.WeakRef = function(obj) { this._obj = obj; };
+  WeakRef.prototype.deref = function() { return this._obj; };
+}
+
+// FinalizationRegistry — used by Supabase realtime channel cleanup. No-op.
+if (typeof FinalizationRegistry === 'undefined') {
+  window.FinalizationRegistry = function() {};
+  FinalizationRegistry.prototype.register = function() {};
+  FinalizationRegistry.prototype.unregister = function() {};
+}
 
 // ── POLYFILLS ─────────────────────────────────────────────────────────
 
@@ -1664,10 +1917,13 @@ var _DB_STORAGE = (function() {
   var _mem = {};
   var _useLocal = false;
   try {
+    // EMUI 10: localStorage may exist but be backed by a broken context.
+    // We do TWO tests: write + read-back to verify round-trip integrity.
     var _testKey = '__db_test__';
-    localStorage.setItem(_testKey, '1');
+    localStorage.setItem(_testKey, 'ok');
+    var _readBack = localStorage.getItem(_testKey);
     localStorage.removeItem(_testKey);
-    _useLocal = true;
+    _useLocal = (_readBack === 'ok');
   } catch(e) { _useLocal = false; }
 
   if (_useLocal) {
@@ -1711,7 +1967,21 @@ function _makeSupabaseClient() {
       flowType: 'implicit'
     }
   };
-  return window.supabase.createClient(SUPA_URL, ANON_KEY, opts);
+  // Primary attempt — full options
+  try {
+    return window.supabase.createClient(SUPA_URL, ANON_KEY, opts);
+  } catch(e1) {
+    console.warn('[Auth] createClient full-opts failed, retrying minimal:', e1);
+    // Fallback: minimal options for very old WebViews (Huawei EMUI 9-10)
+    try {
+      return window.supabase.createClient(SUPA_URL, ANON_KEY, {
+        auth: { persistSession: false, autoRefreshToken: false, flowType: 'implicit' }
+      });
+    } catch(e2) {
+      console.error('[Auth] createClient minimal also failed:', e2);
+      throw e2;
+    }
+  }
 }
 
 // ── AUTH EVENT WIRING ─────────────────────────────────────────────────
@@ -1740,12 +2010,16 @@ function _wireAuthEvents() {
     // SIGNED_OUT from another tab or server-side revoke
     if (event === 'SIGNED_OUT') {
       // Only act if we're currently logged in (avoid boot-time false triggers)
-      if (me && document.getElementById('app').style.display === 'block') {
-        me = null; myData = null; walBal = 0;
-        document.getElementById('app').style.display = 'none';
-        showWelcomeScreen();
-        document.getElementById('auth-screen').style.display = 'flex';
-      }
+      try {
+        var appEl2 = document.getElementById('app');
+        if (me && appEl2 && appEl2.style.display === 'block') {
+          me = null; myData = null; walBal = 0;
+          appEl2.style.display = 'none';
+          try { showWelcomeScreen(); } catch(e) {}
+          var authEl2 = document.getElementById('auth-screen');
+          if (authEl2) authEl2.style.display = 'flex';
+        }
+      } catch(e) { console.warn('[Auth] SIGNED_OUT handler error:', e); }
     }
   });
 }
@@ -1833,18 +2107,6 @@ function _initApp() {
   var suPass = document.getElementById('su-pass');
   if (liPass) liPass.addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
   if (suPass) suPass.addEventListener('keydown', function(e) { if (e.key === 'Enter') doSignup(); });
-
-  // Chinese WebView fix: also bind via addEventListener
-  var liBtnEl = document.getElementById('li-btn');
-  var suBtnEl = document.getElementById('su-btn');
-  if (liBtnEl) {
-    liBtnEl.addEventListener('click', function(e) { e.preventDefault(); doLogin(); });
-    liBtnEl.addEventListener('touchend', function(e) { e.preventDefault(); doLogin(); });
-  }
-  if (suBtnEl) {
-    suBtnEl.addEventListener('click', function(e) { e.preventDefault(); doSignup(); });
-    suBtnEl.addEventListener('touchend', function(e) { e.preventDefault(); doSignup(); });
-  }
   // Close modals on backdrop click
   var overlays = document.querySelectorAll('.overlay');
   if (overlays && overlays.forEach) {
@@ -1901,8 +2163,13 @@ function _initApp() {
         _tokenExpiry = Date.now() + 9 * 60 * 1000;
       }
       bootApp().catch(function(err) {
-        console.warn('[Auth] bootApp error:', err);
-        showWelcomeScreen();
+        console.warn('[Auth] bootApp error:', String(err));
+        try { showWelcomeScreen(); } catch(e2) {}
+        // EMUI 10: force show auth screen if DOM access fails
+        try {
+          var _ae = document.getElementById('auth-screen');
+          if (_ae) _ae.style.display = 'flex';
+        } catch(e3) {}
       });
     } else {
       showWelcomeScreen();
@@ -2169,7 +2436,7 @@ async function confirmNewPassword(){
     if (!me && data.user) me = data.user;
 
     // Short pause so user reads the success message, then boot
-    setTimeout(function() {
+    setTimeout(async function() {
       try {
         // Run the full boot (sets up nav, loads data, etc.)
         await bootApp();
@@ -2224,106 +2491,77 @@ function toggleStudent(){
 }
 
 function setAuthErr(which,msg){
-  var el=document.getElementById(which+'-err');
-  if(!el)return;
+  const el=document.getElementById(which+'-err');
   el.textContent=msg; el.classList.remove('hide');
-  setTimeout(function(){if(el)el.classList.add('hide');},5000);
+  setTimeout(()=>el.classList.add('hide'),5000);
 }
 
-function doLogin(){
+async function doLogin(){
   var email=(document.getElementById('li-email').value||'').trim();
   var pass=document.getElementById('li-pass').value||'';
   if(!email||!pass){setAuthErr('login','Fill in all fields');return;}
   setBtnLoad('li-btn',true);
-  sb.auth.signInWithPassword({email:email,password:pass})
-    .then(function(result){
-      setBtnLoad('li-btn',false,'Sign In');
-      var loginErr  = result ? result.error : null;
-      var loginData = result ? result.data   : null;
-      if(loginErr){setAuthErr('login',loginErr.message||'Login failed');return;}
-      if(!loginData||!loginData.user){setAuthErr('login','Login failed - please try again');return;}
-      try{
-        if(rememberMe) _DB_STORAGE.setItem('de_remember_email',email);
-        else _DB_STORAGE.removeItem('de_remember_email');
-      }catch(e){}
-      me=loginData.user;
-      document.getElementById('auth-screen').style.display='none';
-      bootApp().then(function(){
-        smartLandAfterBoot().catch(function(){});
-      }).catch(function(err){
-        console.warn('[Login] bootApp error:',String(err));
-        try{showWelcomeScreen();}catch(e){}
-        var ae=document.getElementById('auth-screen');
-        if(ae)ae.style.display='flex';
-        setAuthErr('login','App failed to load. Please refresh.');
-      });
-    })
-    .catch(function(e){
-      setBtnLoad('li-btn',false,'Sign In');
-      setAuthErr('login',(e&&e.message)||'Login failed. Check your connection.');
-    });
+  var loginResult;
+  try { loginResult = await sb.auth.signInWithPassword({email:email,password:pass}); }
+  catch(e){ setBtnLoad('li-btn',false,'Sign In'); setAuthErr('login',e.message||'Login failed'); return; }
+  setBtnLoad('li-btn',false,'Sign In');
+  var loginErr = loginResult ? loginResult.error : null;
+  var loginData = loginResult ? loginResult.data : null;
+  if(loginErr){setAuthErr('login',loginErr.message);return;}
+  if(!loginData || !loginData.user){setAuthErr('login','Login failed — please try again. If this persists, check your internet connection.');return;}
+  try {
+    if(rememberMe) _DB_STORAGE.setItem('de_remember_email', email);
+    else _DB_STORAGE.removeItem('de_remember_email');
+  } catch(e){}
+  me=loginData.user;
+  document.getElementById('auth-screen').style.display='none';
+  await bootApp();
+  // Smart landing: new/lapsed users → plans tab; returning users → dashboard
+  await smartLandAfterBoot();
 }
 
-function doSignup(){
-  var name  = (document.getElementById('su-name').value  ||'').trim();
-  var phone = (document.getElementById('su-phone').value ||'').trim();
-  var email = (document.getElementById('su-email').value ||'').trim();
-  var pass  =  document.getElementById('su-pass').value  ||'';
+async function doSignup(){
+  const name=document.getElementById('su-name').value.trim();
+  const phone=document.getElementById('su-phone').value.trim();
+  const email=document.getElementById('su-email').value.trim();
+  const pass=document.getElementById('su-pass').value;
   if(!name||!email||!pass){setAuthErr('su','Name, email & password required');return;}
   if(pass.length<6){setAuthErr('su','Password must be 6+ characters');return;}
   setBtnLoad('su-btn',true);
-  sb.auth.signUp({
-    email:email,password:pass,
-    options:{data:{full_name:name,phone:phone,is_student:false}}
-  }).then(function(result){
-    setBtnLoad('su-btn',false,'Create Account');
-    var suError = result ? result.error : null;
-    var suData  = result ? result.data  : null;
-    if(suError){setAuthErr('su',suError.message||'Signup failed');return;}
-    if(suData && suData.session){
-      me=suData.user;
-      try{ sb.from('profiles').update({full_name:name,phone:phone}).eq('id',me.id); }catch(e){}
-      document.getElementById('auth-screen').style.display='none';
-      toast('Welcome to DataBulge, '+name+'!','success');
-      bootApp().then(function(){
-        smartLandAfterBoot('plans').catch(function(){});
-        try{ callCreateVA(name,phone||''); }catch(e){}
-      }).catch(function(err){
-        console.warn('[Signup] bootApp error:',String(err));
-        try{showWelcomeScreen();}catch(e){}
-        var ae=document.getElementById('auth-screen');
-        if(ae)ae.style.display='flex';
-        setAuthErr('su','Account created! Please log in.');
-      });
-    } else {
-      var okEl=document.getElementById('su-ok');
-      if(okEl)okEl.classList.remove('hide');
-      var b=document.getElementById('su-btn');
-      if(b){b.textContent='Account Created';b.disabled=true;}
-      setTimeout(function(){flip(true);},3200);
-    }
-  }).catch(function(e){
-    setBtnLoad('su-btn',false,'Create Account');
-    setAuthErr('su',(e&&e.message)||'Signup failed. Check your connection.');
-  });
+  var signupResult;
+  try { signupResult = await sb.auth.signUp({email:email,password:pass,options:{data:{full_name:name,phone:phone,is_student:false}}}); }
+  catch(e){ setBtnLoad('su-btn',false,'Create Account'); setAuthErr('su',e.message||'Signup failed'); return; }
+  setBtnLoad('su-btn',false,'Create Account');
+  var suError = signupResult ? signupResult.error : null;
+  var suData = signupResult ? signupResult.data : null;
+  if(suError){setAuthErr('su',suError.message);return;}
+  if(suData && suData.session){
+    me=suData.user;
+    await sb.from('profiles').update({full_name:name,phone:phone}).eq('id',me.id);
+    document.getElementById('auth-screen').style.display='none';
+    toast('Welcome to DataBulge, '+name+'! 🎉','success');
+    await bootApp();
+    // New users always land on plans tab
+    await smartLandAfterBoot('plans');
+    callCreateVA(name,phone||'');
+  } else {
+    document.getElementById('su-ok').classList.remove('hide');
+    const b=document.getElementById('su-btn');
+    b.textContent='Account Created ✅'; b.disabled=true;
+    setTimeout(()=>flip(true),3200);
+  }
 }
 
-function doLogout(){
-  try{ stopRealtime(); }catch(e){}
-  var _afterLogout=function(){
-    me=null; myData=null; walBal=0;
-    var appEl=document.getElementById('app');
-    if(appEl)appEl.style.display='none';
-    var liEmail=document.getElementById('li-email');
-    var liPass=document.getElementById('li-pass');
-    if(liEmail)liEmail.value='';
-    if(liPass)liPass.value='';
-    try{showWelcomeScreen();}catch(e){}
-    var ae=document.getElementById('auth-screen');
-    if(ae)ae.style.display='flex';
-    toast('Signed out','info');
-  };
-  sb.auth.signOut().then(_afterLogout).catch(_afterLogout);
+async function doLogout(){
+  stopRealtime();
+  try { await sb.auth.signOut(); } catch(e) {}
+  me=null; myData=null; walBal=0;
+  document.getElementById('app').style.display='none';
+  document.getElementById('li-email').value='';
+  document.getElementById('li-pass').value='';
+  showWelcomeScreen();
+  document.getElementById('auth-screen').style.display='flex';
+  toast('Signed out','info');
 }
 
 // ── BOOT APP ──
@@ -2538,16 +2776,17 @@ function _startRealtime(){
       }
     });
 
-  // Safety: if realtime doesn't connect in 8s, start fallback polling
+  // Safety: if realtime doesn't connect in 5s, start fallback polling
+  // Shortened from 8s to 5s for Huawei/EMUI devices where WS handshake is slower
   setTimeout(function(){
     if(!_realtimeFallbackTimer && _realtimeChannel){
-      var state = _realtimeChannel.state;
-      if(state !== 'joined'){
-        console.warn('[Realtime] Not connected after 8s, starting fallback poll');
+      var state = _realtimeChannel ? _realtimeChannel.state : 'closed';
+      if(state !== 'joined' && state !== 'joining'){
+        console.warn('[Realtime] Not connected after 5s, starting fallback poll');
         _startFallbackPoll();
       }
     }
-  }, 8000);
+  }, 5000);
 }
 
 // Fallback polling — only used if realtime fails (e.g. corporate firewall blocking websockets)
@@ -2935,7 +3174,7 @@ async function loadCashflow(){
   setEl('cf-done', done);
   setEl('cf-bar-pct', outPct.toFixed(0)+'%');
   const bar=document.getElementById('cf-bar');
-  if(bar) setTimeout(function(){bar.style.width=outPct.toFixed(1)+'%';},100);
+  if(bar) setTimeout(()=>bar.style.width=outPct.toFixed(1)+'%',100);
 }
 
 // ── WALLET TAB ──
@@ -2989,21 +3228,17 @@ function f(n){return'₦'+Number(n||0).toLocaleString('en-NG',{minimumFractionDi
 function closeM(id){document.getElementById(id).classList.remove('open');}
 function closeDrop(){document.getElementById('pdrop').classList.add('hide');}
 function toggleDrop(){document.getElementById('pdrop').classList.toggle('hide');}
-function toast(msg,type){
-  if(!type)type='info';
-  var w=document.getElementById('toast-wrap');
-  if(!w)return;
-  var el=document.createElement('div');
+function toast(msg,type='info'){
+  const w=document.getElementById('toast-wrap');
+  const el=document.createElement('div');
   el.className='t '+type; el.textContent=msg; w.appendChild(el);
-  setTimeout(function(){
-    el.style.opacity='0';el.style.transform='translateX(110%)';
-    setTimeout(function(){if(el&&el.parentNode)el.parentNode.removeChild(el);},300);
-  },4200);
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateX(110%)';
+    setTimeout(()=>el.remove(),300);},4200);
 }
 function setBtnLoad(id,on,label){
-  var b=document.getElementById(id); if(!b) return;
+  const b=document.getElementById(id); if(!b) return;
   if(on){b._lbl=b.textContent;b.innerHTML='<div class="spin"></div>';b.disabled=true;}
-  else{b.textContent=label||b._lbl||'';b.disabled=false;}
+  else{b.textContent=label||b._lbl;b.disabled=false;}
 }
 function copyAcc(num){
   navigator.clipboard.writeText(num)
@@ -3076,12 +3311,12 @@ function copyAcc(num){
 
 <script>
 // ══ MESSAGES / INBOX ══
-let currentMsgId=null;
+var currentMsgId=null;
 function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function timeAgo(ts){const d=Date.now()-new Date(ts).getTime(),m=Math.floor(d/60000);if(m<1)return'just now';if(m<60)return m+'m ago';const h=Math.floor(m/60);if(h<24)return h+'h ago';return Math.floor(h/24)+'d ago';}
 
 async function loadInbox(){
-  const el=document.getElementById('inbox-list');
+  var el=document.getElementById('inbox-list');
   el.innerHTML='<div class="lc"><div class="spin"></div></div>';
   try{
     const {data,error}=await sb.rpc('get_inbox',{p_user_id:me.id});
