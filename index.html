@@ -2417,6 +2417,7 @@ html, body {
     }
     try {
       sb = _makeSupabaseClient();
+      window.sb = sb;
       _wireAuthEvents();
     } catch (e) {
       console.error("[Auth] createClient failed:", e);
@@ -2472,6 +2473,7 @@ html, body {
         var session = result && result.data ? result.data.session : null;
         if (session && session.user) {
           me = session.user;
+          window.me = me;
           if (session.access_token) {
             window._recoveryAccessToken = session.access_token;
             window._recoveryRefreshToken = session.refresh_token || "";
@@ -2490,6 +2492,7 @@ html, body {
         var session = data.session || null;
         if (session && session.user) {
           me = session.user;
+          window.me = me;
           if (session.access_token) {
             _cachedToken = session.access_token;
             _tokenExpiry = Date.now() + 9 * 60 * 1e3;
@@ -2515,6 +2518,7 @@ html, body {
               var session2 = result2 && result2.data && result2.data.session || null;
               if (session2 && session2.user) {
                 me = session2.user;
+                window.me = me;
                 if (session2.access_token) {
                   _cachedToken = session2.access_token;
                   _tokenExpiry = Date.now() + 9 * 60 * 1e3;
@@ -2548,6 +2552,7 @@ html, body {
               var s = r && r.data && r.data.session || null;
               if (s && s.user) {
                 me = s.user;
+              window.me = me;
                 if (s.access_token) {
                   _cachedToken = s.access_token;
                   _tokenExpiry = Date.now() + 9 * 60 * 1e3;
@@ -2877,6 +2882,10 @@ html, body {
         setAuthErr("login", "Fill in all fields");
         return;
       }
+      if (!sb || !sb.auth) {
+        setAuthErr("login", "App is still loading. Please wait a moment and try again.");
+        return;
+      }
       setBtnLoad("li-btn", true);
       var loginResult;
       try {
@@ -2903,6 +2912,7 @@ html, body {
       } catch (e) {
       }
       me = loginData.user;
+      window.me = me;
       document.getElementById("auth-screen").style.display = "none";
       yield bootApp();
       yield smartLandAfterBoot();
@@ -2930,6 +2940,10 @@ html, body {
         setAuthErr("su", "Password must be 6+ characters");
         return;
       }
+      if (!sb || !sb.auth) {
+        setAuthErr("su", "App is still loading. Please wait a moment and try again.");
+        return;
+      }
       setBtnLoad("su-btn", true);
       var signupResult;
       try {
@@ -2948,6 +2962,7 @@ html, body {
       }
       if (suData && suData.session) {
         me = suData.user;
+        window.me = me;
         yield sb.from("profiles").update({ full_name: name, phone }).eq("id", me.id);
         document.getElementById("auth-screen").style.display = "none";
         toast("Welcome to DataBulge, " + name + "! \u{1F389}", "success");
@@ -2966,6 +2981,8 @@ html, body {
   function bootApp() {
     return __async(this, null, function* () {
       var _a, _b;
+      window.sb = sb;
+      window.me = me;
       document.getElementById("app").style.display = "block";
       document.getElementById("auth-screen").style.display = "none";
       const meta = me.user_metadata || {};
@@ -4013,6 +4030,8 @@ html, body {
     _safeStorage.set(dateKey, today);
   }
   var _origBootApp = window.bootApp;
+  window.sb = window.sb || sb;
+  window.me = window.me || me;
   window.bootApp = function() {
     return __async(this, arguments, function* () {
       if (_origBootApp) yield _origBootApp.apply(this, arguments);
@@ -4118,6 +4137,7 @@ html, body {
       }
     });
   };
+  window.smartLandAfterBoot = smartLandAfterBoot;
   document.addEventListener("DOMContentLoaded", function() {
     var waitForSb = setInterval(function() {
       if (window.sb && window.sb.auth) {
