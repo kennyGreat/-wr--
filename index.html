@@ -2,1025 +2,238 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-<title>DataBulge — Sign In</title>
-<meta name="description" content="Sign in or create your DataBulge account. Buy mobile data with flexible installment payments."/>
-
-<!-- Supabase — loaded without defer so window.supabase is ready at DOMContentLoaded -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="theme-color" content="#060d2b"/>
+<title>DataBulge — Login</title>
 <style>
-/* ═══════════════════════════════════════════════════
-   RESET & BASE — safe on Android 4.4+, iOS 9+
-═══════════════════════════════════════════════════ */
-*{-webkit-box-sizing:border-box;box-sizing:border-box;margin:0;padding:0;}
-html,body{
-  width:100%;min-height:100%;height:100%;
-  background:#fff;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-  font-size:16px;line-height:1.5;color:#1c1e21;
-  -webkit-text-size-adjust:100%;-moz-text-size-adjust:100%;text-size-adjust:100%;
-  -webkit-tap-highlight-color:transparent;
-}
-
-/* ═══════════════════════════════════════════════════
-   LAYOUT SHELL
-═══════════════════════════════════════════════════ */
-#auth-root{
-  display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;
-  -webkit-box-orient:vertical;-webkit-box-direction:normal;
-  -webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;
-  -webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;
-  -webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;
-  min-height:100%;padding:0 0 32px;
-}
-
-/* ═══════════════════════════════════════════════════
-   LOGO / BRAND — centred at top like Facebook
-═══════════════════════════════════════════════════ */
-.brand{
-  text-align:center;padding:40px 20px 24px;width:100%;
-  max-width:432px;
-}
-.brand-icon{
-  display:inline-block;width:56px;height:56px;border-radius:14px;
-  background:#1877f2;color:#fff;font-size:28px;font-weight:900;
-  line-height:56px;text-align:center;letter-spacing:-1px;
-  margin-bottom:12px;
-}
-.brand-name{
-  display:block;font-size:1.75rem;font-weight:800;
-  color:#1877f2;letter-spacing:-0.5px;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-}
-.brand-tagline{
-  display:block;margin-top:4px;font-size:.93rem;color:#606770;font-weight:400;
-}
-
-/* ═══════════════════════════════════════════════════
-   CARD — white, subtle shadow, Google/Facebook style
-═══════════════════════════════════════════════════ */
-.auth-card{
-  width:100%;max-width:432px;
-  background:#fff;
-  border:1px solid #dddfe2;
-  border-radius:8px;
-  padding:24px 20px 20px;
-  margin:0 16px;
-}
-/* On small phones, no card border — just flush white */
-@media (max-width:480px){
-  .auth-card{
-    border:none;border-radius:0;
-    padding:20px 16px 16px;
-    margin:0;
-    -webkit-box-shadow:none;box-shadow:none;
-  }
-}
-@media (min-width:481px){
-  .auth-card{
-    -webkit-box-shadow:0 2px 4px rgba(0,0,0,.1),0 8px 16px rgba(0,0,0,.1);
-    box-shadow:0 2px 4px rgba(0,0,0,.1),0 8px 16px rgba(0,0,0,.1);
-  }
-}
-
-/* ═══════════════════════════════════════════════════
-   SCREENS — shown/hidden by JS
-═══════════════════════════════════════════════════ */
-.screen{display:none;}
-.screen.active{display:block;}
-
-/* ═══════════════════════════════════════════════════
-   WELCOME SCREEN headlines
-═══════════════════════════════════════════════════ */
-.welcome-title{
-  font-size:1.55rem;font-weight:800;color:#1c1e21;
-  text-align:center;margin-bottom:6px;letter-spacing:-.3px;
-}
-.welcome-sub{
-  font-size:.9rem;color:#606770;text-align:center;
-  margin-bottom:22px;line-height:1.5;
-}
-
-/* ═══════════════════════════════════════════════════
-   FORM ELEMENTS
-═══════════════════════════════════════════════════ */
-.form-group{margin-bottom:14px;}
-.form-label{
-  display:block;font-size:.8rem;font-weight:600;
-  color:#606770;margin-bottom:5px;
-}
-.form-input{
-  display:block;width:100%;
-  padding:13px 14px;
-  border:1.5px solid #dddfe2;
-  border-radius:6px;
-  font-size:.97rem;font-family:inherit;color:#1c1e21;
-  background:#fff;
-  outline:none;
-  -webkit-appearance:none;-moz-appearance:none;appearance:none;
-  -webkit-transition:border-color .15s;transition:border-color .15s;
-}
-.form-input:focus{border-color:#1877f2;}
-.form-input::-webkit-input-placeholder{color:#bcc0c4;}
-.form-input::-moz-placeholder{color:#bcc0c4;}
-.form-input:-ms-input-placeholder{color:#bcc0c4;}
-.form-input::placeholder{color:#bcc0c4;}
-
-/* Password wrapper */
-.pass-wrap{position:relative;}
-.pass-wrap .form-input{padding-right:46px;}
-.eye-btn{
-  position:absolute;top:50%;right:12px;
-  -webkit-transform:translateY(-50%);-ms-transform:translateY(-50%);transform:translateY(-50%);
-  background:none;border:none;cursor:pointer;
-  font-size:1rem;padding:4px;color:#606770;line-height:1;
-  -webkit-tap-highlight-color:transparent;
-}
-
-/* ═══════════════════════════════════════════════════
-   BUTTONS
-═══════════════════════════════════════════════════ */
-.btn{
-  display:block;width:100%;
-  padding:14px 20px;
-  border:none;border-radius:6px;
-  font-size:1rem;font-weight:700;font-family:inherit;
-  cursor:pointer;text-align:center;
-  -webkit-tap-highlight-color:transparent;
-  outline:none;
-  -webkit-transition:opacity .15s,background .15s;transition:opacity .15s,background .15s;
-  -webkit-appearance:none;
-}
-.btn:active{opacity:.88;}
-.btn-primary{
-  background:#1877f2;color:#fff;margin-bottom:12px;
-}
-.btn-secondary{
-  background:#e7f3ff;color:#1877f2;margin-bottom:12px;
-}
-.btn-outline{
-  background:#fff;color:#1877f2;
-  border:1.5px solid #1877f2;
-  margin-bottom:12px;
-}
-.btn:disabled{opacity:.6;cursor:not-allowed;}
-
-/* ═══════════════════════════════════════════════════
-   ALERTS
-═══════════════════════════════════════════════════ */
-.alert{
-  display:none;padding:10px 12px;border-radius:6px;
-  font-size:.83rem;line-height:1.45;margin-bottom:14px;
-}
-.alert.show{display:block;}
-.alert-err{background:#fff2f2;border:1px solid #f5c6cb;color:#c0392b;}
-.alert-ok{background:#f0fff4;border:1px solid #b2dfdb;color:#1a7a4a;}
-
-/* ═══════════════════════════════════════════════════
-   DIVIDER
-═══════════════════════════════════════════════════ */
-.divider{
-  display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;
-  -webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;
-  gap:10px;margin:16px 0;
-}
-.divider:before,.divider:after{
-  content:'';-webkit-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1;height:1px;background:#dddfe2;
-}
-.divider span{font-size:.75rem;color:#bcc0c4;font-weight:600;white-space:nowrap;}
-
-/* ═══════════════════════════════════════════════════
-   LINKS & SMALL TEXT
-═══════════════════════════════════════════════════ */
-.link-row{
-  text-align:center;font-size:.83rem;color:#606770;
-  margin-top:14px;
-}
-.link-row a,.link-row button.text-link{
-  color:#1877f2;font-weight:700;
-  background:none;border:none;cursor:pointer;
-  font-size:inherit;font-family:inherit;padding:0;
-  -webkit-tap-highlight-color:transparent;
-}
-.link-row a:hover,.link-row button.text-link:hover{text-decoration:underline;}
-
-.forgot-link{
-  display:block;text-align:right;
-  color:#1877f2;font-size:.8rem;font-weight:600;
-  background:none;border:none;cursor:pointer;font-family:inherit;
-  -webkit-tap-highlight-color:transparent;margin-top:-6px;margin-bottom:14px;
-  padding:0;
-}
-.forgot-link:hover{text-decoration:underline;}
-
-/* ═══════════════════════════════════════════════════
-   BACK BUTTON — like Google
-═══════════════════════════════════════════════════ */
-.back-btn{
-  display:inline-block;background:none;border:none;cursor:pointer;
-  font-size:.83rem;color:#1877f2;font-weight:600;font-family:inherit;
-  padding:0;margin-bottom:16px;-webkit-tap-highlight-color:transparent;
-}
-.back-btn:hover{text-decoration:underline;}
-
-/* ═══════════════════════════════════════════════════
-   SCREEN TITLE (Login / Sign Up)
-═══════════════════════════════════════════════════ */
-.screen-title{
-  font-size:1.25rem;font-weight:800;color:#1c1e21;
-  margin-bottom:4px;
-}
-.screen-sub{
-  font-size:.85rem;color:#606770;margin-bottom:18px;
-}
-
-/* ═══════════════════════════════════════════════════
-   TERMS CHECKBOX
-═══════════════════════════════════════════════════ */
-.checkbox-row{
-  display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;
-  -webkit-box-align:start;-webkit-align-items:flex-start;-ms-flex-align:start;align-items:flex-start;
-  gap:10px;margin-bottom:16px;
-}
-.checkbox-row input[type=checkbox]{
-  margin-top:3px;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;
-  width:16px;height:16px;cursor:pointer;accent-color:#1877f2;
-}
-.checkbox-label{font-size:.8rem;color:#606770;line-height:1.45;}
-.checkbox-label a,.checkbox-label button.text-link{
-  color:#1877f2;font-weight:600;
-  background:none;border:none;cursor:pointer;
-  font-size:inherit;font-family:inherit;padding:0;
-}
-.terms-err{
-  display:none;font-size:.78rem;color:#c0392b;margin-top:-10px;margin-bottom:10px;
-}
-.terms-err.show{display:block;}
-
-/* ═══════════════════════════════════════════════════
-   SPINNER — works on all browsers
-═══════════════════════════════════════════════════ */
-@-webkit-keyframes spin{to{-webkit-transform:rotate(360deg);transform:rotate(360deg);}}
-@keyframes spin{to{-webkit-transform:rotate(360deg);transform:rotate(360deg);}}
-.spin{
-  display:inline-block;width:15px;height:15px;
-  border:2px solid rgba(255,255,255,.35);border-top-color:#fff;
-  border-radius:50%;vertical-align:middle;margin-right:7px;
-  -webkit-animation:spin .7s linear infinite;animation:spin .7s linear infinite;
-}
-
-/* ═══════════════════════════════════════════════════
-   MODAL OVERLAY — forgot password / terms
-═══════════════════════════════════════════════════ */
-.modal-overlay{
-  display:none;position:fixed;top:0;left:0;right:0;bottom:0;
-  background:rgba(0,0,0,.55);z-index:900;
-  -webkit-overflow-scrolling:touch;overflow-y:auto;
-  padding:20px 16px;
-}
-.modal-overlay.open{display:block;}
-.modal-box{
-  background:#fff;border-radius:8px;
-  max-width:460px;width:100%;margin:0 auto;
-  -webkit-box-shadow:0 4px 24px rgba(0,0,0,.2);box-shadow:0 4px 24px rgba(0,0,0,.2);
-  overflow:hidden;
-}
-.modal-header{
-  padding:18px 20px;border-bottom:1px solid #dddfe2;
-  display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;
-  -webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;
-  -webkit-box-pack:justify;-webkit-justify-content:space-between;-ms-flex-pack:justify;justify-content:space-between;
-}
-.modal-title{font-size:1rem;font-weight:800;color:#1c1e21;}
-.modal-close{
-  background:none;border:none;font-size:1.4rem;cursor:pointer;
-  color:#606770;line-height:1;padding:0;-webkit-tap-highlight-color:transparent;
-}
-.modal-body{padding:18px 20px;}
-.modal-body p{font-size:.85rem;color:#606770;margin-bottom:12px;line-height:1.6;}
-.modal-footer{padding:12px 20px;border-top:1px solid #dddfe2;text-align:right;}
-
-/* ═══════════════════════════════════════════════════
-   TERMS BODY (scrollable)
-═══════════════════════════════════════════════════ */
-.terms-scroll{
-  max-height:55vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
-  font-size:.82rem;color:#444;line-height:1.7;
-  padding-right:4px;
-}
-.terms-scroll h3{font-size:.85rem;color:#1c1e21;margin:14px 0 4px;font-weight:700;}
-.terms-scroll h4{font-size:.82rem;color:#1877f2;margin:10px 0 3px;font-weight:600;}
-.terms-scroll p{margin-bottom:6px;}
-.terms-scroll ul{padding-left:16px;margin-bottom:8px;}
-.terms-scroll li{margin:2px 0;}
-
-/* ═══════════════════════════════════════════════════
-   FOOTER LINKS
-═══════════════════════════════════════════════════ */
-.page-footer{
-  text-align:center;font-size:.76rem;color:#bcc0c4;
-  padding:24px 20px 0;max-width:432px;width:100%;
-}
-.page-footer a{color:#bcc0c4;text-decoration:underline;}
-
-/* ═══════════════════════════════════════════════════
-   RESET PASSWORD — special state
-═══════════════════════════════════════════════════ */
-.reset-expired{
-  display:none;padding:10px 12px;border-radius:6px;margin-bottom:12px;
-  background:#fff8e1;border:1px solid #ffe082;
-  font-size:.82rem;color:#795548;line-height:1.5;
-}
-.reset-expired.show{display:block;}
-
-/* ═══════════════════════════════════════════════════
-   LOADING SCREEN — shown while Supabase initialises
-═══════════════════════════════════════════════════ */
-#loading-screen{
-  position:fixed;top:0;left:0;right:0;bottom:0;
-  background:#fff;z-index:999;
-  display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;
-  -webkit-box-orient:vertical;-webkit-box-direction:normal;
-  -webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;
-  -webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;
-  -webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;
-  gap:16px;
-}
-.loader-ring{
-  width:40px;height:40px;
-  border:3px solid #e7f3ff;border-top-color:#1877f2;
-  border-radius:50%;
-  -webkit-animation:spin .9s linear infinite;animation:spin .9s linear infinite;
-}
-.loader-label{font-size:.85rem;color:#606770;font-weight:500;}
-
-/* ═══════════════════════════════════════════════════
-   TOAST NOTIFICATION
-═══════════════════════════════════════════════════ */
-#auth-toast{
-  display:none;position:fixed;
-  bottom:24px;left:50%;
-  -webkit-transform:translateX(-50%);-ms-transform:translateX(-50%);transform:translateX(-50%);
-  background:#323232;color:#fff;
-  padding:10px 18px;border-radius:6px;
-  font-size:.85rem;font-weight:500;
-  z-index:9999;white-space:nowrap;
-  -webkit-box-shadow:0 4px 12px rgba(0,0,0,.25);box-shadow:0 4px 12px rgba(0,0,0,.25);
-  max-width:calc(100vw - 32px);white-space:normal;text-align:center;
-}
-#auth-toast.show{display:block;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;min-height:100%;background:#060d2b;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#fff;-webkit-text-size-adjust:100%;}
+input,button{font-family:inherit;}
+input[type=text],input[type=email],input[type=password],input[type=tel]{-webkit-appearance:none;appearance:none;}
+@-webkit-keyframes spin{to{-webkit-transform:rotate(360deg);transform:rotate(360deg);}};
+@keyframes spin{to{transform:rotate(360deg);}};
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════
-     LOADING SCREEN (hidden once Supabase is ready)
-════════════════════════════════════════════════ -->
-<div id="loading-screen">
-  <div style="text-align:center;margin-bottom:8px;">
-    <div style="display:inline-block;width:48px;height:48px;border-radius:12px;background:#1877f2;color:#fff;font-size:24px;font-weight:900;line-height:48px;text-align:center;letter-spacing:-1px;">DB</div>
+<!-- ══ FORGOT PASSWORD OVERLAY ═══════════════════════════════════════════ -->
+<div id="forgot-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:200;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+  <div style="min-height:100%;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;padding:20px 16px;">
+    <div style="width:100%;max-width:360px;background:#0d1a4a;border-radius:16px;padding:24px 20px;border:1px solid rgba(255,255,255,0.1);">
+      <div style="font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:6px;">Reset Password 🔑</div>
+      <div style="font-size:.82rem;color:#94a3b8;margin-bottom:16px;">Enter your email and we'll send a reset link.</div>
+      <div id="forgot-ok" style="display:none;background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.4);color:#86efac;padding:10px 12px;border-radius:8px;font-size:.82rem;margin-bottom:12px;">✅ Reset link sent! Check your inbox.</div>
+      <div id="forgot-err" style="display:none;background:rgba(244,63,94,0.15);border:1px solid rgba(244,63,94,0.3);color:#fca5a5;padding:10px 12px;border-radius:8px;font-size:.82rem;margin-bottom:12px;"></div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:.8rem;color:#94a3b8;margin-bottom:6px;">Email Address</label>
+        <input id="fg-email" type="email" autocomplete="email" placeholder="you@example.com" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:13px 14px;color:#fff;font-size:.95rem;outline:none;-webkit-appearance:none;"/>
+      </div>
+      <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:10px;">
+        <button id="forgot-cancel-btn" onclick="closeForgot();return false;" style="-webkit-flex:1;flex:1;padding:12px;background:transparent;border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#94a3b8;font-size:.9rem;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;">Cancel</button>
+        <button id="forgot-send-btn" onclick="confirmForgot();return false;" style="-webkit-flex:1;flex:1;padding:12px;background:#6366f1;border:none;border-radius:10px;color:#fff;font-size:.9rem;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;">Send Link</button>
+      </div>
+    </div>
   </div>
-  <div class="loader-ring"></div>
-  <div class="loader-label">Loading DataBulge…</div>
 </div>
 
-<!-- ═══════════════════════════════════════════════
-     AUTH ROOT — all auth screens live here
-════════════════════════════════════════════════ -->
-<div id="auth-root" style="display:none;">
-
-  <!-- Brand header -->
-  <div class="brand">
-    <div class="brand-icon">DB</div>
-    <span class="brand-name">DataBulge</span>
-    <span class="brand-tagline">Installment data plans — pay small small 📲</span>
-  </div>
-
-  <!-- ─── CARD ─────────────────────────────────── -->
-  <div class="auth-card">
-
-    <!-- ══ WELCOME SCREEN ══ -->
-    <div id="scr-welcome" class="screen active">
-      <div class="welcome-title">Welcome to DataBulge</div>
-      <div class="welcome-sub">Buy mobile data and pay in daily installments. No stress.</div>
-      <button class="btn btn-primary" id="welcome-login-btn" type="button">Log In</button>
-      <div class="divider"><span>OR</span></div>
-      <button class="btn btn-secondary" id="welcome-signup-btn" type="button">Create New Account</button>
-    </div>
-
-    <!-- ══ LOGIN SCREEN ══ -->
-    <div id="scr-login" class="screen">
-      <button class="back-btn" id="login-back-btn" type="button">← Back</button>
-      <div class="screen-title">Log In</div>
-      <div class="screen-sub">Enter your DataBulge email and password</div>
-
-      <div id="login-err" class="alert alert-err"></div>
-
-      <div class="form-group">
-        <label class="form-label" for="li-email">Email address</label>
-        <input id="li-email" class="form-input" type="email" autocomplete="email" placeholder="you@example.com" inputmode="email"/>
+<!-- ══ TERMS OVERLAY ══════════════════════════════════════════════════════ -->
+<div id="terms-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:201;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+  <div style="min-height:100%;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:flex-start;align-items:flex-start;-webkit-justify-content:center;justify-content:center;padding:20px 16px;">
+    <div style="width:100%;max-width:420px;background:#0d1a4a;border-radius:16px;border:1px solid rgba(255,255,255,0.1);overflow:hidden;">
+      <div style="padding:16px 18px;border-bottom:1px solid rgba(255,255,255,0.1);">
+        <div style="font-size:1rem;font-weight:700;">DataBulge Terms &amp; Conditions</div>
+        <div style="font-size:.75rem;color:#94a3b8;margin-top:2px;">Vortexedge Limited · RC 9193139 · v1.0</div>
       </div>
-      <div class="form-group">
-        <label class="form-label" for="li-pass">Password</label>
-        <div class="pass-wrap">
-          <input id="li-pass" class="form-input" type="password" autocomplete="current-password" placeholder="Your password"/>
-          <button class="eye-btn" id="li-eye-btn" type="button" aria-label="Show password">👁</button>
+      <div style="padding:16px 18px;font-size:.82rem;color:#cbd5e1;line-height:1.7;max-height:60vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+        <div style="background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.3);border-radius:8px;padding:10px 12px;color:#fca5a5;font-weight:600;margin-bottom:14px;">⚠️ Please read carefully before creating your account.</div>
+        <b style="color:#fff;">1. WHAT DATABULGE IS</b><p style="margin:6px 0 12px;">DataBulge is a technology platform by Vortexedge Limited (RC 9193139) for purchasing mobile data bundles via installment payments. No data is delivered until full payment is completed.</p>
+        <b style="color:#fff;">2. WHAT DATABULGE IS NOT</b><p style="margin:6px 0 12px;background:rgba(99,102,241,0.12);border-left:3px solid #6366f1;padding:8px 12px;border-radius:4px;">DataBulge is <b style="color:#fff;">NOT</b> a financial institution, savings platform, investment vehicle, or thrift collector. Zero ROI, interest, yield, or profit-sharing of any kind.</p>
+        <b style="color:#fff;">3. HOW IT WORKS</b><p style="margin:6px 0 12px;">Fund your wallet via Paystack. Once your wallet reaches the full plan cost, your data bundle is delivered automatically.</p>
+        <b style="color:#fff;">4. SURCHARGE</b><p style="margin:6px 0 12px;">5% for 7-day payment cycles. 10% for 28-day cycles. Non-refundable once subscription is created.</p>
+        <b style="color:#fff;">5. REFUND POLICY</b><p style="margin:6px 0 12px;">Delivery failures trigger automatic wallet refund within 4 minutes. Refunds go to DataBulge wallet only. Delivered data is non-refundable.</p>
+        <b style="color:#fff;">6. ELIGIBILITY</b><p style="margin:6px 0 12px;">Must be 18+. One account per person. Accurate information required.</p>
+        <b style="color:#fff;">7. GOVERNING LAW</b><p style="margin:6px 0 12px;">Nigerian law. Lagos courts. Contact: support@databulge.com</p>
+        <p style="margin-top:16px;color:#64748b;font-size:.75rem;">© 2026 Vortexedge Limited. RC 9193139. All rights reserved.</p>
+      </div>
+      <div style="padding:14px 18px;border-top:1px solid rgba(255,255,255,0.1);display:-webkit-box;display:-webkit-flex;display:flex;gap:10px;">
+        <button id="terms-agree-btn" onclick="acceptTerms();return false;" style="-webkit-flex:1;flex:1;padding:12px;background:#25D366;border:none;border-radius:10px;color:#fff;font-size:.9rem;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;">I Agree ✓</button>
+        <button id="terms-close-btn" onclick="closeTermsModal();return false;" style="-webkit-flex:1;flex:1;padding:12px;background:transparent;border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#94a3b8;font-size:.9rem;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN AUTH CONTAINER ════════════════════════════════════════════════ -->
+<div style="width:100%;min-height:100vh;background:#060d2b;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+  <div style="min-height:100vh;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;padding:24px 16px;">
+    <div style="width:100%;max-width:400px;">
+
+      <!-- BRAND -->
+      <div style="text-align:center;margin-bottom:28px;">
+        <div style="font-size:2rem;font-weight:900;color:#25D366;letter-spacing:-1px;line-height:1;">DataBulge</div>
+        <div style="font-size:.85rem;color:#64748b;margin-top:4px;">Pay small small. Get data now.</div>
+      </div>
+
+      <!-- PANEL: WELCOME -->
+      <div id="auth-welcome" style="background:#0d1a4a;border-radius:20px;padding:28px 22px;border:1px solid rgba(255,255,255,0.08);">
+        <div style="text-align:center;margin-bottom:24px;">
+          <div style="font-size:2.5rem;margin-bottom:8px;">✓</div>
+          <div style="font-size:1.15rem;font-weight:800;color:#fff;margin-bottom:6px;">Welcome to DataBulge</div>
+          <div style="font-size:.85rem;color:#94a3b8;line-height:1.5;">You don't have to pay for data at once!<br><b style="color:#fff;">Start small. Stay connected.</b></div>
         </div>
+        <button id="welcome-login-btn" onclick="showLoginScreen();return false;" style="display:block;width:100%;padding:16px;margin-bottom:12px;background:linear-gradient(135deg,#7dd3fc,#6366f1);border:none;border-radius:14px;color:#fff;font-size:1rem;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;">Login</button>
+        <button id="welcome-signup-btn" onclick="showSignupScreen();return false;" style="display:block;width:100%;padding:16px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.35);border-radius:14px;color:#a5b4fc;font-size:1rem;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;">Create an Account</button>
+        <div style="text-align:center;margin-top:14px;font-size:.75rem;color:#475569;">Flexible data access for everyday users.</div>
       </div>
 
-      <button class="forgot-link" id="forgot-link-btn" type="button">Forgot password?</button>
-
-      <button class="btn btn-primary" id="li-btn" type="button">Log In</button>
-
-      <div class="link-row">
-        Don't have an account? <button class="text-link" id="login-to-signup-btn" type="button">Create one</button>
-      </div>
-    </div>
-
-    <!-- ══ SIGN UP SCREEN ══ -->
-    <div id="scr-signup" class="screen">
-      <button class="back-btn" id="signup-back-btn" type="button">← Back</button>
-      <div class="screen-title">Create Account</div>
-      <div class="screen-sub">It's quick and easy</div>
-
-      <div id="su-err" class="alert alert-err"></div>
-      <div id="su-ok" class="alert alert-ok">✅ Account created! Check your email to confirm before signing in.</div>
-
-      <div class="form-group">
-        <label class="form-label" for="su-name">Full name</label>
-        <input id="su-name" class="form-input" type="text" autocomplete="name" placeholder="Your full name" inputmode="text"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="su-phone">Phone number</label>
-        <input id="su-phone" class="form-input" type="tel" autocomplete="tel" placeholder="08012345678" inputmode="tel"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="su-email">Email address</label>
-        <input id="su-email" class="form-input" type="email" autocomplete="email" placeholder="you@example.com" inputmode="email"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="su-pass">Password</label>
-        <div class="pass-wrap">
-          <input id="su-pass" class="form-input" type="password" autocomplete="new-password" placeholder="Min. 6 characters"/>
-          <button class="eye-btn" id="su-eye-btn" type="button" aria-label="Show password">👁</button>
+      <!-- PANEL: LOGIN -->
+      <div id="auth-login" style="display:none;background:#0d1a4a;border-radius:20px;padding:28px 22px;border:1px solid rgba(255,255,255,0.08);">
+        <button onclick="showWelcomeScreen();return false;" style="background:none;border:none;color:#6366f1;font-size:.85rem;font-weight:600;cursor:pointer;padding:0;margin-bottom:16px;-webkit-tap-highlight-color:transparent;outline:none;">← Back</button>
+        <div style="font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:4px;">Login to DataBulge</div>
+        <div style="font-size:.82rem;color:#64748b;margin-bottom:20px;">Welcome back! Sign in to continue.</div>
+        <div id="login-err" style="display:none;background:rgba(244,63,94,0.15);border:1px solid rgba(244,63,94,0.3);color:#fca5a5;padding:10px 12px;border-radius:8px;font-size:.82rem;margin-bottom:14px;"></div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:.8rem;color:#94a3b8;margin-bottom:6px;">Email Address</label>
+          <input id="li-email" type="email" autocomplete="email" placeholder="you@example.com" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:13px 14px;color:#fff;font-size:.95rem;outline:none;-webkit-appearance:none;"/>
         </div>
+        <div style="margin-bottom:8px;">
+          <label style="display:block;font-size:.8rem;color:#94a3b8;margin-bottom:6px;">Password</label>
+          <div style="position:relative;">
+            <input id="li-pass" type="password" autocomplete="current-password" placeholder="Your password" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:13px 44px 13px 14px;color:#fff;font-size:.95rem;outline:none;-webkit-appearance:none;"/>
+            <button onclick="toggleEye('li-pass',this);return false;" style="position:absolute;right:12px;top:50%;-webkit-transform:translateY(-50%);transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:#64748b;font-size:1rem;-webkit-tap-highlight-color:transparent;outline:none;">👁</button>
+          </div>
+        </div>
+        <div style="text-align:right;margin-bottom:18px;">
+          <button id="forgot-link-btn" onclick="openForgot();return false;" style="background:none;border:none;color:#6366f1;font-size:.8rem;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent;outline:none;">Forgot password?</button>
+        </div>
+        <button id="li-btn" onclick="doLogin();return false;" style="display:block;width:100%;padding:15px;margin-bottom:14px;background:linear-gradient(135deg,#7dd3fc,#6366f1);border:none;border-radius:14px;color:#fff;font-size:1rem;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;">Sign In</button>
+        <div style="text-align:center;font-size:.82rem;color:#64748b;">Don't have an account? <button onclick="showSignupScreen();return false;" style="background:none;border:none;color:#6366f1;font-size:.82rem;font-weight:700;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent;outline:none;">Create one</button></div>
       </div>
 
-      <div class="checkbox-row">
-        <input type="checkbox" id="su-terms"/>
-        <label class="checkbox-label" for="su-terms">
-          I agree to the <button class="text-link" id="terms-open-btn" type="button">Terms &amp; Conditions</button>
-        </label>
+      <!-- PANEL: SIGNUP -->
+      <div id="auth-signup" style="display:none;background:#0d1a4a;border-radius:20px;padding:28px 22px;border:1px solid rgba(255,255,255,0.08);">
+        <button onclick="showWelcomeScreen();return false;" style="background:none;border:none;color:#6366f1;font-size:.85rem;font-weight:600;cursor:pointer;padding:0;margin-bottom:16px;-webkit-tap-highlight-color:transparent;outline:none;">← Back</button>
+        <div style="font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:4px;">Create your account</div>
+        <div style="font-size:.82rem;color:#64748b;margin-bottom:20px;">Open your DataBulge account in minutes.</div>
+        <div id="su-err" style="display:none;background:rgba(244,63,94,0.15);border:1px solid rgba(244,63,94,0.3);color:#fca5a5;padding:10px 12px;border-radius:8px;font-size:.82rem;margin-bottom:14px;"></div>
+        <div id="su-ok" style="display:none;background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.4);color:#86efac;padding:10px 12px;border-radius:8px;font-size:.82rem;margin-bottom:14px;">✅ Account created. Check your email to confirm before signing in.</div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:.8rem;color:#94a3b8;margin-bottom:6px;">Full Name</label>
+          <input id="su-name" type="text" autocomplete="name" placeholder="e.g. Chukwuemeka Obi" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:13px 14px;color:#fff;font-size:.95rem;outline:none;-webkit-appearance:none;"/>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:.8rem;color:#94a3b8;margin-bottom:6px;">Phone Number</label>
+          <input id="su-phone" type="tel" autocomplete="tel" placeholder="e.g. 08012345678" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:13px 14px;color:#fff;font-size:.95rem;outline:none;-webkit-appearance:none;"/>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:.8rem;color:#94a3b8;margin-bottom:6px;">Email Address</label>
+          <input id="su-email" type="email" autocomplete="email" placeholder="you@example.com" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:13px 14px;color:#fff;font-size:.95rem;outline:none;-webkit-appearance:none;"/>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:.8rem;color:#94a3b8;margin-bottom:6px;">Password</label>
+          <div style="position:relative;">
+            <input id="su-pass" type="password" autocomplete="new-password" placeholder="Min. 6 characters" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:13px 44px 13px 14px;color:#fff;font-size:.95rem;outline:none;-webkit-appearance:none;"/>
+            <button onclick="toggleEye('su-pass',this);return false;" style="position:absolute;right:12px;top:50%;-webkit-transform:translateY(-50%);transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:#64748b;font-size:1rem;-webkit-tap-highlight-color:transparent;outline:none;">👁</button>
+          </div>
+        </div>
+        <div style="margin-bottom:8px;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:flex-start;align-items:flex-start;gap:10px;">
+          <input type="checkbox" id="su-terms" style="width:18px;height:18px;min-width:18px;margin-top:2px;accent-color:#25D366;cursor:pointer;"/>
+          <span style="font-size:.8rem;color:#94a3b8;line-height:1.5;">I have read and agree to the <button id="terms-open-btn" onclick="openTermsModal();return false;" style="background:none;border:none;color:#6366f1;font-size:.8rem;font-weight:700;cursor:pointer;padding:0;text-decoration:underline;-webkit-tap-highlight-color:transparent;outline:none;">DataBulge Terms and Conditions</button>. This platform is <b style="color:#fff;">NOT</b> an investment platform.</span>
+        </div>
+        <div id="su-terms-err" style="display:none;color:#fca5a5;font-size:.78rem;margin-bottom:10px;padding:6px 10px;background:rgba(244,63,94,0.1);border-radius:6px;">⚠️ You must agree to the Terms and Conditions to create an account.</div>
+        <button id="su-btn" onclick="doSignup();return false;" style="display:block;width:100%;padding:15px;margin-bottom:14px;background:linear-gradient(135deg,#7dd3fc,#6366f1);border:none;border-radius:14px;color:#fff;font-size:1rem;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;">Create an Account</button>
+        <div style="text-align:center;font-size:.82rem;color:#64748b;">Already have an account? <button onclick="showLoginScreen();return false;" style="background:none;border:none;color:#6366f1;font-size:.82rem;font-weight:700;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent;outline:none;">Login</button></div>
       </div>
-      <div id="su-terms-err" class="terms-err">Please accept the Terms &amp; Conditions to continue.</div>
 
-      <button class="btn btn-primary" id="su-btn" type="button">Create Account</button>
-
-      <div class="link-row">
-        Already have an account? <button class="text-link" id="signup-to-login-btn" type="button">Log In</button>
-      </div>
-    </div>
-
-    <!-- ══ RESET PASSWORD SCREEN ══ -->
-    <div id="scr-reset" class="screen">
-      <div class="screen-title">Set New Password</div>
-      <div class="screen-sub">Choose a strong password for your account</div>
-
-      <div id="reset-err" class="alert alert-err"></div>
-      <div id="reset-ok" class="alert alert-ok"></div>
-      <div id="reset-expired" class="reset-expired">
-        ⚠️ This reset link has expired. <button class="text-link" id="req-new-link-btn" type="button" style="color:#795548;font-weight:700;">Request a new one</button>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="reset-pass">New password</label>
-        <input id="reset-pass" class="form-input" type="password" autocomplete="new-password" placeholder="Min. 6 characters"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="reset-confirm">Confirm password</label>
-        <input id="reset-confirm" class="form-input" type="password" autocomplete="new-password" placeholder="Repeat password"/>
+      <!-- PANEL: RESET PASSWORD -->
+      <div id="auth-reset" style="display:none;background:#0d1a4a;border-radius:20px;padding:28px 22px;border:1px solid rgba(255,255,255,0.08);">
+        <button onclick="showLoginScreen();return false;" style="background:none;border:none;color:#6366f1;font-size:.85rem;font-weight:600;cursor:pointer;padding:0;margin-bottom:16px;-webkit-tap-highlight-color:transparent;outline:none;">← Back to Login</button>
+        <div style="font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:4px;">Set New Password 🔒</div>
+        <div style="font-size:.82rem;color:#64748b;margin-bottom:20px;">Choose a strong new password for your account.</div>
+        <div id="reset-expired" style="display:none;background:rgba(244,63,94,0.15);border:1px solid rgba(244,63,94,0.3);color:#fca5a5;padding:12px;border-radius:8px;font-size:.82rem;text-align:center;margin-bottom:14px;">⏱️ This reset link has <b>expired</b>.<br><span style="font-size:.75rem;opacity:.8;">Reset links expire after 1 hour.</span></div>
+        <div id="reset-err" style="display:none;background:rgba(244,63,94,0.15);border:1px solid rgba(244,63,94,0.3);color:#fca5a5;padding:10px 12px;border-radius:8px;font-size:.82rem;margin-bottom:14px;"></div>
+        <div id="reset-ok" style="display:none;background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.4);color:#86efac;padding:10px 12px;border-radius:8px;font-size:.82rem;margin-bottom:14px;">✅ Password updated! Signing you in…</div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:.8rem;color:#94a3b8;margin-bottom:6px;">New Password</label>
+          <input id="reset-pass" type="password" autocomplete="new-password" placeholder="Min. 6 characters" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:13px 14px;color:#fff;font-size:.95rem;outline:none;-webkit-appearance:none;"/>
+        </div>
+        <div style="margin-bottom:18px;">
+          <label style="display:block;font-size:.8rem;color:#94a3b8;margin-bottom:6px;">Confirm New Password</label>
+          <input id="reset-confirm" type="password" autocomplete="new-password" placeholder="Repeat password" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:13px 14px;color:#fff;font-size:.95rem;outline:none;-webkit-appearance:none;"/>
+        </div>
+        <button id="reset-btn" onclick="confirmNewPassword();return false;" style="display:block;width:100%;padding:15px;background:linear-gradient(135deg,#7dd3fc,#6366f1);border:none;border-radius:14px;color:#fff;font-size:1rem;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;">Save New Password</button>
       </div>
 
-      <button class="btn btn-primary" id="reset-btn" type="button">Save New Password</button>
-      <button class="back-btn" id="reset-back-btn" type="button" style="display:block;text-align:center;width:100%;margin-bottom:0;margin-top:4px;">← Back to Log In</button>
-    </div>
-
-  </div><!-- /.auth-card -->
-
-  <!-- Page footer -->
-  <div class="page-footer">
-    DataBulge by <a href="https://vortexedge.com" target="_blank" rel="noopener">Vortexedge Limited</a> · Nigeria
-  </div>
-</div><!-- /#auth-root -->
-
-<!-- Toast -->
-<div id="auth-toast"></div>
-
-<!-- ═══════════════════════════════════════════════
-     FORGOT PASSWORD MODAL
-════════════════════════════════════════════════ -->
-<div class="modal-overlay" id="forgot-overlay">
-  <div class="modal-box">
-    <div class="modal-header">
-      <div class="modal-title">Reset Password</div>
-      <button class="modal-close" id="forgot-cancel-btn" type="button">&#215;</button>
-    </div>
-    <div class="modal-body">
-      <p>Enter your email and we'll send you a password reset link.</p>
-      <div id="forgot-err" class="alert alert-err"></div>
-      <div id="forgot-ok" class="alert alert-ok">✅ Reset link sent! Check your inbox (and spam folder).</div>
-      <div class="form-group">
-        <label class="form-label" for="fg-email">Email address</label>
-        <input id="fg-email" class="form-input" type="email" autocomplete="email" placeholder="you@example.com" inputmode="email"/>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" id="forgot-send-btn" type="button" style="display:inline-block;width:auto;padding:10px 24px;margin:0;">Send Reset Link</button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════
-     TERMS & CONDITIONS MODAL
-════════════════════════════════════════════════ -->
-<div class="modal-overlay" id="terms-overlay">
-  <div class="modal-box">
-    <div class="modal-header">
-      <div class="modal-title">Terms &amp; Conditions</div>
-      <button class="modal-close" id="terms-close-btn" type="button">&#215;</button>
-    </div>
-    <div class="modal-body">
-      <div class="terms-scroll" id="terms-body">
-        <h3>1. INTRODUCTION</h3>
-        <p>Welcome to DataBulge, a service of Vortexedge Limited ("we", "us", "our"). By creating an account or using our platform, you agree to these Terms &amp; Conditions in full.</p>
-
-        <h3>2. SERVICE DESCRIPTION</h3>
-        <p>DataBulge is an installment-based mobile data purchasing platform. We allow users to subscribe to data plans and pay in daily installments over 7 or 28 days. A service surcharge applies to all installment plans.</p>
-
-        <h3>3. ELIGIBILITY</h3>
-        <p>To use DataBulge you must:</p>
-        <ul>
-          <li>Be at least 18 years of age, or have consent of a parent or guardian</li>
-          <li>Be a resident or legal user of mobile telecommunications services in Nigeria</li>
-          <li>Provide accurate, complete, and current information during registration</li>
-          <li>Have a valid Nigerian mobile phone number for data delivery</li>
-          <li>Have access to a valid payment method</li>
-        </ul>
-
-        <h3>4. ACCOUNT SECURITY</h3>
-        <p>When you register, you agree to:</p>
-        <ul>
-          <li>Create only one (1) account per person</li>
-          <li>Provide a valid email address and secure password</li>
-          <li>Keep your login credentials confidential</li>
-          <li>Notify us immediately if you suspect unauthorized access</li>
-        </ul>
-
-        <h3>5. HOW IT WORKS</h3>
-        <h4>5.1 Selecting a Plan</h4>
-        <p>Browse plans by data size (500MB–50GB), network (MTN, Airtel, Glo, T2), validity period, and payment duration.</p>
-        <h4>5.2 Installment Structure</h4>
-        <ul>
-          <li><strong>7-Day Plan:</strong> 5% surcharge. Total divided into daily installments over 7 days.</li>
-          <li><strong>28-Day Plan:</strong> 10% surcharge. Total divided into daily installments over 28 days.</li>
-        </ul>
-        <h4>5.3 Wallet &amp; Funding</h4>
-        <p>Each user maintains a personal wallet. Fund via bank transfer to your dedicated virtual account. Funds are held individually and applied automatically toward your active subscription.</p>
-        <h4>5.4 Data Delivery</h4>
-        <p>Once your wallet reaches the full plan amount, data is automatically purchased and delivered to your registered phone number. You will receive an in-app notification on delivery.</p>
-
-        <h3>6. REFUNDS &amp; CANCELLATIONS</h3>
-        <p>Surcharges are non-refundable once a subscription is created. Wallet balance refunds may be requested within 7 days of funding if no data delivery has been made. Contact support at support@databulge.com.</p>
-
-        <h3>7. PRIVACY</h3>
-        <p>We collect your name, email, phone number, wallet transaction history, and KYC information where applicable. Data is not shared with third parties except as required by law or to provide the service.</p>
-
-        <h3>8. PROHIBITED CONDUCT</h3>
-        <ul>
-          <li>Creating multiple accounts</li>
-          <li>Using the platform for fraudulent transactions</li>
-          <li>Attempting to circumvent our security systems</li>
-          <li>Abusing the refund process</li>
-        </ul>
-
-        <h3>9. GOVERNING LAW</h3>
-        <p>These terms are governed by the laws of the Federal Republic of Nigeria. Disputes shall be resolved in Nigerian courts.</p>
-
-        <h3>10. CONTACT</h3>
-        <p>Email: support@databulge.com · Website: www.databulge.com</p>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" id="terms-agree-btn" type="button" style="display:inline-block;width:auto;padding:10px 24px;margin:0;">I Agree</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════
-     JAVASCRIPT
-     
-     Rules for max compatibility:
-     - NO arrow functions, NO const/let, NO template literals
-     - NO async/await (use .then chains for old Android)
-     - NO destructuring, NO spread, NO optional chaining
-     - NO import/export
-     All polyfills applied first
-════════════════════════════════════════════════ -->
+<!-- ══ SCRIPTS ════════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-'use strict';
-
-/* ── POLYFILLS ─────────────────────────────────────────────────────────
-   Covers Android 4.4 KitKat (Chrome 30) through modern devices
-──────────────────────────────────────────────────────────────────────── */
-
-// Promise — needed on Android 4.4
-if (typeof Promise === 'undefined') {
-  // Minimal Promise shim
-  window.Promise = function(exec) {
-    var self = this;
-    self._state = 'pending';
-    self._value = undefined;
-    self._callbacks = [];
-    function resolve(val) {
-      if (self._state !== 'pending') return;
-      self._state = 'fulfilled'; self._value = val;
-      for (var i = 0; i < self._callbacks.length; i++) self._callbacks[i](val);
-    }
-    function reject(reason) {
-      if (self._state !== 'pending') return;
-      self._state = 'rejected'; self._value = reason;
-      for (var i = 0; i < self._ebacks.length; i++) self._ebacks[i](reason);
-    }
-    self._ebacks = [];
-    try { exec(resolve, reject); } catch(e) { reject(e); }
-  };
-  window.Promise.prototype.then = function(onF, onR) {
-    var self = this;
-    return new Promise(function(res, rej) {
-      function handle(val) { try { res(onF ? onF(val) : val); } catch(e) { rej(e); } }
-      function handleR(r)  { try { res(onR ? onR(r)   : (function(){throw r;})() ); } catch(e) { rej(e); } }
-      if (self._state === 'fulfilled') setTimeout(function(){ handle(self._value); }, 0);
-      else if (self._state === 'rejected') setTimeout(function(){ handleR(self._value); }, 0);
-      else { self._callbacks.push(handle); self._ebacks.push(handleR); }
-    });
-  };
-  window.Promise.prototype.catch = function(onR) { return this.then(null, onR); };
-  window.Promise.resolve = function(v) { return new Promise(function(r){ r(v); }); };
-  window.Promise.reject  = function(v) { return new Promise(function(_, r){ r(v); }); };
-  window.Promise.all     = function(arr) {
-    return new Promise(function(res, rej) {
-      var results = [], count = 0, total = arr.length;
-      if (!total) { res([]); return; }
-      for (var i = 0; i < total; i++) {
-        (function(idx) {
-          Promise.resolve(arr[idx]).then(function(v) {
-            results[idx] = v;
-            if (++count === total) res(results);
-          }, rej);
-        })(i);
-      }
-    });
-  };
-}
-
-// Object.assign
-if (typeof Object.assign === 'undefined') {
-  Object.assign = function(target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var src = arguments[i];
-      if (src) for (var k in src) { if (Object.prototype.hasOwnProperty.call(src, k)) target[k] = src[k]; }
-    }
-    return target;
-  };
-}
-
-// Array.includes
-if (!Array.prototype.includes) {
-  Array.prototype.includes = function(v) { return this.indexOf(v) !== -1; };
-}
-
-// String.startsWith / endsWith
-if (!String.prototype.startsWith) {
-  String.prototype.startsWith = function(s) { return this.slice(0, s.length) === s; };
-}
-if (!String.prototype.endsWith) {
-  String.prototype.endsWith = function(s) { return this.slice(-s.length) === s; };
-}
-
-// NodeList.forEach
-if (typeof NodeList !== 'undefined' && !NodeList.prototype.forEach) {
-  NodeList.prototype.forEach = Array.prototype.forEach;
-}
-
-/* ── CONFIG ─────────────────────────────────────────────────────────── */
+// ── CONFIG ────────────────────────────────────────────────────────────────
 var SUPA_URL = 'https://dplxnpxxztkjczaoyetl.supabase.co';
 var ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRwbHhucHh4enRramN6YW95ZXRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5NzEwNTUsImV4cCI6MjA4ODU0NzA1NX0.Vhxv9UieuHwm4BBF9ziXPp8f5jeyka4m9sZbcQ_VlRQ';
+var FN       = SUPA_URL + '/functions/v1';
 
-var sb = null;
-var _recoveryAT = '', _recoveryRT = '';
+// ── POLYFILLS ─────────────────────────────────────────────────────────────
+if (!Promise.allSettled) {
+  Promise.allSettled = function(promises) {
+    return Promise.all(promises.map(function(p) {
+      return Promise.resolve(p).then(
+        function(v) { return { status:'fulfilled', value:v }; },
+        function(e) { return { status:'rejected',  reason:e }; }
+      );
+    }));
+  };
+}
 
-/* ── SAFE STORAGE ───────────────────────────────────────────────────── */
+// ── STORAGE ───────────────────────────────────────────────────────────────
 var _DB_STORAGE = (function() {
   var _mem = {};
   var _useLocal = false;
   try {
-    var _k = '__db_test__';
-    localStorage.setItem(_k, 'ok');
-    _useLocal = (localStorage.getItem(_k) === 'ok');
-    localStorage.removeItem(_k);
+    // EMUI 10: localStorage may exist but be backed by a broken context.
+    // We do TWO tests: write + read-back to verify round-trip integrity.
+    var _testKey = '__db_test__';
+    localStorage.setItem(_testKey, 'ok');
+    var _readBack = localStorage.getItem(_testKey);
+    localStorage.removeItem(_testKey);
+    _useLocal = (_readBack === 'ok');
   } catch(e) { _useLocal = false; }
+
   if (_useLocal) {
+    // Use real localStorage but wrap every call to catch mid-session failures
     return {
-      getItem:    function(k) { try { return localStorage.getItem(k); }    catch(e) { return _mem[k]||null; } },
-      setItem:    function(k,v){ try { localStorage.setItem(k,String(v)); } catch(e) { _mem[k]=String(v); } },
-      removeItem: function(k) { try { localStorage.removeItem(k); }         catch(e) { delete _mem[k]; } }
+      getItem: function(k) { try { return localStorage.getItem(k); } catch(e) { return _mem[k] || null; } },
+      setItem: function(k, v) { try { localStorage.setItem(k, String(v)); } catch(e) { _mem[k] = String(v); } },
+      removeItem: function(k) { try { localStorage.removeItem(k); } catch(e) { delete _mem[k]; } },
+      key: function(i) { try { return localStorage.key(i); } catch(e) { return Object.keys(_mem)[i] || null; } },
+      get length() { try { return localStorage.length; } catch(e) { return Object.keys(_mem).length; } },
+      clear: function() { try { localStorage.clear(); } catch(e) {} _mem = {}; }
+    };
+  } else {
+    // Pure in-memory fallback — session won't persist across page loads
+    // but auth will work correctly for the current session
+    return {
+      getItem: function(k) { return Object.prototype.hasOwnProperty.call(_mem, k) ? _mem[k] : null; },
+      setItem: function(k, v) { _mem[k] = String(v); },
+      removeItem: function(k) { delete _mem[k]; },
+      key: function(i) { return Object.keys(_mem)[i] || null; },
+      get length() { return Object.keys(_mem).length; },
+      clear: function() { _mem = {}; }
     };
   }
-  return {
-    getItem:    function(k) { return Object.prototype.hasOwnProperty.call(_mem,k) ? _mem[k] : null; },
-    setItem:    function(k,v){ _mem[k]=String(v); },
-    removeItem: function(k) { delete _mem[k]; }
-  };
 })();
 
-/* ── HELPERS ────────────────────────────────────────────────────────── */
-function $(id) { return document.getElementById(id); }
 
-function showToast(msg) {
-  var t = $('auth-toast');
-  if (!t) return;
-  t.textContent = msg;
-  t.className = 'show';
-  setTimeout(function(){ t.className = ''; }, 3200);
-}
 
-function showAlert(id, msg) {
-  var el = $(id);
-  if (!el) return;
-  el.textContent = msg;
-  el.className = 'alert ' + (id.indexOf('ok') !== -1 ? 'alert-ok' : 'alert-err') + ' show';
-}
-function hideAlert(id) {
-  var el = $(id);
-  if (el) el.className = 'alert ' + (id.indexOf('ok') !== -1 ? 'alert-ok' : 'alert-err');
-}
+// ── SUPABASE CLIENT ───────────────────────────────────────────────────────
+var sb;
+var me = null;
+var _recoveryAccessToken  = '';
+var _recoveryRefreshToken = '';
 
-function setBtnLoad(id, on, label) {
-  var b = $(id);
-  if (!b) return;
-  if (on) {
-    b._label = b.textContent;
-    b.innerHTML = '<span class="spin"></span>' + (label || 'Please wait…');
-    b.disabled = true;
-  } else {
-    b.textContent = label || b._label || 'Submit';
-    b.disabled = false;
-  }
-}
-
-function toggleEye(inputId, btnId) {
-  var inp = $(inputId), btn = $(btnId);
-  if (!inp) return;
-  if (inp.type === 'password') { inp.type = 'text'; if (btn) btn.textContent = '🙈'; }
-  else { inp.type = 'password'; if (btn) btn.textContent = '👁'; }
-}
-
-/* ── SCREEN NAVIGATION ──────────────────────────────────────────────── */
-var _screens = ['scr-welcome','scr-login','scr-signup','scr-reset'];
-
-function showScreen(id) {
-  for (var i = 0; i < _screens.length; i++) {
-    var el = $(_screens[i]);
-    if (el) el.className = 'screen' + (_screens[i] === id ? ' active' : '');
-  }
-}
-
-function showWelcomeScreen() { showScreen('scr-welcome'); }
-function showLoginScreen()   { showScreen('scr-login'); }
-function showSignupScreen()  { showScreen('scr-signup'); }
-function showResetScreen()   { showScreen('scr-reset'); }
-
-/* ── MODALS ─────────────────────────────────────────────────────────── */
-function openModal(id) {
-  var o = $(id);
-  if (o) { o.className = 'modal-overlay open'; o.scrollTop = 0; }
-}
-function closeModal(id) {
-  var o = $(id);
-  if (o) o.className = 'modal-overlay';
-}
-
-function openForgot() {
-  var liEmail = $('li-email'), fg = $('fg-email');
-  if (fg && liEmail) fg.value = liEmail.value || '';
-  hideAlert('forgot-err'); hideAlert('forgot-ok');
-  openModal('forgot-overlay');
-}
-
-/* ── AUTH ACTIONS ───────────────────────────────────────────────────── */
-function doLogin() {
-  var email = ($('li-email').value || '').trim();
-  var pass  = ($('li-pass').value  || '');
-  hideAlert('login-err');
-  if (!email || !pass) { showAlert('login-err', 'Please fill in your email and password.'); return; }
-  setBtnLoad('li-btn', true, 'Signing in…');
-  sb.auth.signInWithPassword({ email: email, password: pass })
-    .then(function(result) {
-      setBtnLoad('li-btn', false, 'Log In');
-      var err  = result ? result.error : null;
-      var data = result ? result.data  : null;
-      if (err) { showAlert('login-err', err.message || 'Login failed. Please try again.'); return; }
-      if (!data || !data.user) { showAlert('login-err', 'Login failed. Check your internet and try again.'); return; }
-      // ✅ Logged in — hand off to main app
-      onLoginSuccess(data.user, data.session);
-    })
-    .catch(function(e) {
-      setBtnLoad('li-btn', false, 'Log In');
-      showAlert('login-err', (e && e.message) ? e.message : 'Network error. Check your connection.');
-    });
-}
-
-function doSignup() {
-  var name  = ($('su-name').value  || '').trim();
-  var phone = ($('su-phone').value || '').trim();
-  var email = ($('su-email').value || '').trim();
-  var pass  = ($('su-pass').value  || '');
-  var termsBox = $('su-terms');
-  var termsErr = $('su-terms-err');
-
-  hideAlert('su-err'); hideAlert('su-ok');
-  if (termsErr) termsErr.className = 'terms-err';
-
-  if (!termsBox || !termsBox.checked) {
-    if (termsErr) termsErr.className = 'terms-err show';
-    return;
-  }
-  if (!name || !email || !pass) { showAlert('su-err', 'Name, email and password are required.'); return; }
-  if (pass.length < 6) { showAlert('su-err', 'Password must be at least 6 characters.'); return; }
-
-  setBtnLoad('su-btn', true, 'Creating account…');
-  sb.auth.signUp({
-    email: email,
-    password: pass,
-    options: { data: { full_name: name, phone: phone } }
-  }).then(function(result) {
-    setBtnLoad('su-btn', false, 'Create Account');
-    var err  = result ? result.error : null;
-    var data = result ? result.data  : null;
-    if (err) { showAlert('su-err', err.message || 'Sign up failed. Please try again.'); return; }
-    if (data && data.session) {
-      // Auto-confirmed (e.g. if email confirm is off in Supabase)
-      onLoginSuccess(data.user, data.session);
-    } else {
-      showAlert('su-ok', '✅ Account created! Check your email to confirm before signing in.');
-      var btn = $('su-btn');
-      if (btn) { btn.textContent = 'Account Created ✅'; btn.disabled = true; }
-      setTimeout(showLoginScreen, 3200);
-    }
-  }).catch(function(e) {
-    setBtnLoad('su-btn', false, 'Create Account');
-    showAlert('su-err', (e && e.message) ? e.message : 'Network error. Check your connection.');
-  });
-}
-
-function confirmForgot() {
-  var email = ($('fg-email').value || '').trim();
-  hideAlert('forgot-err'); hideAlert('forgot-ok');
-  if (!email) { showAlert('forgot-err', 'Please enter your email address.'); return; }
-  setBtnLoad('forgot-send-btn', true, 'Sending…');
-  var redirectTo = window.location.href.split('#')[0];
-  sb.auth.resetPasswordForEmail(email, { redirectTo: redirectTo })
-    .then(function(result) {
-      setBtnLoad('forgot-send-btn', false, 'Send Reset Link');
-      var err = result ? result.error : null;
-      if (err) { showAlert('forgot-err', err.message || 'Failed to send reset link.'); return; }
-      showAlert('forgot-ok', '✅ Reset link sent! Check your inbox and spam folder.');
-    })
-    .catch(function(e) {
-      setBtnLoad('forgot-send-btn', false, 'Send Reset Link');
-      showAlert('forgot-err', (e && e.message) ? e.message : 'Network error.');
-    });
-}
-
-function confirmNewPassword() {
-  var pass    = ($('reset-pass')    ? $('reset-pass').value    : '');
-  var confirm = ($('reset-confirm') ? $('reset-confirm').value : '');
-  hideAlert('reset-err'); hideAlert('reset-ok');
-  var exp = $('reset-expired'); if (exp) exp.className = 'reset-expired';
-
-  if (!pass || pass.length < 6) { showAlert('reset-err', 'Password must be at least 6 characters.'); return; }
-  if (pass !== confirm) { showAlert('reset-err', 'Passwords do not match.'); return; }
-
-  setBtnLoad('reset-btn', true, 'Saving…');
-
-  // Call the resetPassword edge function
-  var FN = SUPA_URL + '/functions/v1';
-  fetch(FN + '/resetPassword', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY },
-    body: '{"action":"update_password","password":"' + pass.replace(/"/g, '\\"') +
-          '","access_token":"' + _recoveryAT + '","refresh_token":"' + _recoveryRT + '"}'
-  }).then(function(res) {
-    return res.json().then(function(data) {
-      return { ok: res.ok, data: data };
-    });
-  }).then(function(r) {
-    setBtnLoad('reset-btn', false, 'Save New Password');
-    if (!r.ok || (r.data && r.data.error)) {
-      var errCode = r.data ? (r.data.error || '') : '';
-      if (errCode === 'otp_expired' || errCode === 'no_token') {
-        var expEl = $('reset-expired');
-        if (expEl) expEl.className = 'reset-expired show';
-      } else {
-        showAlert('reset-err', (r.data && r.data.message) ? r.data.message : 'Password update failed. Try again.');
-      }
-      return;
-    }
-    showAlert('reset-ok', '✅ Password updated! Signing you in…');
-    _recoveryAT = ''; _recoveryRT = '';
-    // If tokens returned, set session
-    if (r.data && r.data.access_token && r.data.refresh_token) {
-      sb.auth.setSession({ access_token: r.data.access_token, refresh_token: r.data.refresh_token })
-        .then(function(sr) {
-          var user = (sr && sr.data && sr.data.session) ? sr.data.session.user : (r.data.user || null);
-          setTimeout(function() { onLoginSuccess(user, sr && sr.data && sr.data.session); }, 1400);
-        })
-        .catch(function() { setTimeout(showLoginScreen, 1400); });
-    } else {
-      setTimeout(showLoginScreen, 1800);
-    }
-  }).catch(function(e) {
-    setBtnLoad('reset-btn', false, 'Save New Password');
-    showAlert('reset-err', 'Network error. Check your connection.');
-  });
-}
-
-/* ── POST-LOGIN HOOK ────────────────────────────────────────────────── */
-// Replace this function with whatever the main app needs.
-// In the full DataBulge app this calls bootApp() and navigates.
-function onLoginSuccess(user, session) {
-  // Store session info
-  if (session && session.access_token) {
-    try { _DB_STORAGE.setItem('databulge_sb_auth', JSON.stringify(session)); } catch(e) {}
-  }
-  // Example: redirect to main app page or call the parent app's boot function
-  if (typeof window.bootApp === 'function') {
-    // Integration with the main index.html app
-    window.me = user;
-    var authEl = document.getElementById('auth-screen') || document.getElementById('auth-root');
-    if (authEl) authEl.style.display = 'none';
-    var appEl = document.getElementById('app');
-    if (appEl) appEl.style.display = 'block';
-    window.bootApp().catch(function(err) {
-      console.warn('[Auth] bootApp error:', err);
-      showWelcomeScreen();
-    });
-  } else {
-    // Standalone: show a success state and reload
-    showToast('Welcome back! Loading your dashboard…');
-    setTimeout(function() { window.location.reload(); }, 1200);
-  }
-}
-
-/* ── URL PARSER (for password recovery emails) ──────────────────────── */
-function _parseAuthUrl() {
-  var result = { isRecovery: false, accessToken: '', refreshToken: '' };
-  try {
-    var raw = (window.location.hash || '').replace(/^#/, '');
-    if (raw) {
-      var params = {};
-      var parts = raw.split('&');
-      for (var i = 0; i < parts.length; i++) {
-        var eq = parts[i].indexOf('=');
-        if (eq > -1) {
-          var k = decodeURIComponent(parts[i].slice(0, eq));
-          var v = decodeURIComponent(parts[i].slice(eq + 1));
-          params[k] = v;
-        }
-      }
-      if (params['type'] === 'recovery' && params['access_token']) {
-        result.isRecovery   = true;
-        result.accessToken  = params['access_token'];
-        result.refreshToken = params['refresh_token'] || '';
-      }
-    }
-    // Query string fallback
-    var qs = window.location.search || '';
-    if (!result.isRecovery &&
-        (qs.indexOf('type=recovery') !== -1 || qs.indexOf('error_code=otp_expired') !== -1 || qs.indexOf('code=') !== -1)) {
-      result.isRecovery = true;
-    }
-    // Clean URL bar
-    if (result.accessToken || (raw && raw.indexOf('type=') !== -1)) {
-      try { window.history.replaceState({}, document.title, window.location.pathname + window.location.search); } catch(e) {}
-    }
-  } catch(e) { console.warn('[Auth] URL parse error:', e); }
-  return result;
-}
-
-/* ── SUPABASE CLIENT FACTORY ────────────────────────────────────────── */
 function _makeSupabaseClient() {
   var opts = {
     auth: {
@@ -1032,232 +245,251 @@ function _makeSupabaseClient() {
       flowType: 'implicit'
     }
   };
+  // Primary attempt — full options
   try {
     return window.supabase.createClient(SUPA_URL, ANON_KEY, opts);
   } catch(e1) {
+    console.warn('[Auth] createClient full-opts failed, retrying minimal:', e1);
+    // Fallback: minimal options for very old WebViews (Huawei EMUI 9-10)
     try {
       return window.supabase.createClient(SUPA_URL, ANON_KEY, {
         auth: { persistSession: false, autoRefreshToken: false, flowType: 'implicit' }
       });
     } catch(e2) {
+      console.error('[Auth] createClient minimal also failed:', e2);
       throw e2;
     }
   }
 }
 
-/* ── AUTH STATE LISTENER ────────────────────────────────────────────── */
-function _wireAuthEvents() {
-  if (!sb || !sb.auth) return;
-  sb.auth.onAuthStateChange(function(event, session) {
-    if (event === 'PASSWORD_RECOVERY') {
-      if (session && session.access_token) {
-        _recoveryAT = session.access_token;
-        _recoveryRT = session.refresh_token || '';
-      }
-      var loading = $('loading-screen');
-      var root    = $('auth-root');
-      if (loading) loading.style.display = 'none';
-      if (root)    root.style.display    = 'flex';
-      showResetScreen();
-    }
-    if (event === 'SIGNED_OUT') {
-      var root2 = $('auth-root');
-      if (root2) root2.style.display = 'flex';
-      showWelcomeScreen();
-    }
-  });
+
+function _initSupabase() {
+  if (typeof window.supabase === 'undefined') {
+    setTimeout(_initSupabase, 100);
+    return;
+  }
+  try { sb = _makeSupabaseClient(); } catch(e) {
+    try { sb = window.supabase.createClient(SUPA_URL, ANON_KEY); } catch(e2) {}
+  }
+  _checkRecoveryURL();
 }
 
-/* ── BUTTON BINDINGS ────────────────────────────────────────────────── */
-function _bind(id, fn) {
-  var el = $(id);
-  if (!el) return;
-  el.onclick = function(e) {
-    if (e && e.preventDefault) e.preventDefault();
-    if (e && e.stopPropagation) e.stopPropagation();
-    fn();
-    return false;
-  };
-}
+// ── PASSWORD RECOVERY URL HANDLER ─────────────────────────────────────────
+function _checkRecoveryURL() {
+  var hash  = window.location.hash   || '';
+  var query = window.location.search || '';
+  var combined = hash + '&' + query;
 
-function _wireButtons() {
-  _bind('welcome-login-btn',   showLoginScreen);
-  _bind('welcome-signup-btn',  showSignupScreen);
-  _bind('login-back-btn',      showWelcomeScreen);
-  _bind('signup-back-btn',     showWelcomeScreen);
-  _bind('reset-back-btn',      showLoginScreen);
-  _bind('login-to-signup-btn', showSignupScreen);
-  _bind('signup-to-login-btn', showLoginScreen);
-  _bind('forgot-link-btn',     openForgot);
-  _bind('forgot-cancel-btn',   function(){ closeModal('forgot-overlay'); });
-  _bind('forgot-send-btn',     confirmForgot);
-  _bind('terms-open-btn',      function(){ openModal('terms-overlay'); });
-  _bind('terms-agree-btn',     function(){
-    var cb = $('su-terms');
-    if (cb) cb.checked = true;
-    var te = $('su-terms-err');
-    if (te) te.className = 'terms-err';
-    closeModal('terms-overlay');
-  });
-  _bind('terms-close-btn',     function(){ closeModal('terms-overlay'); });
-  _bind('li-btn',              doLogin);
-  _bind('su-btn',              doSignup);
-  _bind('reset-btn',           confirmNewPassword);
-  _bind('req-new-link-btn',    function(){ closeModal('forgot-overlay'); openForgot(); });
-  _bind('li-eye-btn',          function(){ toggleEye('li-pass', 'li-eye-btn'); });
-  _bind('su-eye-btn',          function(){ toggleEye('su-pass', 'su-eye-btn'); });
+  // Extract tokens from URL
+  function _getParam(str, key) {
+    var m = str.match(new RegExp('[#&?]' + key + '=([^&]+)'));
+    return m ? decodeURIComponent(m[1]) : '';
+  }
 
-  // Enter key support
-  var liPass  = $('li-pass');
-  var liEmail = $('li-email');
-  var suPass  = $('su-pass');
-  var fgEmail = $('fg-email');
-  if (liEmail) liEmail.onkeydown = function(e) { if ((e||window.event).keyCode === 13) { var p=$('li-pass'); if(p)p.focus(); } };
-  if (liPass)  liPass.onkeydown  = function(e) { if ((e||window.event).keyCode === 13) doLogin(); };
-  if (suPass)  suPass.onkeydown  = function(e) { if ((e||window.event).keyCode === 13) doSignup(); };
-  if (fgEmail) fgEmail.onkeydown = function(e) { if ((e||window.event).keyCode === 13) confirmForgot(); };
+  var accessToken  = _getParam(combined, 'access_token');
+  var refreshToken = _getParam(combined, 'refresh_token');
+  var type         = _getParam(combined, 'type');
+  var code         = _getParam(combined, 'code');
 
-  // Close modals on backdrop click
-  var forgot  = $('forgot-overlay');
-  var termsOv = $('terms-overlay');
-  if (forgot)  forgot.onclick  = function(e) { if (e.target === forgot)  closeModal('forgot-overlay'); };
-  if (termsOv) termsOv.onclick = function(e) { if (e.target === termsOv) closeModal('terms-overlay');  };
-}
-
-/* ── MAIN INIT ──────────────────────────────────────────────────────── */
-function _initApp() {
-  if (!window.supabase || !window.supabase.createClient) {
-    setTimeout(_initApp, 80);
+  if (type === 'recovery' && accessToken) {
+    _recoveryAccessToken  = accessToken;
+    _recoveryRefreshToken = refreshToken;
+    sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+      .then(function() { showResetPasswordScreen(); })
+      .catch(function()  { showResetPasswordScreen(); });
     return;
   }
 
-  try {
-    sb = _makeSupabaseClient();
-    _wireAuthEvents();
-  } catch(e) {
-    console.error('[Auth] createClient failed:', e);
-    var loading = $('loading-screen');
-    var root    = $('auth-root');
-    if (loading) loading.style.display = 'none';
-    if (root)    root.style.display    = 'flex';
-    showWelcomeScreen();
-    return;
-  }
-
-  // Wire buttons once DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', _wireButtons);
-  } else {
-    _wireButtons();
-    setTimeout(_wireButtons, 300); // safety re-wire for old WebViews
-  }
-
-  var urlAuth = _parseAuthUrl();
-
-  // PATH 1: Recovery with tokens in URL hash
-  if (urlAuth.isRecovery && urlAuth.accessToken && urlAuth.refreshToken) {
-    _recoveryAT = urlAuth.accessToken;
-    _recoveryRT = urlAuth.refreshToken;
-    sb.auth.setSession({ access_token: urlAuth.accessToken, refresh_token: urlAuth.refreshToken })
-      .then(function() {
-        var loading = $('loading-screen');
-        var root    = $('auth-root');
-        if (loading) loading.style.display = 'none';
-        if (root)    root.style.display    = 'flex';
-        showResetScreen();
+  if (code) {
+    sb.auth.getSession()
+      .then(function(r) {
+        var session = r && r.data && r.data.session;
+        if (session) {
+          _recoveryAccessToken  = session.access_token  || '';
+          _recoveryRefreshToken = session.refresh_token || '';
+          showResetPasswordScreen();
+        }
       })
-      .catch(function() { showResetScreen(); });
+      .catch(function() {});
     return;
   }
 
-  // PATH 2: Recovery via PKCE / query string
-  if (urlAuth.isRecovery && !urlAuth.accessToken) {
-    sb.auth.getSession().then(function(result) {
-      var session = (result && result.data) ? result.data.session : null;
-      if (session && session.user && session.access_token) {
-        _recoveryAT = session.access_token;
-        _recoveryRT = session.refresh_token || '';
-      }
-      var loading = $('loading-screen');
-      var root    = $('auth-root');
-      if (loading) loading.style.display = 'none';
-      if (root)    root.style.display    = 'flex';
-      showResetScreen();
-    }).catch(function() {
-      var loading = $('loading-screen');
-      var root    = $('auth-root');
-      if (loading) loading.style.display = 'none';
-      if (root)    root.style.display    = 'flex';
-      showResetScreen();
-    });
+  // Clean URL so tokens don't persist in history
+  if (accessToken || code) {
+    try { window.history.replaceState(null, '', window.location.pathname); } catch(e) {}
+  }
+}
+
+// ── AUTH HELPERS ──────────────────────────────────────────────────────────
+function _showErr(id, msg) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(function() { el.style.display = 'none'; }, 5000);
+}
+function setAuthErr(which, msg) { _showErr(which + '-err', msg); }
+
+function setBtnLoad(id, on, label) {
+  var b = document.getElementById(id); if (!b) return;
+  if (on) {
+    b._lbl = b.textContent;
+    b.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;-webkit-animation:spin .7s linear infinite;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;"></span>';
+    b.disabled = true;
+  } else {
+    b.textContent = label || b._lbl || 'Submit';
+    b.disabled = false;
+  }
+}
+
+function toggleEye(inputId, btn) {
+  var inp = document.getElementById(inputId); if (!inp) return;
+  if (inp.type === 'password') { inp.type = 'text';     if (btn) btn.textContent = '🙈'; }
+  else                         { inp.type = 'password'; if (btn) btn.textContent = '👁'; }
+}
+
+// ── SCREEN SWITCHER ───────────────────────────────────────────────────────
+var _PANELS = ['auth-welcome','auth-login','auth-signup','auth-reset'];
+function _showPanel(id) {
+  for (var i = 0; i < _PANELS.length; i++) {
+    var el = document.getElementById(_PANELS[i]);
+    if (el) el.style.display = (_PANELS[i] === id) ? 'block' : 'none';
+  }
+  window.scrollTo(0, 0);
+}
+function showWelcomeScreen()       { _showPanel('auth-welcome'); }
+function showLoginScreen()         { _showPanel('auth-login');   }
+function showSignupScreen()        { _showPanel('auth-signup');  }
+function showResetPasswordScreen() { _showPanel('auth-reset');   }
+function flip(toLogin)             { _showPanel(toLogin ? 'auth-login' : 'auth-signup'); }
+
+// ── OVERLAYS ──────────────────────────────────────────────────────────────
+function openForgot() {
+  var e=document.getElementById('li-email'), f=document.getElementById('fg-email');
+  if(f && e) f.value = e.value || '';
+  var ok=document.getElementById('forgot-ok'), er=document.getElementById('forgot-err');
+  if(ok) ok.style.display='none'; if(er) er.style.display='none';
+  document.getElementById('forgot-overlay').style.display = 'block';
+}
+function closeForgot() { document.getElementById('forgot-overlay').style.display = 'none'; }
+
+async function confirmForgot() {
+  var email = (document.getElementById('fg-email').value || '').trim();
+  var ok=document.getElementById('forgot-ok'), er=document.getElementById('forgot-err');
+  if (!email) { if(er){er.textContent='Please enter your email.';er.style.display='block';} return; }
+  var btn = document.getElementById('forgot-send-btn');
+  if(btn){btn.textContent='...';btn.disabled=true;}
+  try {
+    var res = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href.split('#')[0] });
+    if (res.error) throw res.error;
+    if(ok) ok.style.display='block'; if(er) er.style.display='none';
+  } catch(e) {
+    if(er){er.textContent=e.message||'Failed to send reset link.';er.style.display='block';}
+  }
+  if(btn){btn.textContent='Send Link';btn.disabled=false;}
+}
+
+function openTermsModal()  { document.getElementById('terms-overlay').style.display='block';  }
+function closeTermsModal() { document.getElementById('terms-overlay').style.display='none';   }
+function acceptTerms() {
+  var cb=document.getElementById('su-terms'); if(cb) cb.checked=true;
+  var te=document.getElementById('su-terms-err'); if(te) te.style.display='none';
+  closeTermsModal();
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────
+async function doLogin() {
+  var email = (document.getElementById('li-email').value || '').trim();
+  var pass  = document.getElementById('li-pass').value || '';
+  if (!email || !pass) { setAuthErr('login','Fill in all fields'); return; }
+  setBtnLoad('li-btn', true);
+  var result;
+  try {
+    result = await Promise.race([
+      sb.auth.signInWithPassword({ email: email, password: pass }),
+      new Promise(function(_,rej){ setTimeout(function(){rej(new Error('Connection timed out. Check your internet.'));}, 15000); })
+    ]);
+  } catch(e) { setBtnLoad('li-btn',false,'Sign In'); setAuthErr('login',e.message||'Login failed'); return; }
+  setBtnLoad('li-btn', false, 'Sign In');
+  if (result.error) { setAuthErr('login', result.error.message); return; }
+  if (!result.data || !result.data.user) { setAuthErr('login','Login failed — please try again.'); return; }
+  me = result.data.user;
+  // Redirect to app
+  window.location.href = 'app.html';
+}
+
+// ── SIGNUP ────────────────────────────────────────────────────────────────
+async function doSignup() {
+  var name  = document.getElementById('su-name').value.trim();
+  var phone = document.getElementById('su-phone').value.trim();
+  var email = document.getElementById('su-email').value.trim();
+  var pass  = document.getElementById('su-pass').value;
+  var termsBox = document.getElementById('su-terms');
+  var termsErr = document.getElementById('su-terms-err');
+  if (!termsBox || !termsBox.checked) {
+    if(termsErr) termsErr.style.display='block';
     return;
   }
+  if(termsErr) termsErr.style.display='none';
+  if (!name||!email||!pass) { setAuthErr('su','Name, email & password required'); return; }
+  if (pass.length < 6)       { setAuthErr('su','Password must be 6+ characters');  return; }
+  setBtnLoad('su-btn', true);
+  var result;
+  try {
+    result = await Promise.race([
+      sb.auth.signUp({ email:email, password:pass, options:{ data:{ full_name:name, phone:phone } } }),
+      new Promise(function(_,rej){ setTimeout(function(){rej(new Error('Connection timed out. Check your internet.'));}, 15000); })
+    ]);
+  } catch(e) { setBtnLoad('su-btn',false,'Create an Account'); setAuthErr('su',e.message||'Signup failed'); return; }
+  setBtnLoad('su-btn', false, 'Create an Account');
+  if (result.error) { setAuthErr('su', result.error.message); return; }
+  if (result.data && result.data.session) {
+    // Auto-confirmed — go to app
+    window.location.href = 'app.html';
+  } else {
+    document.getElementById('su-ok').style.display = 'block';
+    var btn = document.getElementById('su-btn');
+    btn.textContent = 'Account Created ✅'; btn.disabled = true;
+  }
+}
 
-  // PATH 3: Normal boot — check for existing session
-  var _retried = false;
-  function _trySession() {
-    sb.auth.getSession().then(function(result) {
-      var session = (result && result.data && result.data.session) ? result.data.session : null;
-      if (session && session.user) {
-        // Already logged in — hand off immediately
-        onLoginSuccess(session.user, session);
-      } else if (!_retried) {
-        // Might be DB cold start — retry once after 3s
-        _retried = true;
-        setTimeout(function() {
-          sb.auth.getSession().then(function(r2) {
-            var s2 = (r2 && r2.data && r2.data.session) ? r2.data.session : null;
-            if (s2 && s2.user) {
-              onLoginSuccess(s2.user, s2);
-            } else {
-              _showAuthRoot();
-            }
-          }).catch(function() { _showAuthRoot(); });
-        }, 3000);
-      } else {
-        _showAuthRoot();
-      }
-    }).catch(function(err) {
-      var es = String(err);
-      if (!_retried && (es.indexOf('fetch') !== -1 || es.indexOf('network') !== -1)) {
-        _retried = true;
-        setTimeout(function() {
-          sb.auth.getSession().then(function(r) {
-            var s = (r && r.data && r.data.session) ? r.data.session : null;
-            if (s && s.user) onLoginSuccess(s.user, s);
-            else _showAuthRoot();
-          }).catch(function() { _showAuthRoot(); });
-        }, 4000);
-      } else {
-        _showAuthRoot();
-      }
+// ── RESET PASSWORD ────────────────────────────────────────────────────────
+async function confirmNewPassword() {
+  var pass    = document.getElementById('reset-pass').value;
+  var confirm = document.getElementById('reset-confirm').value;
+  if (!pass || pass.length < 6) { _showErr('reset-err','Password must be at least 6 characters.'); return; }
+  if (pass !== confirm)          { _showErr('reset-err','Passwords do not match.'); return; }
+  setBtnLoad('reset-btn', true);
+  try {
+    var res = await fetch(FN+'/resetPassword', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':ANON_KEY},
+      body:JSON.stringify({action:'update_password',password:pass,access_token:_recoveryAccessToken,refresh_token:_recoveryRefreshToken})
     });
+    var data={}; try{data=await res.json();}catch(e){}
+    setBtnLoad('reset-btn',false,'Save New Password');
+    if (!res.ok || data.error) {
+      var expEl=document.getElementById('reset-expired');
+      if ((data.error==='otp_expired'||data.error==='no_token') && expEl) expEl.style.display='block';
+      else _showErr('reset-err', data.message||data.error||'Password update failed.');
+      return;
+    }
+    document.getElementById('reset-ok').style.display = 'block';
+    setTimeout(function() { window.location.href = 'app.html'; }, 1500);
+  } catch(e) {
+    setBtnLoad('reset-btn',false,'Save New Password');
+    _showErr('reset-err','Network error. Please try again.');
   }
-
-  function _showAuthRoot() {
-    var loading = $('loading-screen');
-    var root    = $('auth-root');
-    if (loading) loading.style.display = 'none';
-    if (root)    root.style.display    = 'flex';
-    showWelcomeScreen();
-  }
-
-  _trySession();
 }
 
-// Start once DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', _initApp);
-} else {
-  _initApp();
-}
-
-// Also expose screen functions globally for any parent app integration
-window.showAuthWelcome  = showWelcomeScreen;
-window.showAuthLogin    = showLoginScreen;
-window.showAuthSignup   = showSignupScreen;
-window.showAuthReset    = showResetScreen;
-window.getAuthClient    = function() { return sb; };
+// ── ENTER KEY HANDLING ────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  var liPass  = document.getElementById('li-pass');
+  var liEmail = document.getElementById('li-email');
+  if (liPass)  liPass.onkeydown  = function(e){if((e||window.event).keyCode===13) doLogin();};
+  if (liEmail) liEmail.onkeydown = function(e){if((e||window.event).keyCode===13){var p=document.getElementById('li-pass');if(p)p.focus();}};
+  _initSupabase();
+});
 </script>
 </body>
 </html>
