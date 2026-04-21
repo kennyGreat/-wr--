@@ -1104,7 +1104,7 @@ html, body {
    Hides instantly if user is already logged in
 ═══════════════════════════════════════════════ */
 #landing-page {
-  display:block; /* visible by default; hidden when session found */
+  display:none; /* hidden by default; auth screen shown first */
   min-height:100vh;
   background:radial-gradient(circle at top, #0b1535, #050816);
   font-family:'Syne','DM Sans',Arial,sans-serif;
@@ -1285,7 +1285,7 @@ html, body {
 <!-- ══════════════════════════════════════
      AUTH SCREEN
 ══════════════════════════════════════ -->
-<div id="auth-screen" style="display:none;width:100%;min-height:100vh;background:#060d2b;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+<div id="auth-screen" style="display:flex;width:100%;min-height:100vh;background:#060d2b;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
   <!-- ══ FORGOT PASSWORD OVERLAY ══════════════════════════════════ -->
   <div id="forgot-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:200;">
@@ -2688,7 +2688,7 @@ function _authShow(id) {
 function showWelcomeScreen() {
   _authShow('auth-welcome');
   var authEl = document.getElementById('auth-screen');
-  if (authEl) { authEl.style.display = 'flex'; authEl.style.visibility = 'visible'; }
+  if (authEl) { authEl.style.display = 'block'; authEl.style.visibility = 'visible'; }
   var appEl = document.getElementById('app');
   if (appEl) appEl.style.display = 'none';
 }
@@ -2701,7 +2701,7 @@ function openApp() {
   var lp = document.getElementById('landing-page');
   var authEl = document.getElementById('auth-screen');
   function _reveal() {
-    if (authEl) { authEl.style.display = 'flex'; authEl.style.visibility = 'visible'; }
+    if (authEl) { authEl.style.display = 'block'; authEl.style.visibility = 'visible'; }
     showWelcomeScreen();
   }
   if (lp) {
@@ -2819,7 +2819,7 @@ async function confirmNewPassword(){
     window._recoveryAccessToken='';window._recoveryRefreshToken='';
     if(data.access_token&&data.refresh_token){try{var sr=await sb.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});if(sr&&sr.data&&sr.data.session&&sr.data.session.user)me=sr.data.session.user;}catch(e){}}
     if(!me&&data.user)me=data.user;
-    setTimeout(async function(){try{await bootApp();toast('🔒 Password updated!','success');await smartLandAfterBoot();}catch(e){document.getElementById('auth-screen').style.display='flex';showLoginScreen();}},1400);
+    setTimeout(async function(){try{await bootApp();toast('🔒 Password updated!','success');await smartLandAfterBoot();}catch(e){document.getElementById('auth-screen').style.display='block';showLoginScreen();}},1400);
   }catch(e){setBtnLoad('reset-btn',false,'Save New Password');if(errEl){errEl.textContent='Network error.';errEl.style.display='block';}}
 }
 
@@ -4725,16 +4725,16 @@ console.log('[DataBulge v3.0] All upgrades loaded successfully.');
 
 // __ UNUSED_PLACEHOLDER_
 
-// Called when session state is known — routes to landing or app
+// Called when session state is known — routes to auth or app
 function checkLandingGate(hasSession) {
   var landing = document.getElementById('landing-page');
   var authScr = document.getElementById('auth-screen');
   if (hasSession) {
-    // Logged in — skip landing, go straight to app
+    // Logged in — hide auth, hide landing, let bootApp show the app
     if (landing) landing.style.display = 'none';
-    if (authScr) authScr.style.display = '';
+    if (authScr) authScr.style.display = 'none';
   }
-  // Logged out — landing stays visible (it's the default), auth stays hidden
+  // Logged out — auth screen is already visible by default
 }
 </script>
 
