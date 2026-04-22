@@ -1097,89 +1097,6 @@ html, body {
     min-height: min(860px, calc(100dvh - 24px));
   }
 }
-
-
-/* ═══════════════════════════════════════════════
-   LANDING PAGE — shown to unauthenticated visitors
-   Hides instantly if user is already logged in
-═══════════════════════════════════════════════ */
-#landing-page {
-  display:block; /* visible by default; hidden when session found */
-  min-height:100vh;
-  background:radial-gradient(circle at top, #0b1535, #050816);
-  font-family:'Syne','DM Sans',Arial,sans-serif;
-  color:#fff;
-}
-.lp-wrap {
-  max-width:900px;
-  margin:auto;
-  padding:28px 20px 40px;
-}
-.lp-logo {
-  text-align:center;
-  margin-bottom:24px;
-}
-.lp-logo img {
-  width:72px;height:72px;
-  object-fit:cover;border-radius:16px;
-  box-shadow:0 10px 40px rgba(99,102,241,.45);
-}
-.lp-logo h2 {
-  margin:10px 0 0;
-  font-size:1.3rem;font-weight:800;
-  background:linear-gradient(135deg,#a5b4fc,#6ee7b7);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-}
-.lp-hero {
-  text-align:center;
-  padding:36px 20px;
-  border-radius:20px;
-  background:linear-gradient(135deg,rgba(99,102,241,.18),rgba(34,197,94,.09));
-  border:1px solid rgba(255,255,255,.12);
-}
-.lp-hero h1 {
-  font-size:1.8rem;font-weight:900;margin:0 0 12px;
-  background:linear-gradient(135deg,#fff,#a5b4fc);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-}
-.lp-hero p {
-  color:#cbd5ff;font-size:.97rem;line-height:1.6;margin:0 0 24px;
-}
-.lp-steps {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:12px;margin:0 0 28px;
-}
-.lp-step {
-  background:rgba(255,255,255,.06);
-  padding:14px 12px;border-radius:14px;
-  border:1px solid rgba(255,255,255,.1);
-  font-size:.88rem;font-weight:600;color:#e0e7ff;
-  text-align:center;
-}
-.lp-btns {
-  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
-}
-.lp-btn {
-  padding:13px 22px;border-radius:11px;
-  font-size:.95rem;font-weight:800;
-  text-decoration:none;cursor:pointer;border:none;
-  transition:transform .15s,box-shadow .15s;
-}
-.lp-btn:active{transform:scale(.97);}
-.lp-btn-primary {
-  background:#25D366;
-  color:#fff;
-  box-shadow:0 6px 24px rgba(37,211,102,.4);
-  letter-spacing:.08em;
-}
-.lp-btn-whatsapp {
-  background:#25D366;color:#062b12;
-}
-.lp-footer {
-  text-align:center;margin-top:28px;
-  font-size:.8rem;color:#94a3b8;
-}
 </style>
 
 <link rel="canonical" href="https://databulge.com/"/>
@@ -1244,14 +1161,12 @@ html, body {
 </head>
 <body>
 
-    </div>
-
-    <div class="lp-footer">&copy; Vortexedge Limited 2026</div>
-  </div>
-</div>
 
 <div id="toast-wrap"></div>
 
+<!-- ══════════════════════════════════════
+     AUTH SCREEN
+══════════════════════════════════════ -->
 <!-- ══════════════════════════════════════
      AUTH SCREEN — White/Blue (Facebook/Google style)
      Works on Android 4.4+, 2G/3G, all devices
@@ -3178,21 +3093,7 @@ function showSignupScreen()        { _authShow('a-scr-signup'); }
 function showResetPasswordScreen() { _authShow('a-scr-reset');  }
 function flip(toLogin)             { _authShow(toLogin ? 'a-scr-login' : 'a-scr-signup'); }
 
-function openApp() {
-  var lp = document.getElementById('landing-page');
-  var authEl = document.getElementById('auth-screen');
-  function _reveal() {
-    if (authEl) { authEl.style.display = 'block'; authEl.style.visibility = 'visible'; }
-    showWelcomeScreen();
-  }
-  if (lp) {
-    lp.style.transition = 'opacity .25s';
-    lp.style.opacity = '0';
-    setTimeout(function() { lp.style.display = 'none'; _reveal(); }, 260);
-  } else {
-    _reveal();
-  }
-}
+function openApp() { /* landing page removed — auth is now the first page */ }
 
 function openTermsModal()  { var o=document.getElementById('terms-overlay'); if(o) o.className='a-modal a-open'; }
 function closeTermsModal() { var o=document.getElementById('terms-overlay'); if(o) o.className='a-modal'; }
@@ -5224,14 +5125,13 @@ console.log('[DataBulge v3.0] All upgrades loaded successfully.');
 
 // Called when session state is known — routes to landing or app
 function checkLandingGate(hasSession) {
-  var landing = document.getElementById('landing-page');
+  // Landing page removed — auth is the first page for unauthenticated users
   var authScr = document.getElementById('auth-screen');
-  if (hasSession) {
-    // Logged in — skip landing, go straight to app
-    if (landing) landing.style.display = 'none';
-    if (authScr) authScr.style.display = '';
+  if (!hasSession) {
+    if (authScr) { authScr.style.display = 'block'; authScr.style.visibility = 'visible'; }
+    showWelcomeScreen();
   }
-  // Logged out — landing stays visible (it's the default), auth stays hidden
+  // hasSession=true: bootApp() handles showing the app, auth stays hidden
 }
 </script>
 
