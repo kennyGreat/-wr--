@@ -87,74 +87,6 @@ END SUPABASE NOTES
 -->
 
 <meta charset="UTF-8"/>
-<!-- LEGACY DETECTOR — runs before anything else loads.
-     Redirects old/weak browsers to legacy.html which uses ES5 + XHR only.
-     Criteria: Android 4–10 WebView, Chrome < 70, no Promise support,
-     no CSS custom properties, very low memory or explicit 2G/3G signal. -->
-<script>
-(function(){
-  try {
-    // 1. No Promise = definitely old (Android 4.4, old Samsung Internet)
-    if (typeof Promise === 'undefined') { location.replace('legacy.html'); return; }
-    // 2. No CSS custom property support = old engine
-    if (typeof CSS === 'undefined' || !CSS.supports || !CSS.supports('color','var(--x)')) { location.replace('legacy.html'); return; }
-    // 3. No fetch = old WebView (Android 4.4 - 5.x)
-    if (typeof fetch === 'undefined') { location.replace('legacy.html'); return; }
-    // 4. Android version detection via UA string
-    var ua = navigator.userAgent || '';
-    var m = ua.match(/Android (\d+)/);
-    if (m) {
-      var av = parseInt(m[1], 10);
-      // Android 10 and below → legacy (covers 4.4 through 10)
-      if (av <= 10) { location.replace('legacy.html'); return; }
-    }
-    // 5. Network API — if on 2G or very slow connection, use legacy
-    try {
-      var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-      if (conn && (conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g')) {
-        location.replace('legacy.html'); return;
-      }
-    } catch(e) {}
-    // 6. Very low device memory (less than 1GB) — use legacy
-    try {
-      if (navigator.deviceMemory && navigator.deviceMemory < 1) {
-        location.replace('legacy.html'); return;
-      }
-    } catch(e) {}
-  } catch(ignore) {}
-})();
-</script>
-<!-- CRITICAL: white background before JS loads — prevents navy flash on slow 3G/Android 8 -->
-<style>html,body{background:#fff!important;background-image:none!important;}body::before,body::after{display:none!important;}#auth-screen{display:block;background:#fff;}#app{display:none;}</style>
-<!-- ══ DEVICE DETECTION — redirect legacy devices to lite.html ══
-     Runs synchronously before any render, adds ~0ms on modern devices.
-     Redirects if: Android ≤10, very old WebView, or ES6 unsupported. -->
-<script>
-(function(){
-  var ua = navigator.userAgent || '';
-  // Already on lite.html — no redirect needed (safety guard)
-  if (window.location.pathname.indexOf('lite') !== -1) return;
-  // Check for explicit lite preference stored by user
-  try { if (localStorage.getItem('db_force_lite') === '1') { window.location.replace('lite.html'); return; } } catch(e) {}
-  // Android version check
-  var am = ua.match(/Android\s([0-9]+)\.?([0-9]*)/i);
-  if (am) {
-    var major = parseInt(am[1], 10) || 0;
-    // Android 10 and below → lite
-    if (major <= 10) { window.location.replace('lite.html'); return; }
-  }
-  // Very old Chrome/WebView (below v70 = pre-2018)
-  var cm = ua.match(/(?:Chrome|CrMo|CriOS)\/([0-9]+)/i);
-  if (cm && parseInt(cm[1], 10) < 70) { window.location.replace('lite.html'); return; }
-  // No ES6 support (const test)
-  try { new Function('const x=1')(); } catch(e) { window.location.replace('lite.html'); return; }
-  // No Promise support
-  if (typeof Promise === 'undefined') { window.location.replace('lite.html'); return; }
-  // No fetch support
-  if (typeof fetch === 'undefined') { window.location.replace('lite.html'); return; }
-})();
-</script>
-
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 <title>DataBulge — Installment Data Plans by Vortexedge Limited</title>
@@ -365,8 +297,11 @@ body::after {
 .student-tag{padding:2px 9px;border-radius:20px;font-size:.66rem;font-weight:800;
   background:var(--purple-bg);color:#c4b5fd;border:1px solid rgba(139,92,246,.3);}
 
-/* AUTH SCREEN — old dark theme removed */
-#auth-screen{ position:relative; z-index:1; }
+/* ═══════════════════════════════════════════════
+   AUTH SCREEN — Full Blue Immersion
+═══════════════════════════════════════════════ */
+#auth-screen{
+  display:flex;min-height:100vh;position:relative;z-index:1;}
 
 /* LEFT PANEL — same gorgeous gradient */
 .auth-left{
@@ -862,7 +797,16 @@ nav{
    DATABULGE WELCOME + AUTH OVERRIDES
 ═══════════════════════════════════════ */
 #auth-screen{
-  /* dark gradients removed — white auth UI takes over */
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(99,102,241,.34), transparent 28%),
+    radial-gradient(circle at 85% 85%, rgba(56,189,248,.18), transparent 30%),
+    radial-gradient(circle at 50% 50%, rgba(129,140,248,.06), transparent 45%),
+    linear-gradient(180deg, #04071a 0%, #060d2b 45%, #08103a 100%);
 }
 #auth-screen .auth-left,
 #auth-screen .auth-right{display:none!important;}
@@ -992,7 +936,16 @@ html, body {
 }
 
 #auth-screen{
-  /* old mobile auth overrides removed */
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  padding:
+    max(12px, env(safe-area-inset-top))
+    max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
+  align-items: center;
+  justify-content: center;
 }
 
 .db-auth-shell{
@@ -1109,7 +1062,13 @@ html, body {
 }
 
 @media (max-width: 380px){
-  #auth-screen{ /* small screen padding removed */ }
+  #auth-screen{
+    padding:
+      max(8px, env(safe-area-inset-top))
+      max(8px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+  }
   .db-phone{
     width: 100%;
     border-radius: 20px;
@@ -1137,6 +1096,89 @@ html, body {
   .db-phone{
     min-height: min(860px, calc(100dvh - 24px));
   }
+}
+
+
+/* ═══════════════════════════════════════════════
+   LANDING PAGE — shown to unauthenticated visitors
+   Hides instantly if user is already logged in
+═══════════════════════════════════════════════ */
+#landing-page {
+  display:block; /* visible by default; hidden when session found */
+  min-height:100vh;
+  background:radial-gradient(circle at top, #0b1535, #050816);
+  font-family:'Syne','DM Sans',Arial,sans-serif;
+  color:#fff;
+}
+.lp-wrap {
+  max-width:900px;
+  margin:auto;
+  padding:28px 20px 40px;
+}
+.lp-logo {
+  text-align:center;
+  margin-bottom:24px;
+}
+.lp-logo img {
+  width:72px;height:72px;
+  object-fit:cover;border-radius:16px;
+  box-shadow:0 10px 40px rgba(99,102,241,.45);
+}
+.lp-logo h2 {
+  margin:10px 0 0;
+  font-size:1.3rem;font-weight:800;
+  background:linear-gradient(135deg,#a5b4fc,#6ee7b7);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.lp-hero {
+  text-align:center;
+  padding:36px 20px;
+  border-radius:20px;
+  background:linear-gradient(135deg,rgba(99,102,241,.18),rgba(34,197,94,.09));
+  border:1px solid rgba(255,255,255,.12);
+}
+.lp-hero h1 {
+  font-size:1.8rem;font-weight:900;margin:0 0 12px;
+  background:linear-gradient(135deg,#fff,#a5b4fc);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.lp-hero p {
+  color:#cbd5ff;font-size:.97rem;line-height:1.6;margin:0 0 24px;
+}
+.lp-steps {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;margin:0 0 28px;
+}
+.lp-step {
+  background:rgba(255,255,255,.06);
+  padding:14px 12px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.1);
+  font-size:.88rem;font-weight:600;color:#e0e7ff;
+  text-align:center;
+}
+.lp-btns {
+  display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+}
+.lp-btn {
+  padding:13px 22px;border-radius:11px;
+  font-size:.95rem;font-weight:800;
+  text-decoration:none;cursor:pointer;border:none;
+  transition:transform .15s,box-shadow .15s;
+}
+.lp-btn:active{transform:scale(.97);}
+.lp-btn-primary {
+  background:#25D366;
+  color:#fff;
+  box-shadow:0 6px 24px rgba(37,211,102,.4);
+  letter-spacing:.08em;
+}
+.lp-btn-whatsapp {
+  background:#25D366;color:#062b12;
+}
+.lp-footer {
+  text-align:center;margin-top:28px;
+  font-size:.8rem;color:#94a3b8;
 }
 </style>
 
@@ -1202,677 +1244,207 @@ html, body {
 </head>
 <body>
 
+<!-- ═══════════════════════════════════════════════
+     LANDING PAGE — unauthenticated visitors only
+     Hides automatically if user is already logged in.
+     "Open App" button transitions to auth screen.
+═══════════════════════════════════════════════ -->
+<div id="landing-page">
+  <div class="lp-wrap">
+
+    <div class="lp-logo">
+      <img src="https://databulge.com/logo-512.png" alt="DataBulge Logo"/>
+      <h2>DataBulge</h2>
+    </div>
+
+    <div class="lp-hero">
+      <h1>Buy Data Now, Pay Small Small</h1>
+      <p>DataBulge helps you buy mobile data using installment payments.<br>
+         Instead of paying everything at once, you pay small small over time.</p>
+
+      <div class="lp-steps">
+        <div class="lp-step">1️⃣ Choose your data plan</div>
+        <div class="lp-step">2️⃣ Start paying small small</div>
+        <div class="lp-step">3️⃣ Track wallet &amp; subscriptions</div>
+        <div class="lp-step">4️⃣ Complete your payment</div>
+        <div class="lp-step">5️⃣ Stay connected easily</div>
+      </div>
+
+      <div class="lp-btns">
+        <button class="lp-btn lp-btn-primary" onclick="openApp()">OPEN APP</button>
+
+      </div>
+    </div>
+
+    <div class="lp-footer">&copy; Vortexedge Limited 2026</div>
+  </div>
+</div>
 
 <div id="toast-wrap"></div>
 
 <!-- ══════════════════════════════════════
      AUTH SCREEN
 ══════════════════════════════════════ -->
-<!-- ══════════════════════════════════════
-     AUTH SCREEN — White/Blue (Facebook/Google style)
-     Works on Android 4.4+, 2G/3G, all devices
-══════════════════════════════════════ -->
+<div id="auth-screen" style="display:none;">
+  <div class="db-auth-shell">
+    <div class="db-phone">
+      <div class="db-noise"></div>
+      <div class="db-topbar"><div class="db-notch"></div></div>
 
-<!-- ═══ AUTH GLOBAL STYLES ══════════════════════════════════════ -->
-<style>
-/* ── AUTH SCREEN — white background, works on Android 4.4+ ── */
-/* Override the dark body background when auth is the first visible element */
-body{background:#fff!important;background-image:none!important;}
-body::before,body::after{display:none!important;}
-#auth-screen{
-  display:block;
-  width:100%;min-height:100vh;
-  background:#fff;
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-  position:relative;
-  z-index:10;
-}
-/* When auth is active: white body (already set above) */
-/* When app is active: restore dark body */
-body.app-active{
-  background:var(--deep2)!important;
-  background-image:
-    radial-gradient(ellipse at 20% 0%,   rgba(67,56,202,.35) 0%,transparent 45%),
-    radial-gradient(ellipse at 80% 100%, rgba(56,189,248,.20) 0%,transparent 45%),
-    radial-gradient(ellipse at 50% 50%, rgba(99,102,241,.08) 0%,transparent 70%)!important;
-}
-body.app-active::before{display:block!important;}
-body.app-active::after{display:block!important;}
-
-/* ── AUTH LAYOUT ROOT ── */
-.a-root{
-  display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;
-  -webkit-box-orient:vertical;-webkit-box-direction:normal;
-  -webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;
-  -webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;
-  -webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;
-  min-height:100vh;
-  padding:0 0 28px;
-  background:#fff;
-}
-
-/* ── BRAND ── */
-.a-brand{
-  text-align:center;
-  padding:32px 20px 20px;
-  width:100%;max-width:432px;
-}
-.a-brand-icon{
-  display:inline-block;
-  width:52px;height:52px;border-radius:12px;
-  background:#1877f2;color:#fff;
-  font-size:22px;font-weight:900;
-  line-height:52px;text-align:center;
-  letter-spacing:-1px;margin-bottom:10px;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-.a-brand-name{
-  display:block;
-  font-size:1.65rem;font-weight:800;
-  color:#1877f2;letter-spacing:-.4px;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-.a-brand-tag{
-  display:block;margin-top:3px;
-  font-size:.88rem;color:#606770;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-
-/* ── CARD ── */
-.a-card{
-  width:100%;max-width:432px;
-  background:#fff;
-  margin:0 16px;
-  padding:24px 20px 18px;
-}
-@media(min-width:481px){
-  .a-card{
-    border:1px solid #dddfe2;
-    border-radius:8px;
-    -webkit-box-shadow:0 2px 4px rgba(0,0,0,.1),0 8px 16px rgba(0,0,0,.1);
-    box-shadow:0 2px 4px rgba(0,0,0,.1),0 8px 16px rgba(0,0,0,.1);
-  }
-}
-@media(max-width:480px){
-  .a-card{border:none;border-radius:0;padding:18px 16px 16px;margin:0;}
-}
-
-/* ── SCREENS ── */
-.a-screen{display:none;}
-.a-screen.a-active{display:block;}
-
-/* ── WELCOME ── */
-.a-welcome-title{
-  font-size:1.5rem;font-weight:800;color:#1c1e21;
-  text-align:center;margin-bottom:5px;letter-spacing:-.3px;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-.a-welcome-sub{
-  font-size:.88rem;color:#606770;text-align:center;
-  margin-bottom:20px;line-height:1.5;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-
-/* ── SCREEN HEADER ── */
-.a-screen-title{
-  font-size:1.2rem;font-weight:800;color:#1c1e21;
-  margin-bottom:3px;letter-spacing:-.2px;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-.a-screen-sub{
-  font-size:.83rem;color:#606770;margin-bottom:18px;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-
-/* ── BUTTONS ── */
-.a-btn{
-  display:block;width:100%;
-  padding:13px 20px;
-  border:none;border-radius:6px;
-  font-size:.97rem;font-weight:700;
-  cursor:pointer;text-align:center;
-  -webkit-tap-highlight-color:transparent;
-  outline:none;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-  -webkit-appearance:none;
-  margin-bottom:11px;
-}
-.a-btn-primary{background:#1877f2;color:#fff;}
-.a-btn-primary:disabled{opacity:.6;cursor:not-allowed;}
-.a-btn-secondary{background:#e7f3ff;color:#1877f2;}
-.a-back-btn{
-  display:inline-block;background:none;border:none;
-  color:#1877f2;font-size:.82rem;font-weight:600;
-  cursor:pointer;padding:0;margin-bottom:14px;
-  -webkit-tap-highlight-color:transparent;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-  outline:none;
-}
-
-/* ── FORM FIELDS ── */
-.a-field{margin-bottom:13px;}
-.a-label{
-  display:block;font-size:.79rem;font-weight:600;
-  color:#606770;margin-bottom:5px;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-.a-input{
-  display:block;width:100%;
-  padding:12px 13px;
-  border:1.5px solid #dddfe2;border-radius:6px;
-  font-size:.94rem;color:#1c1e21;
-  background:#fff;outline:none;
-  -webkit-appearance:none;-moz-appearance:none;
-  -webkit-transition:border-color .15s;transition:border-color .15s;
-  -webkit-box-sizing:border-box;box-sizing:border-box;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-.a-input:focus{border-color:#1877f2;}
-
-/* password eye wrapper */
-.a-pw-wrap{position:relative;}
-.a-pw-wrap .a-input{padding-right:44px;}
-.a-eye-btn{
-  position:absolute;right:11px;top:50%;
-  -webkit-transform:translateY(-50%);-ms-transform:translateY(-50%);transform:translateY(-50%);
-  background:none;border:none;cursor:pointer;
-  font-size:.95rem;padding:4px;color:#606770;
-  -webkit-tap-highlight-color:transparent;outline:none;
-  line-height:1;
-}
-
-/* ── ALERTS ── */
-.a-alert{
-  display:none;
-  padding:9px 12px;border-radius:6px;
-  font-size:.81rem;line-height:1.45;
-  margin-bottom:13px;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-.a-alert.a-show{display:block;}
-.a-alert-err{background:#fff2f2;border:1px solid #f5c6cb;color:#c0392b;}
-.a-alert-ok{background:#f0fff4;border:1px solid #b2dfdb;color:#1a7a4a;}
-
-/* ── DIVIDER ── */
-.a-divider{
-  display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;
-  -webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;
-  gap:10px;margin:14px 0;
-}
-.a-divider:before,.a-divider:after{
-  content:'';
-  -webkit-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1;
-  height:1px;background:#dddfe2;
-}
-.a-divider span{
-  font-size:.73rem;color:#bcc0c4;font-weight:600;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-
-/* ── LINK ROW ── */
-.a-link-row{
-  text-align:center;font-size:.81rem;color:#606770;
-  margin-top:13px;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-.a-link-row button,.a-text-link{
-  color:#1877f2;font-weight:700;
-  background:none;border:none;cursor:pointer;
-  font-size:inherit;padding:0;
-  -webkit-tap-highlight-color:transparent;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-.a-forgot-link{
-  display:block;text-align:right;
-  color:#1877f2;font-size:.79rem;font-weight:600;
-  background:none;border:none;cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-  margin-top:-6px;margin-bottom:13px;padding:0;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-
-/* ── CHECKBOX ROW ── */
-.a-check-row{
-  display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;
-  -webkit-box-align:flex-start;-webkit-align-items:flex-start;-ms-flex-align:flex-start;align-items:flex-start;
-  gap:9px;margin-bottom:14px;
-}
-.a-check-row input[type=checkbox]{
-  margin-top:3px;
-  width:15px;height:15px;
-  cursor:pointer;
-  -webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;
-}
-.a-check-label{
-  font-size:.79rem;color:#606770;line-height:1.45;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-.a-terms-err{
-  display:none;font-size:.77rem;color:#c0392b;
-  margin-top:-10px;margin-bottom:10px;
-}
-.a-terms-err.a-show{display:block;}
-
-/* ── SPINNER (CSS only — no SVG needed) ── */
-@-webkit-keyframes a-spin{to{-webkit-transform:rotate(360deg);transform:rotate(360deg);}}
-@keyframes a-spin{to{-webkit-transform:rotate(360deg);transform:rotate(360deg);}}
-.a-spin{
-  display:inline-block;
-  width:14px;height:14px;
-  border:2px solid rgba(255,255,255,.3);border-top-color:#fff;
-  border-radius:50%;vertical-align:middle;margin-right:6px;
-  -webkit-animation:a-spin .7s linear infinite;animation:a-spin .7s linear infinite;
-}
-
-/* ── MODAL ── */
-.a-modal{
-  display:none;
-  position:fixed;top:0;left:0;right:0;bottom:0;
-  background:rgba(0,0,0,.55);
-  z-index:900;
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-  padding:20px 14px;
-}
-.a-modal.a-open{display:block;}
-.a-modal-box{
-  background:#fff;border-radius:8px;
-  max-width:460px;width:100%;
-  margin:0 auto;
-  -webkit-box-shadow:0 4px 24px rgba(0,0,0,.22);box-shadow:0 4px 24px rgba(0,0,0,.22);
-  overflow:hidden;
-}
-.a-modal-hdr{
-  padding:16px 18px;border-bottom:1px solid #dddfe2;
-  display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;
-  -webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;
-  -webkit-box-pack:justify;-webkit-justify-content:space-between;-ms-flex-pack:justify;justify-content:space-between;
-}
-.a-modal-title{
-  font-size:.97rem;font-weight:800;color:#1c1e21;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-.a-modal-close{
-  background:none;border:none;font-size:1.35rem;
-  cursor:pointer;color:#606770;line-height:1;padding:0;
-  -webkit-tap-highlight-color:transparent;
-}
-.a-modal-body{padding:16px 18px;}
-.a-modal-footer{padding:12px 18px;border-top:1px solid #dddfe2;text-align:right;}
-
-/* ── TERMS SCROLL ── */
-.a-terms-scroll{
-  max-height:54vh;overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-  font-size:.8rem;color:#444;line-height:1.7;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-.a-terms-scroll h3{font-size:.83rem;color:#1c1e21;margin:13px 0 4px;font-weight:700;}
-.a-terms-scroll p{margin-bottom:6px;}
-.a-terms-scroll ul{padding-left:16px;margin-bottom:8px;}
-
-/* ── RESET EXPIRED ── */
-.a-reset-exp{
-  display:none;
-  padding:9px 12px;border-radius:6px;margin-bottom:12px;
-  background:#fff8e1;border:1px solid #ffe082;
-  font-size:.8rem;color:#795548;line-height:1.5;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-.a-reset-exp.a-show{display:block;}
-
-/* ── PAGE FOOTER ── */
-.a-footer{
-  text-align:center;font-size:.74rem;color:#bcc0c4;
-  padding:22px 20px 0;max-width:432px;width:100%;
-}
-.a-footer a{color:#bcc0c4;text-decoration:underline;}
-
-/* ── TOAST (reuse existing toast infra, but auth has its own) ── */
-#a-toast{
-  display:none;
-  position:fixed;bottom:22px;left:50%;
-  -webkit-transform:translateX(-50%);-ms-transform:translateX(-50%);transform:translateX(-50%);
-  background:#323232;color:#fff;
-  padding:9px 16px;border-radius:6px;
-  font-size:.83rem;font-weight:500;
-  z-index:9999;
-  max-width:calc(100vw - 28px);
-  text-align:center;
-  word-break:break-word;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-}
-#a-toast.a-show{display:block;}
-</style>
-
-<!-- ═══ AUTH SCREEN HTML ═══════════════════════════════════════ -->
-<div id="auth-screen">
-<div class="a-root">
-
-  <!-- Brand -->
-  <div class="a-brand">
-    <div class="a-brand-icon">DB</div>
-    <span class="a-brand-name">DataBulge</span>
-    <span class="a-brand-tag">Installment data plans — pay small small 📲</span>
-  </div>
-
-  <!-- Card -->
-  <div class="a-card">
-
-    <!-- WELCOME -->
-    <div id="a-scr-welcome" class="a-screen a-active">
-      <div class="a-welcome-title">Welcome to DataBulge</div>
-      <div class="a-welcome-sub">Buy mobile data and pay in daily installments. No stress, no wahala.</div>
-      <button class="a-btn a-btn-primary" id="a-welcome-login" type="button">Log In</button>
-      <div class="a-divider"><span>OR</span></div>
-      <button class="a-btn a-btn-secondary" id="a-welcome-signup" type="button">Create New Account</button>
-    </div>
-
-    <!-- LOGIN -->
-    <div id="a-scr-login" class="a-screen">
-      <button class="a-back-btn" id="a-login-back" type="button">← Back</button>
-      <div class="a-screen-title">Log In</div>
-      <div class="a-screen-sub">Enter your DataBulge email and password</div>
-      <div id="a-login-err" class="a-alert a-alert-err"></div>
-      <div class="a-field">
-        <label class="a-label" for="li-email">Email address</label>
-        <input id="li-email" class="a-input" type="email" autocomplete="email" placeholder="you@example.com" inputmode="email"/>
-      </div>
-      <div class="a-field">
-        <label class="a-label" for="li-pass">Password</label>
-        <div class="a-pw-wrap">
-          <input id="li-pass" class="a-input" type="password" autocomplete="current-password" placeholder="Your password"/>
-          <button class="a-eye-btn" id="li-eye-btn" type="button">👁</button>
+      <section id="welcome-screen" class="db-screen">
+        <div class="db-brand-row">
+          <div class="db-brand-mark"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/4SusRXhpZgAATU0AKgAAAAgABgALAAIAAAAmAAAIYgESAAMAAAABAAEAAAExAAIAAAAmAAAIiAEyAAIAAAAUAAAIrodpAAQAAAABAAAIwuocAAcAAAgMAAAAVgAAEUYc6gAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFdpbmRvd3MgUGhvdG8gRWRpdG9yIDEwLjAuMTAwMTEuMTYzODQAV2luZG93cyBQaG90byBFZGl0b3IgMTAuMC4xMDAxMS4xNjM4NAAyMDI2OjAyOjI2IDIxOjA3OjIyAAAGkAMAAgAAABQAABEckAQAAgAAABQAABEwkpEAAgAAAAMwMAAAkpIAAgAAAAMwMAAAoAEAAwAAAAEAAQAA6hwABwAACAwAAAkQAAAAABzqAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAyNjowMjowMSAxNzoxNzozOAAyMDI2OjAyOjAxIDE3OjE3OjM4AAAAAAYBAwADAAAAAQAGAAABGgAFAAAAAQAAEZQBGwAFAAAAAQAAEZwBKAADAAAAAQAC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ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8P3hwYWNrZXQgZW5kPSd3Jz8+/9sAQwADAgIDAgIDAwMDBAMDBAUIBQUEBAUKBwcGCAwKDAwLCgsLDQ4SEA0OEQ4LCxAWEBETFBUVFQwPFxgWFBgSFBUU/9sAQwEDBAQFBAUJBQUJFA0LDRQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU/8AAEQgBGgE4AwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeo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" alt="DataBulge logo"/></div>
+          <div class="db-brand">Data<span>Bulge</span></div>
         </div>
-      </div>
-      <button class="a-forgot-link" id="a-forgot-link-btn" type="button">Forgot password?</button>
-      <button class="a-btn a-btn-primary" id="li-btn" type="button">Log In</button>
-      <div class="a-link-row">Don't have an account? <button class="a-text-link" id="a-login-to-signup" type="button">Create one</button></div>
-    </div>
+        <div class="db-welcome">
+          <div class="db-hero-icon">✓</div>
+          <h1 class="db-headline">Welcome to DataBulge</h1>
+          <p class="db-subline">You don’t have to pay for data at once! <strong>Start small. Stay connected.</strong></p>
+          <div class="db-cta-stack">
+            <button class="db-main-btn primary" onclick="showLoginScreen()">Login</button>
+            <button class="db-main-btn secondary" onclick="showSignupScreen()">Create an Account</button>
 
-    <!-- SIGNUP -->
-    <div id="a-scr-signup" class="a-screen">
-      <button class="a-back-btn" id="a-signup-back" type="button">← Back</button>
-      <div class="a-screen-title">Create Account</div>
-      <div class="a-screen-sub">It's quick and easy</div>
-      <div id="a-su-err" class="a-alert a-alert-err"></div>
-      <div id="su-ok" class="a-alert a-alert-ok">✅ Account created! Check your email to confirm before signing in.</div>
-      <div class="a-field">
-        <label class="a-label" for="su-name">Full name</label>
-        <input id="su-name" class="a-input" type="text" autocomplete="name" placeholder="Your full name" inputmode="text"/>
-      </div>
-      <div class="a-field">
-        <label class="a-label" for="su-phone">Phone number</label>
-        <input id="su-phone" class="a-input" type="tel" autocomplete="tel" placeholder="08012345678" inputmode="tel"/>
-      </div>
-      <div class="a-field">
-        <label class="a-label" for="su-email">Email address</label>
-        <input id="su-email" class="a-input" type="email" autocomplete="email" placeholder="you@example.com" inputmode="email"/>
-      </div>
-      <div class="a-field">
-        <label class="a-label" for="su-pass">Password</label>
-        <div class="a-pw-wrap">
-          <input id="su-pass" class="a-input" type="password" autocomplete="new-password" placeholder="Min. 6 characters"/>
-          <button class="a-eye-btn" id="su-eye-btn" type="button">👁</button>
+          </div>
+          <div class="db-micro-copy">Flexible data access for everyday users.</div>
         </div>
-      </div>
-      <div class="a-check-row">
-        <input type="checkbox" id="su-terms"/>
-        <label class="a-check-label" for="su-terms">I have read and agree to the <button class="a-text-link" id="terms-open-btn" type="button">DataBulge Terms &amp; Conditions</button>. This platform is <strong>NOT</strong> an investment platform.</label>
-      </div>
-      <div id="su-terms-err" class="a-terms-err">⚠️ Please accept the Terms &amp; Conditions to continue.</div>
-      <button class="a-btn a-btn-primary" id="su-btn" type="button">Create Account</button>
-      <div class="a-link-row">Already have an account? <button class="a-text-link" id="a-signup-to-login" type="button">Log In</button></div>
-    </div>
+      </section>
 
-    <!-- RESET PASSWORD -->
-    <div id="a-scr-reset" class="a-screen">
-      <div class="a-screen-title">Set New Password 🔒</div>
-      <div class="a-screen-sub">Choose a strong new password for your account</div>
-      <div id="reset-err" class="a-alert a-alert-err"></div>
-      <div id="reset-ok" class="a-alert a-alert-ok"></div>
-      <div id="reset-expired" class="a-reset-exp">⏱️ This reset link has <strong>expired</strong>. <button class="a-text-link" id="a-req-new-link" type="button" style="color:#795548;font-weight:700;">Request a new one</button></div>
-      <div class="a-field">
-        <label class="a-label" for="reset-pass">New password</label>
-        <input id="reset-pass" class="a-input" type="password" autocomplete="new-password" placeholder="Min. 6 characters"/>
-      </div>
-      <div class="a-field">
-        <label class="a-label" for="reset-confirm">Confirm password</label>
-        <input id="reset-confirm" class="a-input" type="password" autocomplete="new-password" placeholder="Repeat password"/>
-      </div>
-      <button class="a-btn a-btn-primary" id="reset-btn" type="button">Save New Password</button>
-      <button class="a-back-btn" id="reset-back-btn" type="button" style="display:block;text-align:center;width:100%;margin-bottom:0;margin-top:4px;">← Back to Log In</button>
-    </div>
+      <section id="login-card" class="db-screen hide">
+        <div class="db-auth-card">
+          <div class="db-back" onclick="showWelcomeScreen()">← Back</div>
+          <h2 class="db-auth-title">Login to DataBulge</h2>
+          <p class="db-auth-sub">Welcome back. Continue where you left off and manage your data your own way.</p>
+          <div id="login-err" class="auth-err hide"></div>
 
-  </div><!-- /.a-card -->
+          <div class="field">
+            <label>Email Address</label>
+            <input type="email" id="li-email" placeholder="you@example.com" autocomplete="email"/>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="li-pass" placeholder="Enter your password" autocomplete="current-password"/>
+              <span class="eye" onclick="toggleEye('li-pass',this)">👁</span>
+            </div>
+          </div>
+          <div class="auth-row">
+            <div class="remember-row" onclick="toggleRemember()">
+              <div class="rem-box" id="rem-box"></div>
+              <div class="rem-lbl">Remember me</div>
+            </div>
+            <button class="forgot-link" onclick="openForgot()">Forgot password?</button>
+          </div>
 
-  <div class="a-footer">DataBulge by <a href="https://vortexedge.com" target="_blank" rel="noopener">Vortexedge Limited</a> · Nigeria</div>
+          <button class="btn btn-primary btn-full" id="li-btn" onclick="doLogin()">Login</button>
+          <div class="db-divider">or</div>
 
-</div><!-- /.a-root -->
-</div><!-- /#auth-screen -->
+          <div class="db-switch">Don’t have an account? <a onclick="showSignupScreen()">Create one</a></div>
+        </div>
+      </section>
 
-<!-- FORGOT PASSWORD MODAL -->
-<div class="a-modal" id="forgot-overlay">
-  <div class="a-modal-box">
-    <div class="a-modal-hdr">
-      <div class="a-modal-title">Reset Password 🔑</div>
-      <button class="a-modal-close" id="forgot-cancel-btn" type="button">&#215;</button>
-    </div>
-    <div class="a-modal-body">
-      <p style="font-size:.83rem;color:#606770;margin-bottom:12px;font-family:-apple-system,sans-serif;">Enter your email and we'll send you a reset link.</p>
-      <div id="forgot-err" class="a-alert a-alert-err"></div>
-      <div id="forgot-ok" class="a-alert a-alert-ok">✅ Reset link sent! Check your inbox and spam folder.</div>
-      <div class="a-field">
-        <label class="a-label" for="fg-email">Email address</label>
-        <input id="fg-email" class="a-input" type="email" autocomplete="email" placeholder="you@example.com" inputmode="email"/>
-      </div>
-    </div>
-    <div class="a-modal-footer">
-      <button class="a-btn a-btn-primary" id="forgot-send-btn" type="button" style="display:inline-block;width:auto;padding:10px 22px;margin:0;">Send Reset Link</button>
+      <section id="signup-card" class="db-screen hide">
+        <div class="db-auth-card">
+          <div class="db-back" onclick="showWelcomeScreen()">← Back</div>
+          <h2 class="db-auth-title">Create your account</h2>
+          <p class="db-auth-sub">Open your DataBulge account in minutes and enjoy flexible access without paying everything at once.</p>
+          <div id="su-err" class="auth-err hide"></div>
+          <div id="su-ok" class="auth-ok hide">✅ Account created. Check your email to confirm before signing in.</div>
+
+          <div class="field">
+            <label>Full Name</label>
+            <input type="text" id="su-name" placeholder="e.g. Chukwuemeka Obi" autocomplete="name"/>
+          </div>
+          <div class="field">
+            <label>Phone Number</label>
+            <input type="tel" id="su-phone" placeholder="e.g. 08012345678" autocomplete="tel"/>
+          </div>
+          <div class="field">
+            <label>Email Address</label>
+            <input type="email" id="su-email" placeholder="you@example.com" autocomplete="email"/>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="su-pass" placeholder="Min. 6 characters" autocomplete="new-password"/>
+              <span class="eye" onclick="toggleEye('su-pass',this)">👁</span>
+            </div>
+          </div>
+
+          </div>
+
+          <!-- Terms & Conditions — must be ticked before signup -->
+          <div class="field" style="margin:12px 0 4px;">
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;line-height:1.4;">
+              <input type="checkbox" id="su-terms" style="
+                width:18px;height:18px;min-width:18px;margin-top:2px;
+                accent-color:#25D366;cursor:pointer;
+              "/>
+              <span style="font-size:.8rem;color:#94a3b8;">
+                I have read and agree to the
+                <a id="terms-link" href="#" onclick="openTermsModal();return false;"
+                   style="color:#6366f1;font-weight:700;text-decoration:underline;">
+                  DataBulge Terms and Conditions
+                </a>.
+                I understand this platform is for purchasing mobile data bundles and is
+                <strong style="color:#fff;">NOT</strong> an investment or savings platform.
+              </span>
+            </label>
+          </div>
+          <div id="su-terms-err" style="display:none;color:#fca5a5;font-size:.78rem;margin:4px 0 8px;padding:6px 10px;background:rgba(244,63,94,.1);border-radius:6px;">
+            ⚠️ You must agree to the Terms and Conditions to create an account.
+          </div>
+
+          <button class="btn btn-primary btn-full" id="su-btn" onclick="doSignup()">Create an Account</button>
+          <div class="db-divider">or</div>
+
+          <div class="db-hint"></div>
+          <div class="db-switch">Already have an account? <a onclick="showLoginScreen()">Login</a></div>
+        </div>
+      </section>
+
+      <!-- ══ RESET PASSWORD SCREEN ══ -->
+      <section id="reset-password-screen" class="db-screen hide">
+        <div class="db-auth-card">
+          <div class="db-back" id="reset-back-btn" onclick="showWelcomeScreen()" style="display:none">← Back to Login</div>
+          <h2 class="db-auth-title">Set New Password 🔒</h2>
+          <p class="db-auth-sub">Choose a strong new password for your DataBulge account.</p>
+          <div id="reset-expired" class="auth-err hide" style="text-align:center;padding:14px">
+            ⏱️ This reset link has <strong>expired</strong>.<br>
+            <span style="font-size:.8rem;opacity:.8">Reset links expire after 1 hour.</span><br>
+            <button onclick="showWelcomeScreen();setTimeout(function(){document.getElementById('forgot-link-btn') && document.getElementById('forgot-link-btn').click();openForgot();},100)" 
+              style="margin-top:10px;background:rgba(244,63,94,.2);border:1px solid rgba(244,63,94,.4);color:#fca5a5;padding:8px 16px;border-radius:8px;font-family:inherit;font-size:.8rem;font-weight:700;cursor:pointer">
+              Request New Reset Link
+            </button>
+          </div>
+          <div id="reset-err" class="auth-err hide"></div>
+          <div id="reset-ok" class="auth-ok hide">✅ Password updated! Signing you in…</div>
+
+          <div class="field">
+            <label>New Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="reset-pass" placeholder="Min. 6 characters" autocomplete="new-password"/>
+              <span class="eye" onclick="toggleEye('reset-pass',this)">👁</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Confirm New Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="reset-pass2" placeholder="Re-enter your new password" autocomplete="new-password"/>
+              <span class="eye" onclick="toggleEye('reset-pass2',this)">👁</span>
+            </div>
+          </div>
+
+          <div class="hint indigo" style="margin-bottom:16px">
+            🔑 You arrived here from your password reset email. Enter your new password above and tap <strong>Save Password</strong>.
+          </div>
+
+          <button class="btn btn-primary btn-full" id="reset-btn" onclick="confirmNewPassword()">Save New Password</button>
+          <div class="db-switch" style="margin-top:14px">Remembered it? <a onclick="showLoginScreen()">Back to Login</a></div>
+        </div>
+      </section>
     </div>
   </div>
 </div>
-
-<!-- TERMS & CONDITIONS MODAL -->
-<div class="a-modal" id="terms-overlay">
-  <div class="a-modal-box">
-    <div class="a-modal-hdr">
-      <div class="a-modal-title">Terms &amp; Conditions</div>
-      <button class="a-modal-close" id="terms-close-btn" type="button">&#215;</button>
-    </div>
-    <div class="a-modal-body">
-      <div class="a-terms-scroll">
-        <div style="background:#fff2f2;border:1px solid #f5c6cb;border-radius:6px;padding:9px 12px;color:#c0392b;font-weight:600;margin-bottom:12px;font-size:.79rem;">⚠️ Please read carefully before creating your account.</div>
-        <h3>1. WHAT DATABULGE IS</h3>
-        <p>DataBulge is a technology platform by Vortexedge Limited (RC 9193139) that lets you buy mobile data bundles using a structured installment payment system. No data is delivered until full payment is completed.</p>
-        <h3>2. WHAT DATABULGE IS NOT</h3>
-        <p style="background:#f0f4ff;border-left:3px solid #1877f2;padding:7px 10px;border-radius:4px;">DataBulge is <strong>NOT</strong> a financial institution, savings platform, investment vehicle, or thrift collector. Zero return on investment, interest, or profit-sharing of any kind.</p>
-        <h3>3. HOW IT WORKS</h3>
-        <p>Fund your wallet via bank transfer to your virtual account. Once your wallet reaches the full plan cost, data is automatically delivered to your registered phone number.</p>
-        <h3>4. SURCHARGE</h3>
-        <p>5% for 7-day payment cycles. 10% for 28-day cycles. Non-refundable once subscription is created.</p>
-        <h3>5. REFUND POLICY</h3>
-        <p>If delivery fails, your wallet is automatically refunded within 4 minutes. Refunds go to your DataBulge wallet only. Successfully delivered data is non-refundable.</p>
-        <h3>6. ELIGIBILITY</h3>
-        <ul><li>Must be 18 years or older</li><li>One account per person</li><li>Accurate information required</li><li>Valid Nigerian mobile number required</li></ul>
-        <h3>7. ACCOUNT SECURITY</h3>
-        <p>Keep your login credentials confidential. Notify us immediately if you suspect unauthorized access. You are responsible for all activity on your account.</p>
-        <h3>8. GOVERNING LAW</h3>
-        <p>Nigerian law. Lagos courts. Contact: support@databulge.com</p>
-        <p style="margin-top:14px;color:#bcc0c4;font-size:.74rem;">© 2026 Vortexedge Limited · RC 9193139 · v1.1</p>
-      </div>
-    </div>
-    <div class="a-modal-footer">
-      <button class="a-btn a-btn-primary" id="terms-agree-btn" type="button" style="display:inline-block;width:auto;padding:10px 22px;margin:0;background:#1877f2;">I Agree ✓</button>
-    </div>
-  </div>
-</div>
-
-<!-- AUTH TOAST -->
-<div id="a-toast"></div>
-
-<!-- ═══ AUTH JS ═══════════════════════════════════════════════ -->
-<script>
-/* ── AUTH HELPERS ────────────────────────────────────────────────
-   All functions are globals — wired at window.onload so that
-   doLogin, doSignup, sb, etc. are guaranteed to exist.
-   Never capture function references early — always call by name.
-──────────────────────────────────────────────────────────────── */
-
-/* Toggle between auth sub-screens */
-var _aScreens = ['a-scr-welcome','a-scr-login','a-scr-signup','a-scr-reset'];
-function _aShow(id) {
-  for (var i = 0; i < _aScreens.length; i++) {
-    var el = document.getElementById(_aScreens[i]);
-    if (el) el.className = 'a-screen' + (_aScreens[i] === id ? ' a-active' : '');
-  }
-}
-
-/* Auth alert helpers */
-function _aShowAlert(id, msg) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  el.textContent = msg;
-  el.className = el.className.replace(/\ba-show\b/g,'').trim() + ' a-show';
-}
-function _aHideAlert(id) {
-  var el = document.getElementById(id);
-  if (el) el.className = el.className.replace(/\ba-show\b/g,'').trim();
-}
-
-/* Modal helpers */
-function _aOpenModal(id) {
-  var o = document.getElementById(id);
-  if (o) o.className = 'a-modal a-open';
-}
-function _aCloseModal(id) {
-  var o = document.getElementById(id);
-  if (o) o.className = 'a-modal';
-}
-
-/* Eye toggle */
-function _aToggleEye(inputId, btnId) {
-  var inp = document.getElementById(inputId);
-  var btn = document.getElementById(btnId);
-  if (!inp) return;
-  if (inp.type === 'password') { inp.type = 'text'; if (btn) btn.textContent = '\uD83D\uDE48'; }
-  else { inp.type = 'password'; if (btn) btn.textContent = '\uD83D\uDC41'; }
-}
-
-/* ── SCREEN NAVIGATION (override main-app functions) ─────────── */
-/* These must be globals so the main app can call them too */
-
-/* showWelcomeScreen, showLoginScreen etc. are defined in main app JS below.
-   We override them here to use the new screen IDs. The main app versions
-   will be overwritten by these when the file executes top-to-bottom. */
-
-/* ── OPENAPP / MODALS ────────────────────────────────────────── */
-function openForgot() {
-  var liEmail = document.getElementById('li-email');
-  var fgEmail = document.getElementById('fg-email');
-  if (fgEmail && liEmail) fgEmail.value = liEmail.value || '';
-  _aHideAlert('forgot-err');
-  _aHideAlert('forgot-ok');
-  _aOpenModal('forgot-overlay');
-}
-function closeForgot() { _aCloseModal('forgot-overlay'); }
-function openTermsModal()  { _aOpenModal('terms-overlay'); }
-function closeTermsModal() { _aCloseModal('terms-overlay'); }
-function acceptTerms() {
-  var cb = document.getElementById('su-terms');
-  if (cb) cb.checked = true;
-  var te = document.getElementById('su-terms-err');
-  if (te) te.className = te.className.replace(/\ba-show\b/g,'').trim();
-  _aCloseModal('terms-overlay');
-}
-
-/* ── MAIN BUTTON WIRING — runs at window.onload ──────────────── */
-/* At this point every function in the file is defined, sb is set up,
-   doLogin/doSignup/confirmForgot/confirmNewPassword all exist. */
-function _wireAuthButtons() {
-  function bind(id, fn) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.onclick = function(e) {
-      if (e) { e.preventDefault(); e.stopPropagation(); }
-      fn();
-      return false;
-    };
-  }
-
-  /* Navigation */
-  bind('a-welcome-login',   function(){ showLoginScreen(); });
-  bind('a-welcome-signup',  function(){ showSignupScreen(); });
-  bind('a-login-back',      function(){ showWelcomeScreen(); });
-  bind('a-signup-back',     function(){ showWelcomeScreen(); });
-  bind('a-login-to-signup', function(){ showSignupScreen(); });
-  bind('a-signup-to-login', function(){ showLoginScreen(); });
-  bind('reset-back-btn',    function(){ showLoginScreen(); });
-
-  /* Auth actions — called by name so they always resolve to the current definition */
-  bind('li-btn',   function(){ doLogin(); });
-  bind('su-btn',   function(){ doSignup(); });
-  bind('reset-btn',function(){ confirmNewPassword(); });
-
-  /* Forgot password modal */
-  bind('a-forgot-link-btn', function(){ openForgot(); });
-  bind('forgot-cancel-btn', function(){ closeForgot(); });
-  bind('forgot-send-btn',   function(){ confirmForgot(); });
-
-  /* Terms modal */
-  bind('terms-open-btn', function(){ openTermsModal(); });
-  bind('terms-agree-btn',function(){ acceptTerms(); });
-  bind('terms-close-btn',function(){ closeTermsModal(); });
-
-  /* Expired reset link */
-  bind('a-req-new-link', function(){ _aCloseModal('forgot-overlay'); openForgot(); });
-
-  /* Eye toggles */
-  bind('li-eye-btn', function(){ _aToggleEye('li-pass','li-eye-btn'); });
-  bind('su-eye-btn', function(){ _aToggleEye('su-pass','su-eye-btn'); });
-
-  /* Enter key on login fields */
-  var liEmail = document.getElementById('li-email');
-  var liPass  = document.getElementById('li-pass');
-  var suPass  = document.getElementById('su-pass');
-  var fgEmail = document.getElementById('fg-email');
-  if (liEmail) liEmail.onkeydown = function(e){ if ((e||window.event).keyCode===13){ var p=document.getElementById('li-pass'); if(p) p.focus(); } };
-  if (liPass)  liPass.onkeydown  = function(e){ if ((e||window.event).keyCode===13) doLogin(); };
-  if (suPass)  suPass.onkeydown  = function(e){ if ((e||window.event).keyCode===13) doSignup(); };
-  if (fgEmail) fgEmail.onkeydown = function(e){ if ((e||window.event).keyCode===13) confirmForgot(); };
-
-  /* Backdrop close for modals */
-  var forgotOv = document.getElementById('forgot-overlay');
-  var termsOv  = document.getElementById('terms-overlay');
-  if (forgotOv) forgotOv.onclick = function(e){ if (e && e.target === forgotOv) _aCloseModal('forgot-overlay'); };
-  if (termsOv)  termsOv.onclick  = function(e){ if (e && e.target === termsOv)  _aCloseModal('terms-overlay');  };
-
-  /* Terms checkbox live feedback */
-  var suTerms    = document.getElementById('su-terms');
-  var suTermsErr = document.getElementById('su-terms-err');
-  if (suTerms && suTermsErr) {
-    suTerms.onchange = function(){ if (suTerms.checked) suTermsErr.className = suTermsErr.className.replace(/\ba-show\b/g,'').trim(); };
-  }
-}
-
-/* ── TRIGGER WIRING ──────────────────────────────────────────── */
-/* Use window.onload — fires AFTER all scripts in the page have run,
-   so doLogin/doSignup/sb are all fully defined by then.
-   Also add a 500ms safety re-wire in case load fired before our code ran
-   (shouldn't happen but protects against cached pages on Android). */
-if (document.readyState === 'complete') {
-  /* Page already fully loaded (e.g. BFCache restore) */
-  _wireAuthButtons();
-} else {
-  window.addEventListener('load', function() {
-    _wireAuthButtons();
-    /* Extra safety: re-wire after 500ms in case Supabase CDN was slow */
-    setTimeout(_wireAuthButtons, 500);
-  });
-}
-</script>
-
 
 <!-- ══════════════════════════════════════
      MAIN APP
@@ -2795,7 +2367,7 @@ function _wireAuthEvents() {
       var appEl  = document.getElementById('app');
       var authEl = document.getElementById('auth-screen');
       if (appEl)  appEl.style.display  = 'none';
-      if (authEl) authEl.style.display = 'block';
+      if (authEl) authEl.style.display = 'flex';
       showResetPasswordScreen();
     }
     // SIGNED_IN after token_refreshed: refresh cached token silently
@@ -2818,7 +2390,7 @@ function _wireAuthEvents() {
           appEl2.style.display = 'none';
           try { showWelcomeScreen(); } catch(e) {}
           var authEl2 = document.getElementById('auth-screen');
-          if (authEl2) authEl2.style.display = 'block';
+          if (authEl2) authEl2.style.display = 'flex';
         }
       } catch(e) { console.warn('[Auth] SIGNED_OUT handler error:', e); }
     }
@@ -2890,7 +2462,7 @@ function _initApp() {
     console.error('[Auth] createClient failed:', e);
     try { showWelcomeScreen(); } catch(e2) {}
     var authEl = document.getElementById('auth-screen');
-    if (authEl) authEl.style.display = 'block';
+    if (authEl) authEl.style.display = 'flex';
     return;
   }
 
@@ -2976,7 +2548,7 @@ function _initApp() {
           try { showWelcomeScreen(); } catch(e2) {}
           try {
             var _ae = document.getElementById('auth-screen');
-            if (_ae) _ae.style.display = 'block';
+            if (_ae) _ae.style.display = 'flex';
           } catch(e3) {}
         });
 
@@ -3099,173 +2671,267 @@ async function doGoogleLogin(){
   // On success, browser redirects automatically
 }
 
-// old openForgot removed
+function openForgot(){
+  document.getElementById('m-forgot-email').value = document.getElementById('li-email').value || '';
+  document.getElementById('m-forgot-ok').classList.add('hide');
+  document.getElementById('m-forgot-err').classList.add('hide');
+  document.getElementById('m-forgot').classList.add('open');
+}
 
-// ══════════════════════════════════════════════════════════════════════════
-// AUTH CONTROLLER — Google/Facebook approach
-// Pure display:block / display:none. No CSS classes. No backdrop-filter.
-// Works on Android 4+, 2G/3G, any browser.
-// ══════════════════════════════════════════════════════════════════════════
+async function confirmForgot(){
+  var email = (document.getElementById('m-forgot-email').value || '').trim();
+  var errEl = document.getElementById('m-forgot-err');
+  var okEl  = document.getElementById('m-forgot-ok');
 
-// ── AUTH PANEL MAP — updated to new white-UI screen IDs ──────────
-var _AUTH_PANELS = ['a-scr-welcome','a-scr-login','a-scr-signup','a-scr-reset'];
-
-function _authShow(id) {
-  // Map legacy IDs → new IDs
-  var _map = {
-    'auth-welcome':'a-scr-welcome',
-    'auth-login':  'a-scr-login',
-    'auth-signup': 'a-scr-signup',
-    'auth-reset':  'a-scr-reset'
-  };
-  var newId = _map[id] || id;
-  for (var i = 0; i < _AUTH_PANELS.length; i++) {
-    var el = document.getElementById(_AUTH_PANELS[i]);
-    if (el) el.className = 'a-screen' + (_AUTH_PANELS[i] === newId ? ' a-active' : '');
+  if(!email){
+    errEl.textContent='Please enter your email address.';
+    errEl.classList.remove('hide');
+    return;
   }
-  var scr = document.getElementById('auth-screen');
-  if (scr) scr.scrollTop = 0;
-}
 
-function showWelcomeScreen() {
-  _authShow('a-scr-welcome');
-  // Restore white body background for auth screen
-  try { document.body.classList.remove('app-active'); } catch(e) {}
-  document.body.style.background = '#fff';
-  document.body.style.backgroundImage = 'none';
-  var authEl = document.getElementById('auth-screen');
-  if (authEl) { authEl.style.display = 'block'; authEl.style.visibility = 'visible'; }
-  var appEl = document.getElementById('app');
-  if (appEl) appEl.style.display = 'none';
-}
-function showLoginScreen()         { _authShow('a-scr-login');  }
-function showSignupScreen()        { _authShow('a-scr-signup'); }
-function showResetPasswordScreen() { _authShow('a-scr-reset');  }
-function flip(toLogin)             { _authShow(toLogin ? 'a-scr-login' : 'a-scr-signup'); }
+  setBtnLoad('m-forgot-btn', true);
+  errEl.classList.add('hide');
+  okEl.classList.add('hide');
 
-function openApp() { /* landing page removed — auth is now the first page */ }
-
-function openTermsModal()  { var o=document.getElementById('terms-overlay'); if(o) o.className='a-modal a-open'; }
-function closeTermsModal() { var o=document.getElementById('terms-overlay'); if(o) o.className='a-modal'; }
-function acceptTerms() {
-  var cb=document.getElementById('su-terms'); if(cb) cb.checked=true;
-  var te=document.getElementById('su-terms-err'); if(te) te.className=(te.className||'').replace(' a-show','');
-  closeTermsModal();
-}
-function openForgot() {
-  var e=document.getElementById('li-email'), f=document.getElementById('fg-email');
-  if(f && e) f.value = e.value || '';
-  var ok=document.getElementById('forgot-ok'), er=document.getElementById('forgot-err');
-  if(ok) ok.className=(ok.className||'').replace(' a-show','');
-  if(er) er.className=(er.className||'').replace(' a-show','');
-  var ov=document.getElementById('forgot-overlay'); if(ov) ov.className='a-modal a-open';
-}
-function closeForgot() { var o=document.getElementById('forgot-overlay'); if(o) o.className='a-modal'; }
-async function confirmForgot() {
-  var email=(document.getElementById('fg-email').value||'').trim();
-  var ok=document.getElementById('forgot-ok'), er=document.getElementById('forgot-err');
-  function _fShow(el,msg){if(el){el.textContent=msg;el.className=(el.className||'').replace(' a-show','')+' a-show';}}
-  function _fHide(el){if(el){el.className=(el.className||'').replace(' a-show','');}}
-  _fHide(ok); _fHide(er);
-  if(!email){ _fShow(er,'Please enter your email address.'); return; }
-  var btn=document.getElementById('forgot-send-btn');
-  if(btn){btn.innerHTML='<span class="a-spin"></span>Sending…';btn.disabled=true;}
   try {
-    var res=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.href.split('#')[0]});
-    if(res.error) throw res.error;
-    _fShow(ok,'✅ Reset link sent! Check your inbox and spam folder.');
-  } catch(e) {
-    _fShow(er,e.message||'Failed to send reset link.');
-  }
-  if(btn){btn.textContent='Send Reset Link';btn.disabled=false;}
-}
+    // Call the resetPassword edge function (server-side, guaranteed redirectTo)
+    var res = await fetch(FN + '/resetPassword', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY },
+      body: JSON.stringify({ action: 'send_reset', email: email })
+    });
+    var data = {};
+    try { data = await res.json(); } catch(e) {}
 
-function _showErr(id,msg){
-  var _emap={'login-err':'a-login-err','su-err':'a-su-err'};
-  var realId=_emap[id]||id;
-  var el=document.getElementById(realId);
-  if(!el)return;
-  el.textContent=msg;
-  el.className=(el.className||'').replace(' a-show','')+' a-show';
-  setTimeout(function(){el.className=(el.className||'').replace(' a-show','');},5500);
-}
-function setAuthErr(which,msg){
-  var _wmap={'login':'a-login-err','su':'a-su-err'};
-  _showErr(_wmap[which]||which+'-err',msg);
-}
+    setBtnLoad('m-forgot-btn', false, 'Send Reset Link');
 
-function setBtnLoad(id,on,label){
-  var b=document.getElementById(id);if(!b)return;
-  if(on){b._lbl=b.textContent;b.innerHTML='<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;-webkit-animation:spin .7s linear infinite;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;"></span>';b.disabled=true;}
-  else{b.textContent=label||b._lbl||'Submit';b.disabled=false;}
-}
-
-function toggleEye(inputId,btn){
-  var inp=document.getElementById(inputId);if(!inp)return;
-  if(inp.type==='password'){inp.type='text';if(btn)btn.textContent='🙈';}
-  else{inp.type='password';if(btn)btn.textContent='👁';}
-}
-
-// Old _wire() IIFE — button bindings moved to _wireAuthButtons() in auth script above.
-// Keeping only enter-key wiring for inputs here (does not conflict).
-(function() {
-  function _wireKeys(){
-    var lp=document.getElementById('li-pass');
-    if(lp) lp.onkeydown=function(e){if((e||window.event).keyCode===13){ if(typeof doLogin==='function') doLogin(); }};
-    var le=document.getElementById('li-email');
-    if(le) le.onkeydown=function(e){if((e||window.event).keyCode===13){var p=document.getElementById('li-pass');if(p)p.focus();}};
-    var sp=document.getElementById('su-pass');
-    if(sp) sp.onkeydown=function(e){if((e||window.event).keyCode===13){ if(typeof doSignup==='function') doSignup(); }};
-  }
-  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',_wireKeys);}
-  else{_wireKeys();}
-})();
-
-// ── AUTH ──
-async function confirmNewPassword(){
-  var pass    = (document.getElementById('reset-pass')    ? document.getElementById('reset-pass').value    : '');
-  var confirm = (document.getElementById('reset-confirm') ? document.getElementById('reset-confirm').value : '');
-  var errEl   = document.getElementById('reset-err');
-  var okEl    = document.getElementById('reset-ok');
-  function _rHide(el){if(el){el.className=(el.className||'').replace(' a-show','');el.style.display='';}}
-  function _rShow(el,msg){if(el){el.textContent=msg;el.className=(el.className||'').replace(' a-show','')+' a-show';}}
-  _rHide(errEl); _rHide(okEl);
-  if(!pass||pass.length<6){_rShow(errEl,'Password must be at least 6 characters.');return;}
-  if(pass!==confirm){_rShow(errEl,'Passwords do not match.');return;}
-  setBtnLoad('reset-btn',true);
-  var recoveryAT=window._recoveryAccessToken||'', recoveryRT=window._recoveryRefreshToken||'';
-  try{
-    var res=await fetch(FN+'/resetPassword',{method:'POST',headers:{'Content-Type':'application/json','apikey':ANON_KEY},body:JSON.stringify({action:'update_password',password:pass,access_token:recoveryAT,refresh_token:recoveryRT})});
-    var data={};try{data=await res.json();}catch(e){}
-    setBtnLoad('reset-btn',false,'Save New Password');
-    if(!res.ok||data.error){
-      var expEl=document.getElementById('reset-expired');
-      if((data.error==='otp_expired'||data.error==='no_token')&&expEl){expEl.className=(expEl.className||'').replace(' a-show','')+' a-show';}
-      else {_rShow(errEl,data.message||data.error||'Password update failed.');}
+    if (!res.ok || data.error) {
+      errEl.textContent = data.error || 'Failed to send reset email. Please try again.';
+      errEl.classList.remove('hide');
       return;
     }
-    _rShow(okEl,'✅ Password updated! Signing you in…');
-    window._recoveryAccessToken='';window._recoveryRefreshToken='';
-    if(data.access_token&&data.refresh_token){try{var sr=await sb.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});if(sr&&sr.data&&sr.data.session&&sr.data.session.user)me=sr.data.session.user;}catch(e){}}
-    if(!me&&data.user)me=data.user;
-    setTimeout(async function(){try{await bootApp();toast('🔒 Password updated!','success');await smartLandAfterBoot();}catch(e){document.getElementById('auth-screen').style.display='block';showLoginScreen();}},1400);
-  }catch(e){setBtnLoad('reset-btn',false,'Save New Password');_rShow(errEl,'Network error. Check your connection.');}
+
+    // Always show success (don't reveal whether email exists — security)
+    okEl.innerHTML = '✅ Reset link sent! Check your inbox and tap the link <strong>on this device</strong>.';
+    okEl.classList.remove('hide');
+    setTimeout(function(){ closeM('m-forgot'); }, 6000);
+
+  } catch(e) {
+    setBtnLoad('m-forgot-btn', false, 'Send Reset Link');
+    errEl.textContent = 'Network error. Please check your connection and try again.';
+    errEl.classList.remove('hide');
+  }
+}
+
+
+
+function showWelcomeScreen(){
+  var w=document.getElementById('welcome-screen');
+  var l=document.getElementById('login-card');
+  var s=document.getElementById('signup-card');
+  var r=document.getElementById('reset-password-screen');
+  if(w) w.classList.remove('hide');
+  if(l) l.classList.add('hide');
+  if(s) s.classList.add('hide');
+  if(r) r.classList.add('hide');
+}
+function showLoginScreen(){
+  var w=document.getElementById('welcome-screen');
+  var r=document.getElementById('reset-password-screen');
+  if(w) w.classList.add('hide');
+  if(r) r.classList.add('hide');
+  flip(true);
+}
+function showSignupScreen(){
+  var w=document.getElementById('welcome-screen');
+  var r=document.getElementById('reset-password-screen');
+  if(w) w.classList.add('hide');
+  if(r) r.classList.add('hide');
+  flip(false);
+}
+
+function flip(toLogin){
+  var w=document.getElementById('welcome-screen');
+  var r=document.getElementById('reset-password-screen');
+  if(w) w.classList.add('hide');
+  if(r) r.classList.add('hide');
+  document.getElementById('login-card').classList.toggle('hide',!toLogin);
+  document.getElementById('signup-card').classList.toggle('hide',toLogin);
+}
+
+function showResetPasswordScreen(){
+  var screens=['welcome-screen','login-card','signup-card'];
+  screens.forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.classList.add('hide');
+  });
+  var r=document.getElementById('reset-password-screen');
+  if(r) r.classList.remove('hide');
+  var a=document.getElementById('auth-screen');
+  if(a) a.style.display='flex';
+  var appEl=document.getElementById('app');
+  if(appEl) appEl.style.display='none';
+  setTimeout(function(){
+    var p=document.getElementById('reset-pass');
+    if(p) p.focus();
+  }, 200);
+}
+
+async function confirmNewPassword(){
+  var pass  = (document.getElementById('reset-pass').value  || '').trim();
+  var pass2 = (document.getElementById('reset-pass2').value || '').trim();
+  var errEl     = document.getElementById('reset-err');
+  var okEl      = document.getElementById('reset-ok');
+  var expiredEl = document.getElementById('reset-expired');
+
+  // Clear all status messages
+  errEl.classList.add('hide');
+  okEl.classList.add('hide');
+  if (expiredEl) expiredEl.classList.add('hide');
+
+  // Validate
+  if (!pass) {
+    errEl.textContent = 'Please enter a new password.';
+    errEl.classList.remove('hide');
+    return;
+  }
+  if (pass.length < 6) {
+    errEl.textContent = 'Password must be at least 6 characters.';
+    errEl.classList.remove('hide');
+    return;
+  }
+  if (pass !== pass2) {
+    errEl.textContent = 'Passwords do not match — please check and try again.';
+    errEl.classList.remove('hide');
+    return;
+  }
+
+  setBtnLoad('reset-btn', true);
+
+  var recoveryAccessToken  = window._recoveryAccessToken  || '';
+  var recoveryRefreshToken = window._recoveryRefreshToken || '';
+
+  try {
+    var res = await fetch(FN + '/resetPassword', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': ANON_KEY },
+      body: JSON.stringify({
+        action:        'update_password',
+        password:      pass,
+        access_token:  recoveryAccessToken,
+        refresh_token: recoveryRefreshToken
+      })
+    });
+
+    var data = {};
+    try { data = await res.json(); } catch(e) {}
+
+    setBtnLoad('reset-btn', false, 'Save New Password');
+
+    // Handle errors
+    if (!res.ok || data.error) {
+      if (data.error === 'otp_expired' || data.error === 'no_token') {
+        if (expiredEl) expiredEl.classList.remove('hide');
+      } else {
+        errEl.textContent = data.message || data.error || 'Password update failed. Please try again.';
+        errEl.classList.remove('hide');
+      }
+      return;
+    }
+
+    // ── SUCCESS ─────────────────────────────────────────────────────────────
+    okEl.textContent = '✅ Password updated! Signing you in…';
+    okEl.classList.remove('hide');
+
+    // Clear stored recovery tokens
+    window._recoveryAccessToken  = '';
+    window._recoveryRefreshToken = '';
+
+    // Edge fn returns fresh tokens — restore session so bootApp works
+    var newAT = data.access_token;
+    var newRT = data.refresh_token;
+
+    if (newAT && newRT) {
+      try {
+        var setRes = await sb.auth.setSession({ access_token: newAT, refresh_token: newRT });
+        var freshSess = setRes && setRes.data && setRes.data.session ? setRes.data.session : null;
+        if (freshSess && freshSess.user) me = freshSess.user;
+      } catch(e) { console.warn('setSession after reset:', e); }
+    }
+
+    // If me is still null but edge fn returned user object, use that
+    if (!me && data.user) me = data.user;
+
+    // Short pause so user reads the success message, then boot
+    setTimeout(async function() {
+      try {
+        // Run the full boot (sets up nav, loads data, etc.)
+        await bootApp();
+        toast('🔒 Password updated! Welcome back.', 'success');
+
+        // ── SMART LANDING ──────────────────────────────────────────────────
+        // Check if user has any active/pending subscriptions.
+        // If yes  → they're an existing user, land on dashboard (home tab).
+        // If no   → new or lapsed user, land on plans tab so they can subscribe.
+        try {
+          var subCheck = await sb.from('subscriptions')
+            .select('id', { count: 'exact', head: true })
+            .eq('user_id', me.id)
+            .in('status', ['active', 'pending']);
+          var subCount = (subCheck && subCheck.count != null) ? subCheck.count : 0;
+          if (subCount === 0) {
+            // No active subs — take them to the Plans tab
+            var plansBtn = document.querySelector('.tab-btn[data-tab="plans"]');
+            if (plansBtn) plansBtn.click();
+          }
+          // If they have subs, bootApp already loaded the dashboard — nothing to do
+        } catch(e) {
+          // Can't check subs? Stay on dashboard — safe default
+        }
+
+      } catch(bootErr) {
+        // bootApp failed — fall back to login screen with email pre-filled
+        console.warn('bootApp after reset failed:', bootErr);
+        document.getElementById('auth-screen').style.display = 'flex';
+        okEl.textContent = '✅ Password updated! Log in with your new password below.';
+        var emailEl = document.getElementById('li-email');
+        if (emailEl && me && me.email) emailEl.value = me.email;
+        showLoginScreen();
+        toast('Password updated. Please log in.', 'success');
+      }
+    }, 1400);
+
+  } catch(networkErr) {
+    setBtnLoad('reset-btn', false, 'Save New Password');
+    errEl.textContent = 'Network error. Please check your connection and try again.';
+    errEl.classList.remove('hide');
+  }
+}
+function toggleEye(id,el){
+  const i=document.getElementById(id);
+  i.type=i.type==='password'?'text':'password';
+  el.textContent=i.type==='password'?'👁':'🙈';
+}
+function toggleStudent(){
+  stuChecked=false;
+  isStudent=false;
+}
+
+function setAuthErr(which,msg){
+  const el=document.getElementById(which+'-err');
+  el.textContent=msg; el.classList.remove('hide');
+  setTimeout(()=>el.classList.add('hide'),5000);
 }
 
 async function doLogin(){
   var email=(document.getElementById('li-email').value||'').trim();
   var pass=document.getElementById('li-pass').value||'';
-  if(!email||!pass){setAuthErr('login','Please fill in your email and password.');return;}
-  // Guard: Supabase client must be ready (may not be on very slow 3G)
-  if(!sb||!sb.auth){
-    setAuthErr('login','Still connecting — please wait a moment and try again.');
-    return;
-  }
+  if(!email||!pass){setAuthErr('login','Fill in all fields');return;}
   setBtnLoad('li-btn',true);
   var loginResult;
   try { loginResult = await sb.auth.signInWithPassword({email:email,password:pass}); }
-  catch(e){ setBtnLoad('li-btn',false,'Log In'); setAuthErr('login',e.message||'Login failed. Check your connection.'); return; }
-  setBtnLoad('li-btn',false,'Log In');
+  catch(e){ setBtnLoad('li-btn',false,'Sign In'); setAuthErr('login',e.message||'Login failed'); return; }
+  setBtnLoad('li-btn',false,'Sign In');
   var loginErr = loginResult ? loginResult.error : null;
   var loginData = loginResult ? loginResult.data : null;
   if(loginErr){setAuthErr('login',loginErr.message);return;}
@@ -3290,22 +2956,17 @@ async function doSignup(){
   const termsBox = document.getElementById('su-terms');
   const termsErr = document.getElementById('su-terms-err');
   if (!termsBox || !termsBox.checked) {
-    if (termsErr) termsErr.className = (termsErr.className||'').replace(' a-show','') + ' a-show';
+    if (termsErr) termsErr.style.display = 'block';
     if (termsBox) termsBox.focus();
     return;
   }
-  if (termsErr) termsErr.className = (termsErr.className||'').replace(' a-show','');
-  if(!name||!email||!pass){setAuthErr('su','Name, email & password are required.');return;}
-  if(pass.length<6){setAuthErr('su','Password must be at least 6 characters.');return;}
-  // Guard: Supabase client must be ready
-  if(!sb||!sb.auth){
-    setAuthErr('su','Still connecting — please wait a moment and try again.');
-    return;
-  }
+  if (termsErr) termsErr.style.display = 'none';
+  if(!name||!email||!pass){setAuthErr('su','Name, email & password required');return;}
+  if(pass.length<6){setAuthErr('su','Password must be 6+ characters');return;}
   setBtnLoad('su-btn',true);
   var signupResult;
   try { signupResult = await sb.auth.signUp({email:email,password:pass,options:{data:{full_name:name,phone:phone,is_student:false}}}); }
-  catch(e){ setBtnLoad('su-btn',false,'Create Account'); setAuthErr('su',e.message||'Signup failed. Check your connection.'); return; }
+  catch(e){ setBtnLoad('su-btn',false,'Create Account'); setAuthErr('su',e.message||'Signup failed'); return; }
   setBtnLoad('su-btn',false,'Create Account');
   var suError = signupResult ? signupResult.error : null;
   var suData = signupResult ? signupResult.data : null;
@@ -3320,41 +2981,27 @@ async function doSignup(){
     await smartLandAfterBoot('plans');
     callCreateVA(name,phone||'');
   } else {
-    var _suOk=document.getElementById('su-ok');if(_suOk){_suOk.className=(_suOk.className||'').replace(' a-show','')+' a-show';}
+    document.getElementById('su-ok').classList.remove('hide');
     const b=document.getElementById('su-btn');
     b.textContent='Account Created ✅'; b.disabled=true;
     setTimeout(()=>flip(true),3200);
   }
 }
 
-async 
-/* Force lite mode */
-function switchToLite() {
-  try { localStorage.setItem('db_force_lite','1'); } catch(e) {}
-  window.location.href = 'lite.html';
-}
-function doLogout(){
+async function doLogout(){
   stopRealtime();
   try { await sb.auth.signOut(); } catch(e) {}
   me=null; myData=null; walBal=0;
   document.getElementById('app').style.display='none';
-  var _liE=document.getElementById('li-email'); if(_liE) _liE.value='';
-  var _liP=document.getElementById('li-pass');  if(_liP) _liP.value='';
-  // Restore white background for auth
-  try { document.body.classList.remove('app-active'); } catch(e) {}
-  document.body.style.background = '#fff';
-  document.body.style.backgroundImage = 'none';
+  document.getElementById('li-email').value='';
+  document.getElementById('li-pass').value='';
   showWelcomeScreen();
-  document.getElementById('auth-screen').style.display='block';
+  document.getElementById('auth-screen').style.display='flex';
   toast('Signed out','info');
 }
 
 // ── BOOT APP ──
 async function bootApp(){
-  // Restore dark theme for app
-  try { document.body.classList.add('app-active'); } catch(e) {}
-  document.body.style.background = '';
-  document.body.style.backgroundImage = '';
   document.getElementById('app').style.display='block';
   document.getElementById('auth-screen').style.display='none';
   const meta=me.user_metadata||{};
@@ -3667,8 +3314,8 @@ function openTermsModal() {
   document.getElementById('m-terms').classList.add('open');
 }
 function acceptTerms() {
-  var _cb=document.getElementById('su-terms'); if(_cb) _cb.checked = true;
-  var _te=document.getElementById('su-terms-err'); if(_te) _te.className=(_te.className||'').replace(' a-show','');
+  document.getElementById('su-terms').checked = true;
+  document.getElementById('su-terms-err').style.display = 'none';
   closeM('m-terms');
 }
 
@@ -4108,16 +3755,9 @@ function toast(msg,type='info'){
     setTimeout(()=>el.remove(),300);},4200);
 }
 function setBtnLoad(id,on,label){
-  var b=document.getElementById(id); if(!b) return;
-  if(on){
-    b._lbl=b.textContent;
-    // Universal spinner: inline style works on both white auth and dark app pages
-    b.innerHTML='<span style="display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;vertical-align:middle;margin-right:7px;-webkit-animation:spin .7s linear infinite;animation:spin .7s linear infinite;"></span>'+(label||'');
-    b.disabled=true;
-  } else {
-    b.textContent=label||b._lbl||'Submit';
-    b.disabled=false;
-  }
+  const b=document.getElementById(id); if(!b) return;
+  if(on){b._lbl=b.textContent;b.innerHTML='<div class="spin"></div>';b.disabled=true;}
+  else{b.textContent=label||b._lbl;b.disabled=false;}
 }
 function copyAcc(num){
   navigator.clipboard.writeText(num)
@@ -5183,17 +4823,36 @@ console.log('[DataBulge v3.0] All upgrades loaded successfully.');
 // Logged-in  → hide landing, show app shell, run bootApp
 // Logged-out → show landing page; clicking "Open App" shows auth screen
 
+function openApp() {
+  // Fade out landing, then show app auth screen
+  var lp = document.getElementById('landing-page');
+  var authScr = document.getElementById('auth-screen');
+  if (lp) {
+    lp.style.transition = 'opacity .25s';
+    lp.style.opacity = '0';
+    setTimeout(function(){
+      lp.style.display = 'none';
+      if (authScr) authScr.style.display = '';
+      if (typeof showWelcomeScreen === 'function') showWelcomeScreen();
+    }, 250);
+  } else {
+    if (authScr) authScr.style.display = '';
+    if (typeof showWelcomeScreen === 'function') showWelcomeScreen();
+  }
+}
+
 // __ UNUSED_PLACEHOLDER_
 
 // Called when session state is known — routes to landing or app
 function checkLandingGate(hasSession) {
-  // Landing page removed — auth is the first page for unauthenticated users
+  var landing = document.getElementById('landing-page');
   var authScr = document.getElementById('auth-screen');
-  if (!hasSession) {
-    if (authScr) { authScr.style.display = 'block'; authScr.style.visibility = 'visible'; }
-    showWelcomeScreen();
+  if (hasSession) {
+    // Logged in — skip landing, go straight to app
+    if (landing) landing.style.display = 'none';
+    if (authScr) authScr.style.display = '';
   }
-  // hasSession=true: bootApp() handles showing the app, auth stays hidden
+  // Logged out — landing stays visible (it's the default), auth stays hidden
 }
 </script>
 
