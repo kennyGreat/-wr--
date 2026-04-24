@@ -87,6 +87,35 @@ END SUPABASE NOTES
 -->
 
 <meta charset="UTF-8"/>
+<script>
+(function(){
+  try {
+    var p = (location.pathname || '').toLowerCase();
+    if (p.indexOf('app-legacy-pasted.html') !== -1) return;
+    var ua = navigator.userAgent || '';
+    var needsLegacy = false;
+    if (typeof Promise === 'undefined' || typeof fetch === 'undefined') needsLegacy = true;
+    try {
+      if (typeof CSS === 'undefined' || !CSS.supports || !CSS.supports('color','var(--x)')) needsLegacy = true;
+    } catch (e) { needsLegacy = true; }
+    var m = ua.match(/Android\s([0-9]+)(?:\.([0-9]+))?/i);
+    if (m) {
+      var major = parseInt(m[1], 10) || 0;
+      if (major <= 10) needsLegacy = true;
+    }
+    var cm = ua.match(/(?:Chrome|CrMo|CriOS)\/([0-9]+)/i);
+    if (cm && parseInt(cm[1], 10) < 70) needsLegacy = true;
+    try {
+      var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (conn && (conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g')) needsLegacy = true;
+    } catch (e2) {}
+    try {
+      if (navigator.deviceMemory && navigator.deviceMemory < 1) needsLegacy = true;
+    } catch (e3) {}
+    if (needsLegacy) location.replace('app-legacy-pasted.html');
+  } catch (ignore) {}
+})();
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 <title>DataBulge — Installment Data Plans by Vortexedge Limited</title>
@@ -1249,7 +1278,7 @@ html, body {
      Hides automatically if user is already logged in.
      "Open App" button transitions to auth screen.
 ═══════════════════════════════════════════════ -->
-<div id="landing-page" style="display:none;">
+<div id="landing-page">
   <div class="lp-wrap">
 
     <div class="lp-logo">
@@ -1285,7 +1314,7 @@ html, body {
 <!-- ══════════════════════════════════════
      AUTH SCREEN
 ══════════════════════════════════════ -->
-<div id="auth-screen" style="display:flex;">
+<div id="auth-screen" style="display:none;">
   <div class="db-auth-shell">
     <div class="db-phone">
       <div class="db-noise"></div>
@@ -4847,12 +4876,12 @@ function openApp() {
 function checkLandingGate(hasSession) {
   var landing = document.getElementById('landing-page');
   var authScr = document.getElementById('auth-screen');
-  if (landing) landing.style.display = 'none';
   if (hasSession) {
+    // Logged in — skip landing, go straight to app
+    if (landing) landing.style.display = 'none';
     if (authScr) authScr.style.display = '';
-  } else {
-    if (authScr) authScr.style.display = 'flex';
   }
+  // Logged out — landing stays visible (it's the default), auth stays hidden
 }
 </script>
 
