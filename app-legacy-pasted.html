@@ -265,7 +265,7 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
   <div class="tabs">
     <button class="tab" id="tab-dash" data-t="dash">Dashboard</button>
     <button class="tab act" id="tab-plans" data-t="plans">Buy Data</button>
-    <button class="tab" id="tab-subs" data-t="subs">My Subscriptions</button>
+    <button class="tab" id="tab-subs" data-t="subs">My Plan</button>
     <button class="tab" id="tab-wallet" data-t="wallet">Account</button>
     <button class="tab" id="tab-inbox" data-t="inbox">&#128276; Messages<span id="inbox-badge" style="display:none;background:#f43f5e;color:#fff;border-radius:10px;font-size:.62rem;font-weight:800;padding:1px 5px;vertical-align:middle;margin-left:3px;"></span></button>
   </div>
@@ -331,9 +331,6 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 
   <!-- Account -->
   <div id="tc-wallet" class="tab-content">
-    <div class="tab-actions">
-      <button class="btn btn-blue" id="wallet-fund-btn">+ Fund Account</button>
-    </div>
     <div id="wallet-tab-content"><div class="empty">Loading account&hellip;</div></div>
   </div>
 
@@ -495,13 +492,13 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
       <div id="fund-panel-af" style="display:none;">
         <div style="background:#f8fbff;border:1px solid #dbeafe;border-radius:8px;padding:12px;margin-bottom:10px;">
           <div style="font-size:.85rem;font-weight:800;color:#1877f2;margin-bottom:6px;">&#128179; Auto-Fund via Card</div>
-          <p style="font-size:.77rem;color:#555;line-height:1.55;margin-bottom:12px;">This takes the stress off you &#8212; enter an amount, pay with your card, and your wallet is credited instantly.</p>
+          <p style="font-size:.77rem;color:#555;line-height:1.55;margin-bottom:12px;">This takes the stress off you &#8212; enter an amount, pay with your card, your account is debited on your behalf daily with that amount and your wallet is credited instantly. you can cancel anytime.</p>
           <label style="font-size:.78rem;font-weight:700;color:#333;display:block;margin-bottom:4px;">Amount to fund (&#8358;)</label>
           <input type="number" id="af-fund-amt" placeholder="e.g. 1000" style="display:block;width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:6px;font-size:.93rem;color:#111;background:#fff;outline:none;-webkit-appearance:none;margin-bottom:10px;">
           <div id="af-fund-err" class="err"></div>
-          <button class="btn btn-blue" id="af-fund-btn" style="width:100%;margin:0;">Pay with Card (Paystack)</button>
+          <button class="btn btn-blue" id="af-fund-btn" style="width:100%;margin:0;">Pay with Card</button>
         </div>
-        <div class="card-sub" style="text-align:center;line-height:1.5;">Your card details are secured by Paystack and never stored on DataBulge.</div>
+        <div class="card-sub" style="text-align:center;line-height:1.5;">..................Your card details are secured by Paystack..................</div>
       </div>
     </div>
     <div class="modal-foot"></div>
@@ -745,7 +742,7 @@ function showTab(t) {
   if (t === 'dash')   loadDashCashflow();
   if (t === 'subs')   loadSubs();
   if (t === 'wallet') loadWalletTab();
-  if (t === 'inbox')  loadInbox();
+  if (t === 'inbox')  { loadInbox(); updateInboxBadge(0); }
 }
 
 function errShow(id, msg) {
@@ -920,25 +917,33 @@ function bootApp() {
 
   showPage('app');
   showTab('plans');
-  loadDashCashflow();
-
-  // Load everything in parallel
-  loadDashboard();
   updatePayDaysUI();
-  loadPlans();
-  loadSubs();
-  loadWalletTab();
-  loadInbox();
-  loadAcct(name);
-  setTimeout(function(){ autoActivatePlans(); checkUndeliveredData(); }, 2500);
 
-  // Poll every 30s for balance + subs update
+  // ── BOOT SEQUENCE: critical-path first, then stagger ────────
+  // 1. Wallet balance + plans = what user sees first
+  loadWalletBalance(function() { loadPlans(); });
+
+  // 2. My Plan tab — defer 400ms (not visible yet)
+  setTimeout(function() { loadSubs(); }, 400);
+
+  // 3. Inbox badge — defer 800ms
+  setTimeout(function() { loadInbox(); }, 800);
+
+  // 4. Dashboard cashflow — defer 1200ms
+  setTimeout(function() { loadDashCashflow(); }, 1200);
+
+  // 5. Profile — defer 1600ms
+  setTimeout(function() { loadAcct(name); }, 1600);
+
+  // 6. Auto-pay + delivery check — defer 3s
+  setTimeout(function() { autoActivatePlans(); checkUndeliveredData(); }, 3000);
+
+  // Poll every 45s — balance + inbox badge only (light)
   if (_pollTimer) clearInterval(_pollTimer);
   _pollTimer = setInterval(function() {
-    loadDashboard();
-    loadWalletTab();
-    autoActivatePlans();
-  }, 30000);
+    loadWalletBalance(function() {});
+    loadInbox();
+  }, 45000);
 }
 
 function doLogout() {
@@ -957,32 +962,39 @@ function doLogout() {
 }
 
 /* ── DATA LOADERS ───────────────────────────────────────────── */
-function loadDashboard() {
+
+// ── Fast single-request balance loader used by all tabs ──────
+function loadWalletBalance(cb) {
   ensureToken(function(err) {
-    if (err) return;
+    if (err) { if (cb) cb(); return; }
     restGet('/wallets', 'user_id=eq.' + gUser.id + '&select=balance,virtual_account_number,virtual_account_bank', function(e, r) {
       if (r && r.ok && r.data && r.data[0]) {
         var w = r.data[0];
         gBal = parseFloat(w.balance) || 0;
-        $('d-bal').textContent = fmtN(gBal);
         if (!gProfile) gProfile = {};
-        if (w.virtual_account_number) gProfile.virtual_account_number = w.virtual_account_number;
-        if (w.virtual_account_bank) gProfile.virtual_account_bank = w.virtual_account_bank;
+        if (w.virtual_account_number) {
+          gProfile.virtual_account_number = w.virtual_account_number;
+          gProfile.virtual_account_bank   = w.virtual_account_bank;
+        }
+        // Update every balance display at once
+        var balStr = fmtN(gBal);
+        if ($('d-bal'))      $('d-bal').textContent      = balStr;
+        if ($('d-bal-dash')) $('d-bal-dash').textContent = balStr;
         var va = '';
         if (w.virtual_account_number) {
-          va = 'Account: ' + w.virtual_account_number;
-          if (w.virtual_account_bank) va += ' • ' + w.virtual_account_bank;
+          va = 'Acc: ' + w.virtual_account_number + (w.virtual_account_bank ? ' \u2022 ' + w.virtual_account_bank : '');
         } else {
-          va = 'Click Account, Tap +Fund Account to fund your account';
+          va = 'Tap Account \u2192 Fund Account to add funds';
         }
-        $('d-va').textContent = va;
-      } else {
-        $('d-bal').textContent = fmtN(gBal || 0);
-        $('d-va').textContent = 'Click Account, Tap +Fund Account to fund your account';
+        if ($('d-va'))      $('d-va').textContent      = va;
+        if ($('d-va-dash')) $('d-va-dash').textContent = va;
       }
+      if (cb) cb();
     });
   });
 }
+
+function loadDashboard() { loadWalletBalance(function() {}); }
 
 function netCls(net) {
   var n = (net || '').toUpperCase();
@@ -994,49 +1006,114 @@ function netCls(net) {
 }
 
 function loadPlans() {
-  restGet('/data_plans', 'is_active=eq.true&order=sort_order&select=id,data_size,network,selling_price,daily_price,validity_days', function(e, r) {
-    var wrap = $('plans-list');
-    if (!r || !r.ok || !r.data || !r.data.length) {
-      wrap.innerHTML = '<div class="empty">No plans available right now.</div>';
-      return;
+  var wrap = $('plans-list');
+  wrap.innerHTML = '<div class="empty" style="padding:20px 0;">Loading plans\u2026</div>';
+
+  // Use category + validity_days — both reliable real columns
+  restGet('/data_plans',
+    'is_active=eq.true&order=network,sort_order,selling_price&select=id,data_size,network,selling_price,daily_price,validity_days,category',
+    function(e, r) {
+      if (!r || !r.ok || !r.data || !r.data.length) {
+        wrap.innerHTML = '<div class="empty">No plans available right now.</div>';
+        return;
+      }
+
+      var allPlans = r.data;
+      // Split into three buckets using category first, validity_days as fallback
+      var dailyPlans = [], weeklyPlans = [], monthlyPlans = [];
+      var j, p, cat, vd;
+      for (j = 0; j < allPlans.length; j++) {
+        p = allPlans[j];
+        cat = (p.category || '').toLowerCase();
+        vd  = parseInt(p.validity_days) || 30;
+        if (cat === 'daily' || vd === 1) {
+          p._idx = dailyPlans.length;
+          dailyPlans.push(p);
+        } else if (cat === 'weekly' || (vd > 1 && vd <= 7)) {
+          p._widx = weeklyPlans.length;
+          weeklyPlans.push(p);
+        } else {
+          // monthly, always_on, mega, router, etc.
+          p._midx = monthlyPlans.length;
+          monthlyPlans.push(p);
+        }
+      }
+
+      // Store all pools for openSubModal
+      wrap._plans       = weeklyPlans;   // legacy: regular plans = weekly
+      wrap._dailyPlans  = dailyPlans;
+      wrap._weeklyPlans = weeklyPlans;
+      wrap._monthlyPlans= monthlyPlans;
+
+      var html = '';
+      var NETS = ['MTN', 'GLO', 'AIRTEL'];
+
+      // Helper: render a group of plans split by network under a section header
+      function renderSection(title, plans, idxKey, idxPrefix) {
+        if (!plans.length) return '';
+        var out = '<div class="sec-title" style="margin-top:16px;margin-bottom:8px;">' + title + '</div>';
+        // Group by network
+        var grp = {}, ni2, nn, nlist, kk, pp, pc, borderClr, pillC;
+        for (kk = 0; kk < plans.length; kk++) {
+          pp = plans[kk];
+          nn = (pp.network || 'OTHER').toUpperCase();
+          if (!grp[nn]) grp[nn] = [];
+          grp[nn].push(pp);
+        }
+        // Render NETS first then others
+        var allNets = NETS.slice();
+        for (nn in grp) { if (grp.hasOwnProperty(nn) && allNets.indexOf(nn) === -1) allNets.push(nn); }
+        for (ni2 = 0; ni2 < allNets.length; ni2++) {
+          nn = allNets[ni2];
+          nlist = grp[nn];
+          if (!nlist || !nlist.length) continue;
+          pillC     = netCls(nn);
+          borderClr = nn === 'MTN' ? '#ca8a04' : nn === 'GLO' ? '#16a34a' : nn === 'AIRTEL' ? '#dc2626' : '#6366f1';
+          out += '<div style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;align-items:center;gap:8px;margin:10px 0 5px;">' +
+            '<span class="plan-net ' + pillC + '" style="font-size:.8rem;padding:3px 10px;">' + nn + '</span>' +
+            '<div style="-webkit-box-flex:1;flex:1;height:1px;background:#e5e7eb;"></div></div>';
+          for (kk = 0; kk < nlist.length; kk++) {
+            pp = nlist[kk];
+            pc = calcPlanDaily(pp, gPayDays);
+            var subIdx = idxPrefix + pp[idxKey];
+            out += '<div class="plan-card" style="border-left:3px solid ' + borderClr + ';">' +
+              '<div class="plan-top">' +
+                '<span class="plan-size">' + esc(pp.data_size) + '</span>' +
+                '<span class="plan-net ' + pillC + '">' + esc(pp.network) + '</span>' +
+              '</div>' +
+              '<div class="plan-price">' + fmtN(pp.selling_price) + '</div>' +
+              '<div class="plan-sub">Installment: <strong>' + fmtN(pc.daily) + '/day</strong> &bull; ' + gPayDays + ' days &bull; Valid ' + (pp.validity_days || 1) + 'd</div>' +
+              '<button class="plan-btn" onclick="openSubModal(\'' + subIdx + '\')">Subscribe</button>' +
+            '</div>';
+          }
+        }
+        return out;
+      }
+
+      html += renderSection('&#128246; Daily Plans', dailyPlans, '_idx', 'd_');
+      html += renderSection('&#128337; Weekly Plans', weeklyPlans, '_widx', 'w_');
+      html += renderSection('&#128197; Monthly Plans', monthlyPlans, '_midx', 'm_');
+
+      if (!html) html = '<div class="empty">No plans available right now.</div>';
+      wrap.innerHTML = html;
+      // Re-attach after innerHTML wipe
+      wrap._plans        = weeklyPlans;
+      wrap._dailyPlans   = dailyPlans;
+      wrap._weeklyPlans  = weeklyPlans;
+      wrap._monthlyPlans = monthlyPlans;
     }
-    var plans = r.data;
-    // Store plans on the wrap element for openSubModal to access
-    wrap._plans = plans;
-    var html = '';
-    var i;
-    for (i = 0; i < plans.length; i++) {
-      var p = plans[i];
-      var calc = calcPlanDaily(p, gPayDays);
-      html += '<div class="plan-card">' +
-        '<div class="plan-top">' +
-          '<span class="plan-size">' + esc(p.data_size) + '</span>' +
-          '<span class="plan-net ' + netCls(p.network) + '">' + esc(p.network) + '</span>' +
-        '</div>' +
-        '<div class="plan-price">' + fmtN(p.selling_price) + '</div>' +
-        '<div class="plan-sub">' +
-          'Daily: <strong>' + fmtN(calc.daily) + '</strong>' +
-          ' &bull; ' + gPayDays + ' days' +
-          ' &bull; Valid ' + (p.validity_days || 30) + ' days' +
-        '</div>' +
-        '<button class="plan-btn" onclick="openSubModal(' + i + ')">Subscribe</button>' +
-      '</div>';
-    }
-    wrap.innerHTML = html;
-    // Re-attach _plans AFTER setting innerHTML (avoids it being wiped)
-    wrap._plans = plans;
-  });
+  );
 }
 
 function loadSubs() {
   ensureToken(function(err) {
     if (err) return;
     restGet('/subscriptions',
-      'user_id=eq.' + gUser.id + '&select=id,status,total_price,amount_paid,phone_number,data_plans(data_size,network,daily_price)&order=created_at.desc&limit=20',
+      'user_id=eq.' + gUser.id + '&select=id,status,total_price,amount_paid,phone_number,payment_days,created_at,data_plans(data_size,network,daily_price,selling_price)&order=created_at.desc&limit=20',
       function(e, r) {
         var wrap = $('subs-list');
         if (!r || !r.ok || !r.data || !r.data.length) {
-          wrap.innerHTML = '<div class="empty">No subscriptions yet.</div>';
+          wrap.innerHTML = '<div class="empty">No plans yet.</div>';
           return;
         }
         wrap.innerHTML = renderSubsList(r.data, false);
@@ -1053,24 +1130,121 @@ function renderSubsList(subs, compact) {
     var pl = s.data_plans || {};
     var paid = parseFloat(s.amount_paid) || 0;
     var total = parseFloat(s.total_price) || 1;
-    var pct = Math.round((paid / total) * 100);
+    var pct = Math.min(100, Math.round((paid / total) * 100));
     var remaining = total - paid;
     var sc = statusClass(s.status);
+    var isCompleted = s.status === 'completed';
+    var isActive = s.status === 'active';
+    var isPending = s.status === 'pending';
 
-    html += '<div class="sub-row">' +
-      '<div class="sub-top">' +
-        '<span class="sub-name">' + esc(pl.data_size || '?') + ' &bull; ' + esc(pl.network || '?') + '</span>' +
-        '<span class="sub-status ' + sc + '">' + esc(s.status) + '</span>' +
-      '</div>' +
-      '<div class="prog-bar"><div class="prog-fill" style="width:' + pct + '%"></div></div>' +
-      '<div class="sub-meta">' + fmtN(paid) + ' paid of ' + fmtN(total) + ' &bull; ' + esc(s.phone_number || '') + '</div>';
+    // Payment days & per-payment calc
+    var payDays = parseInt(s.payment_days) || 7;
+    var dailyPrice = parseFloat(pl.daily_price) || 0;
+    var paidCount = dailyPrice > 0 ? Math.round(paid / dailyPrice) : 0;
+    var totalPayments = dailyPrice > 0 ? Math.ceil(total / dailyPrice) : 0;
+    var paymentsLeft = Math.max(0, totalPayments - paidCount);
+    var perPayment = dailyPrice > 0 ? dailyPrice : 0;
 
-    if (!compact && (s.status === 'active' || s.status === 'pending') && remaining > 0) {
-      html += '<button class="pay-btn" onclick="openPayModal(\'' + esc(s.id) + '\',' + (parseFloat(pl.daily_price)||0) + ',' + remaining + ')">Pay Installment</button>';
+    // Date formatting
+    var rawDate = s.created_at || '';
+    var dateStr = '';
+    if (rawDate) {
+      try {
+        var d = new Date(rawDate);
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        dateStr = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+      } catch(e2) { dateStr = rawDate.slice(0,10); }
     }
+
+    // Network badge class
+    var nbCls = netCls(pl.network);
+
+    html += '<div class="sub-row">';
+    // Header: plan name + status badge
+    html += '<div class="sub-top">' +
+      '<span class="sub-name">' + esc(pl.data_size || 'Data Plan') + ' <span class="plan-net ' + nbCls + '" style="font-size:.7rem;">' + esc(pl.network || '') + '</span></span>' +
+      '<span class="sub-status ' + sc + '">' + esc(s.status) + '</span>' +
+    '</div>';
+
+    // Phone + date line
+    html += '<div style="font-size:.74rem;color:#888;margin-bottom:6px;">&#128241; ' + esc(s.phone_number || '') + ' &bull; ' + esc(dateStr) + '</div>';
+
+    // Progress bar + pct
+    html += '<div style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;gap:8px;margin-bottom:4px;">' +
+      '<div class="prog-bar" style="flex:1;margin:0;"><div class="prog-fill" style="width:' + pct + '%"></div></div>' +
+      '<span style="font-size:.72rem;font-weight:700;color:#555;white-space:nowrap;">' + pct + '% complete</span>' +
+    '</div>';
+
+    // Stats rows
+    html += '<div style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;gap:6px 12px;margin-top:6px;margin-bottom:8px;">';
+
+    html += '<div style="min-width:100px;">' +
+      '<div style="font-size:.67rem;color:#aaa;text-transform:uppercase;font-weight:700;">Total Paid</div>' +
+      '<div style="font-size:.88rem;font-weight:900;color:#059669;">' + fmtN(paid) + '</div>' +
+    '</div>';
+
+    if (isCompleted) {
+      html += '<div style="min-width:100px;">' +
+        '<div style="font-size:.67rem;color:#aaa;text-transform:uppercase;font-weight:700;">Outstanding</div>' +
+        '<div style="font-size:.88rem;font-weight:900;color:#111;">Cleared &#10003;</div>' +
+      '</div>';
+    } else {
+      html += '<div style="min-width:100px;">' +
+        '<div style="font-size:.67rem;color:#aaa;text-transform:uppercase;font-weight:700;">Outstanding</div>' +
+        '<div style="font-size:.88rem;font-weight:900;color:#dc2626;">' + fmtN(remaining) + '</div>' +
+      '</div>';
+    }
+
+    if (!isCompleted && paymentsLeft > 0 && perPayment > 0) {
+      html += '<div style="min-width:100px;">' +
+        '<div style="font-size:.67rem;color:#aaa;text-transform:uppercase;font-weight:700;">Payments Left</div>' +
+        '<div style="font-size:.88rem;font-weight:900;color:#111;">' + paymentsLeft + ' left</div>' +
+      '</div>' +
+      '<div style="min-width:100px;">' +
+        '<div style="font-size:.67rem;color:#aaa;text-transform:uppercase;font-weight:700;">&#8358; Per payment</div>' +
+        '<div style="font-size:.88rem;font-weight:900;color:#1877f2;">' + fmtN(perPayment) + '</div>' +
+      '</div>';
+    } else if (!isCompleted) {
+      html += '<div style="min-width:100px;">' +
+        '<div style="font-size:.67rem;color:#aaa;text-transform:uppercase;font-weight:700;">Payments Left</div>' +
+        '<div style="font-size:.88rem;font-weight:900;color:#111;">&#8212;</div>' +
+      '</div>';
+    }
+
+    if (!isCompleted && paidCount > 0) {
+      html += '<div style="min-width:100px;">' +
+        '<div style="font-size:.67rem;color:#aaa;text-transform:uppercase;font-weight:700;">' + paidCount + ' Paid so far</div>' +
+        '<div style="font-size:.88rem;font-weight:900;color:#111;">&nbsp;</div>' +
+      '</div>';
+    }
+
     html += '</div>';
+
+    // Action buttons
+    if (isCompleted) {
+      html += '<div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:7px;margin-top:4px;">' +
+        '<div style="flex:1;padding:8px 10px;background:#e0e7ff;color:#3730a3;border-radius:6px;font-size:.78rem;font-weight:700;text-align:center;">Delivered &#9989; Done</div>' +
+        '<button class="pay-btn" style="flex:1;background:#e5e7eb;color:#555;" onclick="openRefundModal(\'' + esc(s.id) + '\',\'' + esc((pl.data_size||'') + ' ' + (pl.network||'')) + '\',\'' + esc(s.phone_number||'') + '\',' + paid + ')">Report Issue</button>' +
+      '</div>';
+    } else if ((isActive || isPending) && remaining > 0) {
+      html += '<button class="pay-btn" onclick="openPayModal(\'' + esc(s.id) + '\',' + (dailyPrice||0) + ',' + remaining + ')">Pay Now</button>';
+    }
+
+    html += '</div>'; // end sub-row
   }
+  html += '<div style="text-align:center;font-size:.72rem;color:#bbb;padding:14px 0;">&copy; Vortexedge Limited</div>';
   return html;
+}
+
+function updateInboxBadge(count) {
+  var badge = $('inbox-badge');
+  if (!badge) return;
+  if (count > 0) {
+    badge.textContent = count > 9 ? '9+' : String(count);
+    badge.style.display = 'inline-block';
+  } else {
+    badge.style.display = 'none';
+  }
 }
 
 function loadInbox() {
@@ -1079,9 +1253,14 @@ function loadInbox() {
     restGet('/messages', 'user_id=eq.' + gUser.id + '&order=created_at.desc&limit=20', function(e1, r1) {
       var wrap = $('inbox-list');
       var list = (r1 && r1.ok && r1.data) ? r1.data : [];
+      // Count unread messages (outbound = sent by admin to user = unread if not read)
+      var unreadMsgs = 0;
+      var i;
+      for (i = 0; i < list.length; i++) {
+        if (!list[i].is_read && list[i].direction !== 'inbound') unreadMsgs++;
+      }
       if (list.length) {
         var html = '';
-        var i;
         for (i = 0; i < list.length; i++) {
           var m = list[i];
           html += '<div class="msg-row' + ((m.is_read || m.direction === 'inbound') ? '' : ' unread') + '" onclick="openMessageDetail(\'' + esc(m.id) + '\')">' +
@@ -1091,17 +1270,20 @@ function loadInbox() {
           '</div>';
         }
         wrap.innerHTML = html;
+        updateInboxBadge(unreadMsgs);
         return;
       }
       restGet('/notifications', 'user_id=eq.' + gUser.id + '&order=created_at.desc&limit=20', function(e, r) {
         if (!r || !r.ok || !r.data || !r.data.length) {
           wrap.innerHTML = '<div class="empty">No messages or notifications.</div>';
+          updateInboxBadge(0);
           return;
         }
+        var unreadNotifs = 0;
         var html = '';
-        var i;
         for (i = 0; i < r.data.length; i++) {
           var n = r.data[i];
+          if (!n.is_read) unreadNotifs++;
           html += '<div class="msg-row' + (n.is_read ? '' : ' unread') + '" onclick="openNotificationDetail(' + i + ')">' +
             '<div class="msg-sub">Notification</div>' +
             '<div class="msg-body">' + esc(n.message || '') + '</div>' +
@@ -1110,6 +1292,7 @@ function loadInbox() {
         }
         wrap.innerHTML = html;
         wrap._notifications = r.data;
+        updateInboxBadge(unreadNotifs);
         restPatch('/notifications', 'user_id=eq.' + gUser.id + '&is_read=eq.false', { is_read: true }, function() {});
       });
     });
@@ -1174,24 +1357,34 @@ function updateSubInfo() {
 
 function openSubModal(planIdx) {
   var plansWrap = $('plans-list');
-  if (!plansWrap || !plansWrap._plans || !plansWrap._plans[planIdx]) {
-    toast('Plan not found. Please refresh and try again.');
-    return;
+  var plan = null;
+  var s = String(planIdx);
+
+  if (s.indexOf('d_') === 0) {
+    var pool = plansWrap && plansWrap._dailyPlans;
+    if (pool) plan = pool[parseInt(s.slice(2))];
+  } else if (s.indexOf('w_') === 0) {
+    var wpool = plansWrap && plansWrap._weeklyPlans;
+    if (wpool) plan = wpool[parseInt(s.slice(2))];
+  } else if (s.indexOf('m_') === 0) {
+    var mpool = plansWrap && plansWrap._monthlyPlans;
+    if (mpool) plan = mpool[parseInt(s.slice(2))];
+  } else {
+    // Legacy numeric index → weekly pool
+    var rpool = plansWrap && plansWrap._weeklyPlans;
+    if (rpool) plan = rpool[parseInt(s)];
   }
-  gSelPlan = plansWrap._plans[planIdx];
-  gModalPayDays = gPayDays; // sync with current selection
-  // Title
+
+  if (!plan) { toast('Plan not found. Please refresh and try again.'); return; }
+  gSelPlan = plan;
+  gModalPayDays = gPayDays;
   $('m-sub-title').textContent = 'Subscribe: ' + gSelPlan.data_size + ' (' + gSelPlan.network + ')';
-  // Sync day buttons visually
   if ($('m-sub-days-7'))  $('m-sub-days-7').className  = 'btn ' + (gModalPayDays === 7  ? 'btn-blue' : 'btn-lite');
   if ($('m-sub-days-28')) $('m-sub-days-28').className = 'btn ' + (gModalPayDays === 28 ? 'btn-blue' : 'btn-lite');
-  // Show plan info
   _refreshSubInfo();
   errHide('m-sub-err');
-  // Pre-fill phone
   var meta = (gUser && gUser.user_metadata) || {};
   $('m-sub-phone').value = (gProfile && gProfile.phone) || meta.phone || '';
-  // Reset toggles
   var afInput = $('m-sub-autofund');
   var arInput = $('m-sub-autorenew');
   if (afInput) { afInput.checked = false; _syncSl('m-sub-autofund-sl', false); }
@@ -1384,41 +1577,35 @@ function loadWalletTab() {
     if (err) return;
     var wrap = $('wallet-tab-content');
     if (!wrap) return;
-    wrap.innerHTML = '<div class="empty">Loading wallet…</div>';
-
-    function renderWallet(list) {
-      var html = '';
-      var vaHtml = getVAHtml(false);
-      html += '<div class="card"><div class="card-title">Account Balance</div><div class="card-val">' + fmtN(gBal) + '</div><div class="card-sub">Your balance updates after successful funding or installment payment.</div></div>';
-      if (vaHtml) html += vaHtml;
-      if ($('acct-rows') && $('acct-rows').innerHTML) html += '<div class="card"><div class="sec-title">Profile</div>' + $('acct-rows').innerHTML + '</div>';
-      if (!list.length) {
-        html += '<div class="empty">No wallet transactions yet.</div>';
-      } else {
-        var i, t, type, icon, desc;
-        for (i = 0; i < list.length; i++) {
-          t = list[i];
-          type = t.type || 'credit';
-          icon = type === 'debit' ? '−' : (type === 'refund' ? '↺' : '+');
-          desc = (t.metadata && t.metadata.description) ? t.metadata.description : type;
-          html += '<div class="tx-row">' +
-            '<div class="tx-left"><div class="tx-ico">' + icon + '</div><div><div class="tx-desc">' + esc(desc) + '</div><div class="tx-date">' + esc((t.created_at || '').replace('T',' ').slice(0,16)) + (t.reference ? ' • ' + esc(t.reference) : '') + '</div></div></div>' +
-            '<div class="tx-amt ' + esc(type) + '">' + (type === 'debit' ? '−' : '+') + fmtN(t.amount) + '</div>' +
-          '</div>';
-        }
+    // Show cached balance instantly — no spinner
+    var html = '';
+    html += '<button class="btn btn-blue" onclick="openFundModal()" style="margin-bottom:12px;">+ Fund Account</button>';
+    html += '<div class="card"><div class="card-title">Account Balance</div><div class="card-val">' + fmtN(gBal) + '</div><div class="card-sub">Updates after funding or installment payment.</div></div>';
+    var vaHtml = getVAHtml(false);
+    if (vaHtml) html += vaHtml;
+    if ($('acct-rows') && $('acct-rows').innerHTML) html += '<div class="card"><div class="sec-title">Profile</div>' + $('acct-rows').innerHTML + '</div>';
+    html += '<div id="wallet-tx-list"><div class="empty" style="font-size:.75rem;">Loading transactions\u2026</div></div>';
+    wrap.innerHTML = html;
+    // Only fetch transactions (balance already cached)
+    restGet('/wallet_transactions', 'user_id=eq.' + gUser.id + '&select=type,amount,reference,metadata,created_at&order=created_at.desc&limit=20', function(e2, r2) {
+      var txWrap = $('wallet-tx-list');
+      if (!txWrap) return;
+      var list = (r2 && r2.ok && r2.data) ? r2.data : [];
+      if (!list.length) { txWrap.innerHTML = '<div class="empty">No transactions yet.</div>'; return; }
+      var txHtml = '', i, t, type, icon, desc;
+      for (i = 0; i < list.length; i++) {
+        t = list[i]; type = t.type || 'credit';
+        icon = type === 'debit' ? '\u2212' : (type === 'refund' ? '\u21ba' : '+');
+        desc = (t.metadata && t.metadata.description) ? t.metadata.description : type;
+        txHtml += '<div class="tx-row">' +
+          '<div class="tx-left"><div class="tx-ico">' + icon + '</div><div>' +
+          '<div class="tx-desc">' + esc(desc) + '</div>' +
+          '<div class="tx-date">' + esc((t.created_at || '').replace('T',' ').slice(0,16)) + (t.reference ? ' \u2022 ' + esc(t.reference) : '') + '</div>' +
+          '</div></div>' +
+          '<div class="tx-amt ' + esc(type) + '">' + (type === 'debit' ? '\u2212' : '+') + fmtN(t.amount) + '</div>' +
+        '</div>';
       }
-      wrap.innerHTML = html;
-    }
-
-    restGet('/wallets', 'user_id=eq.' + gUser.id + '&select=balance', function(e1, r1) {
-      if (r1 && r1.ok && r1.data && r1.data[0]) {
-        gBal = parseFloat(r1.data[0].balance) || 0;
-        if ($('d-bal')) $('d-bal').textContent = fmtN(gBal);
-      }
-      restGet('/wallet_transactions', 'user_id=eq.' + gUser.id + '&select=type,amount,reference,metadata,created_at&order=created_at.desc&limit=30', function(e2, r2) {
-        var list = (r2 && r2.ok && r2.data) ? r2.data : [];
-        renderWallet(list);
-      });
+      txWrap.innerHTML = txHtml;
     });
   });
 }
@@ -1713,63 +1900,58 @@ function switchFundTab(tab) {
 function loadDashCashflow() {
   ensureToken(function(err) {
     if (err) return;
-    // Wallet balance on dash
-    restGet('/wallets', 'user_id=eq.' + gUser.id + '&select=balance,virtual_account_number,virtual_account_bank', function(e, r) {
-      if (r && r.ok && r.data && r.data[0]) {
-        var w = r.data[0];
-        gBal = parseFloat(w.balance) || 0;
-        if ($('d-bal'))      $('d-bal').textContent      = fmtN(gBal);
-        if ($('d-bal-dash')) $('d-bal-dash').textContent = fmtN(gBal);
-        if (!gProfile) gProfile = {};
-        if (w.virtual_account_number) {
-          gProfile.virtual_account_number = w.virtual_account_number;
-          gProfile.virtual_account_bank   = w.virtual_account_bank;
-          var vaTxt = 'Acc: ' + w.virtual_account_number + (w.virtual_account_bank ? ' \u2022 ' + w.virtual_account_bank : '');
-          if ($('d-va'))      $('d-va').textContent      = vaTxt;
-          if ($('d-va-dash')) $('d-va-dash').textContent = vaTxt;
-        } else {
-          if ($('d-va-dash')) $('d-va-dash').textContent = 'Tap +Fund Account to get your virtual account';
-        }
-      }
-    });
-    // Cashflow
+    // Use cached balance — no extra /wallets call
+    if ($('d-bal-dash')) $('d-bal-dash').textContent = fmtN(gBal);
+
     var today = new Date(); today.setHours(0,0,0,0);
-    restGet('/wallet_transactions', 'user_id=eq.' + gUser.id + '&created_at=gte.' + encodeURIComponent(today.toISOString()) + '&select=type,amount', function(e1, r1) {
-      var list = (r1 && r1.ok && r1.data) ? r1.data : [];
-      var todayIn = 0, todayOut = 0, i;
-      for (i = 0; i < list.length; i++) {
-        var t = list[i];
-        if (t.type === 'credit' || t.type === 'refund') todayIn  += parseFloat(t.amount) || 0;
-        else if (t.type === 'debit')                    todayOut += parseFloat(t.amount) || 0;
+
+    // Fire all 3 dashboard queries in true parallel (no chaining)
+    restGet('/wallet_transactions',
+      'user_id=eq.' + gUser.id + '&created_at=gte.' + encodeURIComponent(today.toISOString()) + '&select=type,amount',
+      function(e1, r1) {
+        var list = (r1 && r1.ok && r1.data) ? r1.data : [];
+        var todayIn = 0, todayOut = 0, i;
+        for (i = 0; i < list.length; i++) {
+          var t = list[i];
+          if (t.type === 'credit' || t.type === 'refund') todayIn  += parseFloat(t.amount) || 0;
+          else if (t.type === 'debit')                    todayOut += parseFloat(t.amount) || 0;
+        }
+        if ($('cf-in-d'))  $('cf-in-d').textContent  = todayIn  > 0 ? fmtN(todayIn)  : '\u20A60.00';
+        if ($('cf-out-d')) $('cf-out-d').textContent = todayOut > 0 ? fmtN(todayOut) : '\u20A60.00';
       }
-      if ($('cf-in-d'))  $('cf-in-d').textContent  = todayIn  > 0 ? fmtN(todayIn)  : '\u20A60.00';
-      if ($('cf-out-d')) $('cf-out-d').textContent = todayOut > 0 ? fmtN(todayOut) : '\u20A60.00';
-      restGet('/subscriptions', 'user_id=eq.' + gUser.id + '&status=eq.completed&select=id', function(e2, r2) {
+    );
+
+    restGet('/subscriptions',
+      'user_id=eq.' + gUser.id + '&status=eq.completed&select=id',
+      function(e2, r2) {
         var cnt = (r2 && r2.ok && r2.data) ? r2.data.length : 0;
         if ($('cf-done-d')) $('cf-done-d').textContent = cnt;
-      });
-    });
-    // Active subs mini-cards for dashboard
-    restGet('/subscriptions', 'user_id=eq.' + gUser.id + '&status=in.(pending,active)&select=id,status,total_price,amount_paid,phone_number,data_plans(data_size,network)&order=created_at.desc&limit=5', function(e, r) {
-      var wrap = $('dash-subs-d'); if (!wrap) return;
-      var data = (r && r.ok && r.data) ? r.data : [];
-      if (!data.length) { wrap.innerHTML = '<div class="empty">No active plans. Tap Buy Data to subscribe.</div>'; return; }
-      var html = '', i;
-      for (i = 0; i < data.length; i++) {
-        var s = data[i], pl = s.data_plans || {};
-        var paid = parseFloat(s.amount_paid) || 0, total = parseFloat(s.total_price) || 1;
-        var pct  = Math.min(100, (paid / total) * 100);
-        html += '<div style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-bottom:10px;background:#fff;">' +
-          '<div style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;margin-bottom:6px;">' +
-            '<span style="font-size:.93rem;font-weight:800;color:#111;">' + esc(pl.data_size || '') + ' <span class="plan-net ' + netCls(pl.network) + '">' + esc(pl.network || '') + '</span></span>' +
-            '<span style="font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:10px;background:#fef3c7;color:#92400e;">' + esc(s.status) + '</span>' +
-          '</div>' +
-          '<div style="background:#e5e7eb;border-radius:4px;height:6px;overflow:hidden;margin-bottom:4px;"><div style="background:#1877f2;height:100%;border-radius:4px;width:' + pct.toFixed(1) + '%;"></div></div>' +
-          '<div style="font-size:.73rem;color:#888;">' + fmtN(paid) + ' of ' + fmtN(total) + ' paid' + (s.phone_number ? ' \u2022 ' + esc(s.phone_number) : '') + '</div>' +
-        '</div>';
       }
-      wrap.innerHTML = html;
-    });
+    );
+
+    restGet('/subscriptions',
+      'user_id=eq.' + gUser.id + '&status=in.(pending,active)&select=id,status,total_price,amount_paid,phone_number,data_plans(data_size,network)&order=created_at.desc&limit=5',
+      function(e3, r3) {
+        var wrap = $('dash-subs-d'); if (!wrap) return;
+        var data = (r3 && r3.ok && r3.data) ? r3.data : [];
+        if (!data.length) { wrap.innerHTML = '<div class="empty">No active plans. Tap Buy Data to subscribe.</div>'; return; }
+        var html = '', i;
+        for (i = 0; i < data.length; i++) {
+          var s = data[i], pl = s.data_plans || {};
+          var paid = parseFloat(s.amount_paid) || 0, total = parseFloat(s.total_price) || 1;
+          var pct  = Math.min(100, (paid / total) * 100);
+          html += '<div style="border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-bottom:10px;background:#fff;">' +
+            '<div style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;margin-bottom:6px;">' +
+              '<span style="font-size:.93rem;font-weight:800;color:#111;">' + esc(pl.data_size || '') + ' <span class="plan-net ' + netCls(pl.network) + '">' + esc(pl.network || '') + '</span></span>' +
+              '<span style="font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:10px;background:#fef3c7;color:#92400e;">' + esc(s.status) + '</span>' +
+            '</div>' +
+            '<div style="background:#e5e7eb;border-radius:4px;height:6px;overflow:hidden;margin-bottom:4px;"><div style="background:#1877f2;height:100%;border-radius:4px;width:' + pct.toFixed(1) + '%;"></div></div>' +
+            '<div style="font-size:.73rem;color:#888;">' + fmtN(paid) + ' of ' + fmtN(total) + ' paid' + (s.phone_number ? ' \u2022 ' + esc(s.phone_number) : '') + '</div>' +
+          '</div>';
+        }
+        wrap.innerHTML = html;
+      }
+    );
   });
 }
 
@@ -1839,7 +2021,6 @@ function wire() {
   $('m-pay-btn').onclick = confirmPay;
 
   // Wallet + message modals
-  $('wallet-fund-btn').onclick = openFundModal;
   $('m-fund-x').onclick = function() { closeModal('m-fund'); };
   if ($('m-fund-btn')) $('m-fund-btn').onclick = confirmFund;
   $('m-va-x').onclick = function() { closeModal('m-va'); };
