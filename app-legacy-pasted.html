@@ -20,7 +20,7 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 .auth-hero{padding:36px 20px 28px;text-align:center;}
 .auth-wordmark{display:block;width:100%;max-width:300px;margin:0 auto 18px;}
 .auth-tagline{font-size:.82rem;color:rgba(255,255,255,.6);letter-spacing:.06em;text-transform:uppercase;}
-.auth-card{background:#fff;border-radius:16px 16px 0 0;padding:26px 20px 20px;min-height:calc(100vh - 220px);}
+.auth-card{background:#fff;border-radius:16px 16px 0 0;padding:20px 20px 16px;min-height:auto;}
 @media(min-width:480px){
   .auth-card{border-radius:16px;min-height:auto;margin:0 16px;}
   .auth-hero{padding:48px 20px 32px;}
@@ -60,11 +60,11 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:800;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 14px;}
 .modal.on{display:block;}
 .modal-box{background:#fff;border-radius:8px;max-width:440px;width:100%;margin:0 auto;overflow:hidden;}
-.modal-hdr{padding:14px 16px;border-bottom:1px solid #ddd;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;}
+.modal-hdr{padding:14px 16px;box-shadow:0 1px 0 #ddd;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;}
 .modal-title{font-size:.95rem;font-weight:900;color:#111;}
 .modal-x{background:none;border:none;font-size:1.3rem;cursor:pointer;color:#888;padding:0;line-height:1;}
 .modal-body{padding:14px 16px;}
-.modal-foot{padding:10px 16px;border-top:1px solid #ddd;text-align:right;}
+.modal-foot{padding:10px 16px;box-shadow:0 -1px 0 #ddd;text-align:right;}
 .terms-scroll{max-height:52vh;overflow-y:auto;-webkit-overflow-scrolling:touch;font-size:.79rem;color:#444;line-height:1.7;}
 .terms-scroll h3{font-size:.81rem;color:#111;margin:12px 0 3px;font-weight:700;}
 .terms-scroll p{margin-bottom:6px;}
@@ -124,7 +124,7 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 .pay-btn{margin-top:8px;padding:8px;background:#059669;color:#fff;border:none;border-radius:6px;font-size:.82rem;font-weight:700;cursor:pointer;width:100%;font-family:inherit;-webkit-appearance:none;}
 
 /* Notification rows */
-.notif-row{padding:12px;border-bottom:1px solid #f0f0f0;font-size:.83rem;}
+.notif-row{padding:12px;box-shadow:0 1px 0 #f0f0f0;font-size:.83rem;}
 .notif-row.unread{background:#eef1ff;}
 .notif-time{font-size:.72rem;color:#bbb;margin-top:3px;}
 
@@ -140,7 +140,7 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 /* Section headings */
 .sec-title{font-size:.82rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;}
 .empty{text-align:center;padding:24px 0;color:#bbb;font-size:.85rem;}
-.row-line{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;-webkit-box-align:center;-webkit-align-items:center;align-items:center;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:.83rem;}
+.row-line{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;-webkit-box-align:center;-webkit-align-items:center;align-items:center;padding:6px 0;box-shadow:0 1px 0 #f5f5f5;font-size:.83rem;}
 .row-label{color:#888;}
 .row-val{font-weight:700;color:#111;}
 
@@ -536,9 +536,10 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
     <div class="modal-hdr"><div class="modal-title">Fund Account</div><button class="modal-x" id="m-fund-x">&#215;</button></div>
     <div class="modal-body">
       <div id="m-fund-err" class="err"></div>
-      <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:0;margin-bottom:14px;border-bottom:2px solid #eee;">
-        <button id="fund-tab-va" onclick="switchFundTab('va')" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid #1A56DB;color:#1A56DB;font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem;margin-bottom:-2px;">Bank Transfer</button>
-        <button id="fund-tab-af" onclick="switchFundTab('af')" style="padding:8px 14px;background:none;border:none;border-bottom:2px solid transparent;color:#888;font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem;margin-bottom:-2px;">Auto-Fund (Card)</button>
+      <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:0;margin-bottom:14px;position:relative;-webkit-transform:translateZ(0);transform:translateZ(0);">
+        <div style="position:absolute;left:0;right:0;bottom:0;height:2px;background:#eee;"></div>
+        <button id="fund-tab-va" onclick="switchFundTab('va')" style="padding:8px 14px;background:none;border:none;position:relative;color:#1A56DB;font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem;z-index:1;-webkit-tap-highlight-color:transparent;"><span style="position:absolute;left:0;right:0;bottom:0;height:2px;background:#1A56DB;-webkit-transform:translateZ(0);transform:translateZ(0);"></span>Bank Transfer</button>
+        <button id="fund-tab-af" onclick="switchFundTab('af')" style="padding:8px 14px;background:none;border:none;position:relative;color:#888;font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem;z-index:1;-webkit-tap-highlight-color:transparent;"><span id="fund-tab-af-ind" style="position:absolute;left:0;right:0;bottom:0;height:2px;background:transparent;-webkit-transform:translateZ(0);transform:translateZ(0);"></span>Auto-Fund (Card) &#128179;</button>
       </div>
       <div id="fund-panel-va">
         <div id="m-fund-va" class="va-box" style="display:none;"></div>
@@ -671,7 +672,7 @@ function xhr(method, url, headers, body, cb) {
   };
   req.onerror = function() { cb('Network error', null); };
   req.ontimeout = function() { cb('Timeout', null); };
-  req.timeout = 20000;
+  req.timeout = 10000;
   req.send(body ? (typeof body === 'string' ? body : JSON.stringify(body)) : null);
 }
 
@@ -785,6 +786,11 @@ function showPage(id) {
   $('pg-app').className  = 'pg' + (id === 'app'  ? ' on' : '');
 }
 
+var _subsLastLoad  = 0;
+var _inboxLastLoad = 0;
+var _dashLastLoad  = 0;
+var STALE_MS = 30000; // 30s before re-fetching on tab revisit
+
 function showTab(t) {
   var tabs = ['dash','plans','subs','wallet','inbox'];
   var i;
@@ -794,10 +800,11 @@ function showTab(t) {
     if (btn) btn.className = 'tab' + (tabs[i] === t ? ' act' : '');
     if (tc)  tc.className  = 'tab-content' + (tabs[i] === t ? ' on' : '');
   }
-  if (t === 'dash')   loadDashCashflow();
-  if (t === 'subs')   loadSubs();
+  var now = Date.now();
+  if (t === 'dash')   { if (now - _dashLastLoad  > STALE_MS) { _dashLastLoad  = now; loadDashCashflow(); } }
+  if (t === 'subs')   { if (now - _subsLastLoad  > STALE_MS) { _subsLastLoad  = now; loadSubs(); } }
   if (t === 'wallet') loadWalletTab();
-  if (t === 'inbox')  { loadInbox(); updateInboxBadge(0); }
+  if (t === 'inbox')  { if (now - _inboxLastLoad > STALE_MS) { _inboxLastLoad = now; loadInbox(); } updateInboxBadge(0); }
 }
 
 function errShow(id, msg) {
@@ -974,6 +981,12 @@ function bootApp() {
   showTab('plans');
   updatePayDaysUI();
 
+  // Reset stale guards — first boot always loads everything fresh
+  var _now = Date.now();
+  _subsLastLoad  = _now;
+  _inboxLastLoad = _now;
+  _dashLastLoad  = _now;
+
   // ── BOOT SEQUENCE: critical-path first, then stagger ────────
   // 1. Wallet balance + plans = what user sees first
   loadWalletBalance(function() { loadPlans(); });
@@ -1022,22 +1035,25 @@ function doLogout() {
 function loadWalletBalance(cb) {
   ensureToken(function(err) {
     if (err) { if (cb) cb(); return; }
-    restGet('/wallets', 'user_id=eq.' + gUser.id + '&select=balance,virtual_account_number,virtual_account_bank', function(e, r) {
+    restGet('/wallets', 'user_id=eq.' + gUser.id + '&select=balance,virtual_account_number,virtual_bank_name,paystack_dva_account_number,paystack_dva_bank_name,paystack_dva_account_name', function(e, r) {
       if (r && r.ok && r.data && r.data[0]) {
         var w = r.data[0];
         gBal = parseFloat(w.balance) || 0;
         if (!gProfile) gProfile = {};
-        if (w.virtual_account_number) {
-          gProfile.virtual_account_number = w.virtual_account_number;
-          gProfile.virtual_account_bank   = w.virtual_account_bank;
-        }
+        // Prefer Paystack DVA, fall back to Lenco VA
+        var acctNum  = w.paystack_dva_account_number || w.virtual_account_number || '';
+        var bankName = w.paystack_dva_bank_name || w.virtual_bank_name || '';
+        var acctName = w.paystack_dva_account_name || '';
+        gProfile.virtual_account_number = acctNum;
+        gProfile.virtual_account_bank   = bankName;
+        gProfile.virtual_account_name   = acctName;
         // Update every balance display at once
         var balStr = fmtN(gBal);
         if ($('d-bal'))      $('d-bal').textContent      = balStr;
         if ($('d-bal-dash')) $('d-bal-dash').textContent = balStr;
         var va = '';
-        if (w.virtual_account_number) {
-          va = 'Acc: ' + w.virtual_account_number + (w.virtual_account_bank ? ' \u2022 ' + w.virtual_account_bank : '');
+        if (acctNum) {
+          va = 'Acc: ' + acctNum + (bankName ? ' \u2022 ' + bankName : '');
         } else {
           va = 'Tap Account \u2192 Fund Account to add funds';
         }
@@ -1362,13 +1378,17 @@ function loadAcct(name) {
   // Load phone from profile
   ensureToken(function(err) {
     if (err) return;
-    restGet('/profiles', 'user_id=eq.' + gUser.id + '&select=phone,full_name,virtual_account_number,virtual_account_bank', function(e, r) {
+    restGet('/profiles', 'user_id=eq.' + gUser.id + '&select=phone,full_name,virtual_account_number,virtual_bank_name,paystack_dva_account_number,paystack_dva_bank_name,paystack_dva_account_name', function(e, r) {
       if (r && r.ok && r.data && r.data[0]) {
         var p = r.data[0]; gProfile = p;
         var extra = '';
         if (p.phone) extra += '<div class="row-line"><span class="row-label">Phone</span><span class="row-val">' + esc(p.phone) + '</span></div>';
-        if (p.virtual_account_number) extra += '<div class="row-line"><span class="row-label">Account Number</span><span class="row-val">' + esc(p.virtual_account_number) + '</span></div>';
-        if (p.virtual_account_bank)   extra += '<div class="row-line"><span class="row-label">Bank</span><span class="row-val">' + esc(p.virtual_account_bank) + '</span></div>';
+        if (p.virtual_account_number || p.paystack_dva_account_number) {
+          var pAcct = p.paystack_dva_account_number || p.virtual_account_number || '';
+          var pBank = p.paystack_dva_bank_name || p.virtual_bank_name || '';
+          extra += '<div class="row-line"><span class="row-label">Account Number</span><span class="row-val">' + esc(pAcct) + '</span></div>';
+          if (pBank) extra += '<div class="row-line"><span class="row-label">Bank</span><span class="row-val">' + esc(pBank) + '</span></div>';
+        }
         if (wrap) wrap.innerHTML = baseHtml + extra;
       }
     });
@@ -1938,16 +1958,22 @@ function launchAutoFund(amt, planLabel) {
 function switchFundTab(tab) {
   var va = $('fund-panel-va'), af = $('fund-panel-af');
   var tVA = $('fund-tab-va'), tAF = $('fund-tab-af');
+  var indVA = tVA ? tVA.querySelector('span') : null;
+  var indAF = $('fund-tab-af-ind');
   if (tab === 'va') {
     if (va) va.style.display = 'block';
     if (af) af.style.display = 'none';
-    if (tVA) { tVA.style.borderBottomColor = '#1A56DB'; tVA.style.color = '#1A56DB'; }
-    if (tAF) { tAF.style.borderBottomColor = 'transparent'; tAF.style.color = '#888'; }
+    if (tVA) tVA.style.color = '#1A56DB';
+    if (tAF) tAF.style.color = '#888';
+    if (indVA) indVA.style.background = '#1A56DB';
+    if (indAF) indAF.style.background = 'transparent';
   } else {
     if (va) va.style.display = 'none';
     if (af) af.style.display = 'block';
-    if (tAF) { tAF.style.borderBottomColor = '#1A56DB'; tAF.style.color = '#1A56DB'; }
-    if (tVA) { tVA.style.borderBottomColor = 'transparent'; tVA.style.color = '#888'; }
+    if (tAF) tAF.style.color = '#1A56DB';
+    if (tVA) tVA.style.color = '#888';
+    if (indAF) indAF.style.background = '#1A56DB';
+    if (indVA) indVA.style.background = 'transparent';
   }
 }
 
