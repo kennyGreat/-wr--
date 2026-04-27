@@ -2452,6 +2452,33 @@ async function doLogout(){
 
 
 function checkLandingGate(hasSession) { if (hasSession) location.replace('app.html'); }
+
+// ── Helpers required by auth UI ──
+function toast(msg, type) {
+  type = type || 'info';
+  var w = document.getElementById('toast-wrap');
+  if (!w) return;
+  var el = document.createElement('div');
+  el.className = 't ' + type; el.textContent = msg; w.appendChild(el);
+  setTimeout(function() {
+    el.style.opacity = '0'; el.style.transform = 'translateX(110%)';
+    setTimeout(function() { el.remove(); }, 300);
+  }, 4200);
+}
+
+function setBtnLoad(id, on, label) {
+  var b = document.getElementById(id); if (!b) return;
+  if (on) { b._lbl = b.textContent; b.innerHTML = '<div class="spin"></div>'; b.disabled = true; }
+  else { b.textContent = label || b._lbl; b.disabled = false; }
+}
+
+function openTermsModal() {
+  // Terms modal not present on auth page — open in new tab or show inline alert
+  var msg = 'By creating an account you agree to DataBulge\'s Terms & Conditions. DataBulge is NOT an investment platform.';
+  alert(msg);
+}
+
+function callCreateVA() {} // stub — VA creation happens in app.html
 </script>
 
 <script id="merged-auth-page-navigation">
