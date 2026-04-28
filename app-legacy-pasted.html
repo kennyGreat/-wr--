@@ -941,29 +941,42 @@ function doSignup() {
   );
 }
 
+function _currentCleanUrl() {
+  return window.location.origin + window.location.pathname;
+}
+
 function doForgot() {
   var email = ($('fg-email').value || '').replace(/^\s+|\s+$/g, '');
-  var errEl = $('fg-err'); var okEl = $('fg-ok');
+  var okEl = $('fg-ok');
   errHide('fg-err'); if (okEl) okEl.style.display = 'none';
   if (!email) { errShow('fg-err', 'Please enter your email address.'); return; }
-  btnLoad('fg-send-btn', true, 'Sending\u2026');
-  // Use the resetPassword edge function — same as index.html.
-  // Server-side call guarantees the correct redirectTo is embedded in the link.
-  xhr('POST', FN + '/resetPassword',
+  btnLoad('fg-send-btn', true, 'Sending…');
+  var redirectUrl = _currentCleanUrl();
+
+  _initSbClient();
+  if (_sb && _sb.auth && _sb.auth.resetPasswordForEmail) {
+    _sb.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl }).then(function(r) {
+      btnLoad('fg-send-btn', false, 'Send Reset Link');
+      if (r && r.error) { errShow('fg-err', r.error.message || 'Failed to send reset email. Please try again.'); return; }
+      if (okEl) { okEl.innerHTML = '✅ Reset link sent! Open the email link, then enter your new password.'; okEl.style.display = 'block'; }
+      setTimeout(function() { closeModal('m-forgot'); }, 6000);
+    }).catch(function(e) {
+      btnLoad('fg-send-btn', false, 'Send Reset Link');
+      errShow('fg-err', (e && e.message) || 'Failed to send reset email. Please try again.');
+    });
+    return;
+  }
+
+  xhr('POST', AUTH + '/recover?redirect_to=' + encodeURIComponent(redirectUrl),
     { 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
-    JSON.stringify({ action: 'send_reset', email: email }),
+    JSON.stringify({ email: email }),
     function(err, res) {
       btnLoad('fg-send-btn', false, 'Send Reset Link');
       if (err || !res || !res.ok || (res.data && res.data.error)) {
-        var msg = (res && res.data && (res.data.error || res.data.message)) || 'Failed to send reset email. Please try again.';
-        errShow('fg-err', msg);
-        return;
+        var msg = (res && res.data && (res.data.error_description || res.data.msg || res.data.error || res.data.message)) || 'Failed to send reset email. Please try again.';
+        errShow('fg-err', msg); return;
       }
-      // Always show success (don\'t reveal whether email exists — security)
-      if (okEl) {
-        okEl.innerHTML = '\u2705 Reset link sent! Check your inbox and tap the link <strong>on this device</strong>.';
-        okEl.style.display = 'block';
-      }
+      if (okEl) { okEl.innerHTML = '✅ Reset link sent! Open the email link, then enter your new password.'; okEl.style.display = 'block'; }
       setTimeout(function() { closeModal('m-forgot'); }, 6000);
     }
   );
@@ -974,41 +987,57 @@ function doResetPassword() {
   var confirm = $('r-confirm').value || '';
   errHide('r-err'); okHide('r-ok'); $('r-exp').style.display = 'none';
   if (!pass || pass.length < 6) { errShow('r-err', 'Password must be at least 6 characters.'); return; }
-  if (pass !== confirm) { errShow('r-err', 'Passwords do not match \u2014 please check and try again.'); return; }
-  btnLoad('r-btn', true, 'Saving\u2026');
-  // Call the resetPassword edge function — same as index.html.
-  // Handles token validation server-side and returns fresh session tokens.
-  xhr('POST', FN + '/resetPassword',
-    { 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
-    JSON.stringify({ action: 'update_password', password: pass, access_token: gRecovAT, refresh_token: gRecovRT }),
+  if (pass !== confirm) { errShow('r-err', 'Passwords do not match — please check and try again.'); return; }
+
+  function noValidLink() {
+    btnLoad('r-btn', false, 'Save New Password');
+    $('r-exp').style.display = 'block';
+  }
+
+  btnLoad('r-btn', true, 'Saving…');
+  _initSbClient();
+
+  if (_sb && _sb.auth && _sb.auth.updateUser) {
+    _sb.auth.getSession().then(function(gr) {
+      var session = gr && gr.data ? gr.data.session : null;
+      if (session && session.access_token) {
+        gRecovAT = session.access_token;
+        gRecovRT = session.refresh_token || '';
+      }
+      if (!gRecovAT) { noValidLink(); return; }
+      return _sb.auth.updateUser({ password: pass }).then(function(r) {
+        btnLoad('r-btn', false, 'Save New Password');
+        if (r && r.error) { errShow('r-err', r.error.message || 'Update failed. Try again.'); return; }
+        okShow('r-ok', '✅ Password updated! You can now log in.');
+        gRecovAT = gRecovRT = '';
+        try { if (_sb && _sb.auth && _sb.auth.signOut) _sb.auth.signOut(); } catch(e) {}
+        setTimeout(function() { _clearSession(); showScreen('scr-l'); }, 1600);
+      });
+    }).catch(function(e) {
+      errShow('r-err', (e && e.message) || 'Update failed. Try again.');
+      btnLoad('r-btn', false, 'Save New Password');
+    });
+    return;
+  }
+
+  if (!gRecovAT) { noValidLink(); return; }
+  xhr('PUT', AUTH + '/user',
+    { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + gRecovAT, 'Content-Type': 'application/json' },
+    JSON.stringify({ password: pass }),
     function(err, res) {
       btnLoad('r-btn', false, 'Save New Password');
       var d = (res && res.data) || {};
       if (err || !res || !res.ok || d.error) {
-        if (d.error === 'otp_expired' || d.error === 'no_token') {
+        if (d.error === 'otp_expired' || d.error === 'no_token' || d.error === 'invalid_token') {
           $('r-exp').style.display = 'block';
         } else {
-          errShow('r-err', d.message || d.error || 'Update failed. Try again.');
+          errShow('r-err', d.message || d.error_description || d.error || 'Update failed. Try again.');
         }
         return;
       }
-      okShow('r-ok', '\u2705 Password updated! Signing you in\u2026');
+      okShow('r-ok', '✅ Password updated! You can now log in.');
       gRecovAT = gRecovRT = '';
-      // Edge fn returns fresh tokens — restore session then boot
-      if (d.access_token && d.refresh_token) {
-        gToken   = d.access_token;
-        gRefresh = d.refresh_token;
-        gExpiry  = Date.now() + 3600000;
-        if (d.user) gUser = d.user;
-        _store.set('db_sess', JSON.stringify({ at: gToken, rt: gRefresh, ex: gExpiry, user: gUser }));
-        setTimeout(function() { bootApp(); }, 1400);
-      } else {
-        // Fallback: try to refresh with stored token
-        refreshToken(function(err2) {
-          if (!err2) { setTimeout(function() { bootApp(); }, 1000); }
-          else { setTimeout(function() { showScreen('scr-l'); }, 1600); }
-        });
-      }
+      setTimeout(function() { _clearSession(); showScreen('scr-l'); }, 1600);
     }
   );
 }
@@ -1939,7 +1968,7 @@ function _initSbClient() {
   if (!window.supabase || !window.supabase.createClient) return;
   try {
     _sb = window.supabase.createClient(SUPA_URL, ANON_KEY, {
-      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: true, flowType: 'implicit' }
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'pkce' }
     });
     _sb.auth.onAuthStateChange(function(event, session) {
       if (event === 'PASSWORD_RECOVERY') {
@@ -1955,7 +1984,7 @@ function _initSbClient() {
         bootApp();
       }
     });
-  } catch(e) { /* SDK not available — hash parsing handles recovery */ }
+  } catch(e) { /* SDK not available — REST/hash parsing handles auth */ }
 }
 
 function _parsePairs(raw) {
@@ -1995,6 +2024,30 @@ function doGoogleLogin(btnId) {
   }
   // Fallback for older WebViews: direct Supabase OAuth URL.
   window.location.href = AUTH + '/authorize?provider=google&redirect_to=' + encodeURIComponent(window.location.origin + window.location.pathname);
+}
+
+function parseOAuthQueryCode() {
+  var qs = window.location.search || '';
+  if (qs.indexOf('code=') === -1 || qs.indexOf('type=recovery') !== -1) return false;
+  _initSbClient();
+  if (!_sb || !_sb.auth || !_sb.auth.exchangeCodeForSession) return false;
+  _sb.auth.exchangeCodeForSession(qs.replace(/^\?/, '')).then(function(r) {
+    if (r && r.data && r.data.session && r.data.session.access_token) {
+      var session = r.data.session;
+      try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
+      _setSession({ access_token: session.access_token, refresh_token: session.refresh_token || '', expires_in: session.expires_in || 3600, user: session.user });
+      bootApp();
+    } else {
+      showPage('auth');
+      showScreen('scr-l');
+      toast('Google sign-in could not be completed. Try again.');
+    }
+  }).catch(function() {
+    showPage('auth');
+    showScreen('scr-l');
+    toast('Google sign-in could not be completed. Try again.');
+  });
+  return true;
 }
 
 function parseOAuthHash() {
@@ -2100,7 +2153,8 @@ function init() {
   _initSbClient();
 
   // Check for Google OAuth callback first, then recovery link.
-  if (parseOAuthHash()) return; // Google login callback detected — boot after user is loaded
+  if (parseOAuthQueryCode()) return; // Google PKCE callback detected — exchange code then boot
+  if (parseOAuthHash()) return; // Google implicit callback detected — boot after user is loaded
 
   // Check for recovery in URL hash / query string
   if (parseHash()) return; // recovery detected — scr-r is showing, stop here
@@ -2262,15 +2316,8 @@ function wire() {
   $('s-btn').onclick      = doSignup;
   $('r-btn').onclick      = doResetPassword;
   $('l-forgot-btn').onclick = function() {
-    // Match index.html: Forgot Password opens the change-password screen directly.
-    // No email reset modal is shown from this button.
-    errHide('r-err');
-    okHide('r-ok');
-    var exp = $('r-exp'); if (exp) exp.style.display = 'none';
-    var p = $('r-pass'); if (p) p.value = '';
-    var c = $('r-confirm'); if (c) c.value = '';
-    showScreen('scr-r');
-    setTimeout(function(){ var rp = $('r-pass'); if (rp) rp.focus(); }, 200);
+    openModal('m-forgot');
+    setTimeout(function(){ var e = $('fg-email'); if (e) e.focus(); }, 200);
   };
   if ($('m-forgot-cancel')) $('m-forgot-cancel').onclick = function() { closeModal('m-forgot'); };
   $('r-req-btn').onclick = function() {
