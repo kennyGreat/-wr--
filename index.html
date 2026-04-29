@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title>DataBulge</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 /* ── RESET ── */
 *{-webkit-box-sizing:border-box;box-sizing:border-box;margin:0;padding:0;}
@@ -56,9 +55,6 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 .chk-label{font-size:.78rem;color:#888;line-height:1.45;}
 .terms-err{display:none;font-size:.77rem;color:#c0392b;margin-bottom:10px;}
 .terms-err.on{display:block;}
-/* ── GOOGLE BUTTON ── */
-.btn-google{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;align-items:center;-webkit-box-pack:center;justify-content:center;gap:10px;width:100%;padding:12px;background:#fff;border:2px solid #dadce0;border-radius:6px;font-size:.95rem;font-weight:700;color:#3c4043;cursor:pointer;margin-bottom:10px;font-family:inherit;-webkit-appearance:none;box-shadow:0 1px 3px rgba(0,0,0,.10);}
-.btn-google:active{background:#f8f9fa;}.btn-google:disabled{opacity:.6;cursor:default;}.btn-google svg{width:20px;height:20px;-webkit-flex-shrink:0;flex-shrink:0;}
 
 /* ── MODAL ── */
 .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:800;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 14px;}
@@ -179,6 +175,163 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 
 /* Toggle knob */
 .tog-knob{position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;-webkit-transition:.25s;transition:.25s;}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   FRONTEND REDESIGN PATCH — CSS/HTML ONLY
+   Backend script below was not touched.
+   Inspired by the uploaded DataBulge screenshots:
+   blue auth hero, big white rounded cards, soft grey app background,
+   and premium subscription cards.
+════════════════════════════════════════════════════════════════ */
+:root{
+  --db-blue:#1A56DB;
+  --db-blue-dark:#173A73;
+  --db-bg:#EEF1F7;
+  --db-text:#111827;
+  --db-muted:#6B7280;
+  --db-line:#E5E7EB;
+  --db-soft:#F8FAFC;
+  --db-shadow:0 12px 28px rgba(15,23,42,.10);
+}
+html,body{background:var(--db-bg)!important;color:var(--db-text)!important;}
+.pg{background:var(--db-bg)!important;}
+
+/* Auth screen */
+#pg-auth{background:linear-gradient(165deg,#123363 0%,#173A73 48%,#1A56DB 100%)!important;}
+.auth-wrap{max-width:390px!important;padding-bottom:32px!important;}
+.auth-hero{padding:44px 20px 30px!important;}
+.auth-wordmark{max-width:310px!important;margin-bottom:22px!important;}
+.auth-tagline{color:rgba(255,255,255,.72)!important;font-size:.83rem!important;letter-spacing:.08em!important;}
+.auth-card{
+  margin:0 14px!important;
+  background:#fff!important;
+  border-radius:22px!important;
+  padding:22px 18px 24px!important;
+  box-shadow:var(--db-shadow)!important;
+  border:1px solid rgba(255,255,255,.35)!important;
+  overflow:hidden!important;
+}
+.auth-title{font-size:1.25rem!important;font-weight:900!important;letter-spacing:-.03em!important;color:#111!important;}
+.auth-sub{font-size:.84rem!important;color:#777!important;margin-bottom:18px!important;}
+.field input,.textarea,select{
+  border-radius:14px!important;
+  border:1.5px solid #E1E5EF!important;
+  background:#FBFCFF!important;
+  min-height:46px!important;
+}
+.field input:focus,.textarea:focus,select:focus{border-color:var(--db-blue)!important;box-shadow:0 0 0 3px rgba(26,86,219,.10)!important;}
+.btn{border-radius:12px!important;min-height:42px!important;font-weight:900!important;box-shadow:none!important;}
+.btn-blue{background:var(--db-blue)!important;color:#fff!important;box-shadow:0 8px 16px rgba(26,86,219,.22)!important;}
+.btn-lite{background:#E9EEFF!important;color:var(--db-blue)!important;}
+.divdr:before,.divdr:after{background:#E4E7EE!important;}
+.divdr span{color:#A5ADBA!important;}
+.err,.ok{border-radius:14px!important;}
+
+/* App shell */
+#pg-app{background:var(--db-bg)!important;min-height:100vh!important;padding-bottom:22px!important;}
+.top-bar{
+  background:#fff!important;
+  color:var(--db-text)!important;
+  padding:14px 16px!important;
+  box-shadow:0 1px 0 rgba(17,24,39,.08)!important;
+  border-bottom:1px solid #E8ECF4!important;
+}
+.top-bar svg{background:transparent!important;max-width:150px!important;height:38px!important;}
+.avatar{background:linear-gradient(135deg,var(--db-blue),#159A8C)!important;color:#fff!important;box-shadow:0 5px 15px rgba(26,86,219,.22)!important;}
+.logout-btn{background:#fff!important;border:1px solid #D6DCE8!important;color:#667085!important;border-radius:12px!important;padding:7px 10px!important;}
+.tabs{
+  background:#fff!important;
+  padding:10px 12px!important;
+  gap:8px!important;
+  border-bottom:1px solid #E7EAF1!important;
+  box-shadow:0 4px 16px rgba(15,23,42,.04)!important;
+}
+.tabs:after{display:none!important;}
+.tab{
+  background:#F5F7FB!important;
+  color:#727B8C!important;
+  border:1px solid #E3E7EF!important;
+  border-radius:999px!important;
+  padding:9px 14px!important;
+  font-size:.78rem!important;
+}
+.tab.act{background:#EEF2FF!important;color:var(--db-blue)!important;border-color:var(--db-blue)!important;}
+.tab:after{display:none!important;}
+.tab-content{padding:16px 14px 28px!important;}
+.tab-content.on{display:block!important;}
+
+/* Big white curved cards on every page */
+.card,.sub-row,.tx-row,.va-box,.msg-row,.modal-box{
+  background:#fff!important;
+  border:1px solid #E6EAF1!important;
+  border-radius:20px!important;
+  box-shadow:0 10px 22px rgba(15,23,42,.07)!important;
+}
+.card{padding:18px!important;margin-bottom:14px!important;}
+.card-title,.sec-title{color:#6B7280!important;font-size:.73rem!important;font-weight:900!important;letter-spacing:.07em!important;text-transform:uppercase!important;}
+.card-val{font-size:1.75rem!important;letter-spacing:-.04em!important;color:#111827!important;}
+.card-sub{color:#7B8494!important;line-height:1.5!important;}
+.row-line{box-shadow:0 1px 0 #F0F2F6!important;}
+
+/* Data subscription cards — same rounded white card style as screenshot */
+#plans-list{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:14px!important;
+  align-items:stretch!important;
+}
+#plans-list .sec-title,
+#plans-list [style*="height:1px"]{grid-column:1/-1!important;}
+#plans-list .sec-title{
+  margin:18px 0 0!important;
+  font-size:1rem!important;
+  color:#111827!important;
+  letter-spacing:-.02em!important;
+  text-transform:none!important;
+}
+#plans-list > div[style*="display:-webkit-box"]{grid-column:1/-1!important;margin:6px 0 -2px!important;}
+.plan-card{
+  border:1px solid #E3E7EF!important;
+  border-left:1px solid #E3E7EF!important;
+  border-radius:18px!important;
+  padding:16px!important;
+  margin:0!important;
+  background:#fff!important;
+  box-shadow:0 10px 20px rgba(15,23,42,.08)!important;
+  min-height:196px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:space-between!important;
+}
+.plan-card:active{background:#F7F9FF!important;transform:scale(.99)!important;}
+.plan-top{align-items:flex-start!important;margin-bottom:12px!important;gap:8px!important;}
+.plan-size{font-size:1.02rem!important;line-height:1.15!important;font-weight:900!important;color:#111827!important;letter-spacing:-.02em!important;}
+.plan-net{border-radius:999px!important;padding:4px 9px!important;font-size:.64rem!important;font-weight:900!important;text-transform:uppercase!important;white-space:nowrap!important;}
+.plan-price{font-size:1.35rem!important;color:#111827!important;font-weight:900!important;letter-spacing:-.04em!important;margin-top:4px!important;padding-top:10px!important;border-top:1px solid #E5E7EB!important;}
+.plan-sub{font-size:.70rem!important;color:#697386!important;line-height:1.45!important;text-transform:uppercase!important;letter-spacing:.04em!important;}
+.plan-btn{border-radius:12px!important;background:var(--db-blue)!important;color:#fff!important;padding:10px 8px!important;font-size:.80rem!important;margin-top:12px!important;font-weight:900!important;}
+.net-MTN{background:#FEF3C7!important;color:#92400E!important;}
+.net-GLO{background:#D1FAE5!important;color:#047857!important;}
+.net-AIRTEL{background:#FEE2E2!important;color:#B91C1C!important;}
+.net-9MOBILE,.net-other{background:#EDE9FE!important;color:#5B21B6!important;}
+
+/* Modals */
+.modal{backdrop-filter:blur(3px);}
+.modal-box{overflow:hidden!important;}
+.modal-hdr,.modal-foot{box-shadow:none!important;border-color:#EEF1F6!important;}
+.modal-title{font-weight:900!important;}
+
+@media(max-width:340px){
+  #plans-list{grid-template-columns:1fr!important;}
+  .auth-wordmark{max-width:280px!important;}
+  .tab{padding:8px 12px!important;}
+}
+@media(min-width:720px){
+  #pg-app{max-width:430px!important;margin:0 auto!important;border-left:1px solid #DDE3EC!important;border-right:1px solid #DDE3EC!important;}
+  body{background:#DDE3EC!important;}
+}
+
 </style>
 </head>
 <body>
@@ -230,8 +383,6 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
       <div class="auth-sub">Buy mobile data and pay in daily installments.</div>
       <button class="btn btn-blue" id="w-login-btn">Log In with Email</button>
       <div class="divdr"><span>OR</span></div>
-      <button class="btn-google" id="w-google-btn" type="button"><svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34A853" d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.565 24 12.255 24z"/><path fill="#FBBC05" d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 0 0 0 10.76l3.98-3.09z"/><path fill="#EA4335" d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.69 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/></svg> Continue with Google</button>
-      <div class="divdr"><span>OR</span></div>
       <button class="btn btn-lite" id="w-signup-btn">Create New Account</button>
     </div>
 
@@ -247,8 +398,6 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
       </div>
       <button class="forgot-btn" id="l-forgot-btn">Forgot password?</button>
       <button class="btn btn-blue" id="l-btn">Log In</button>
-      <div class="divdr"><span>OR</span></div>
-      <button class="btn-google" id="l-google-btn" type="button"><svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34A853" d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.565 24 12.255 24z"/><path fill="#FBBC05" d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 0 0 0 10.76l3.98-3.09z"/><path fill="#EA4335" d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.69 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/></svg> Continue with Google</button>
       <div class="link-row">No account? <button class="txt-link" id="l-to-s">Create one</button></div>
     </div>
 
@@ -271,8 +420,6 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
       </div>
       <div id="s-terms-err" class="terms-err">Please accept the Terms &amp; Conditions.</div>
       <button class="btn btn-blue" id="s-btn">Create Account</button>
-      <div class="divdr"><span>OR</span></div>
-      <button class="btn-google" id="s-google-btn" type="button"><svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34A853" d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.565 24 12.255 24z"/><path fill="#FBBC05" d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 0 0 0 10.76l3.98-3.09z"/><path fill="#EA4335" d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.69 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/></svg> Continue with Google</button>
       <div class="link-row">Have an account? <button class="txt-link" id="s-to-l">Log In</button></div>
     </div>
 
@@ -433,18 +580,16 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 <div class="modal" id="m-forgot">
   <div class="modal-box">
     <div class="modal-hdr">
-      <div class="modal-title">Reset Password &#128273;</div>
+      <div class="modal-title">Reset Password</div>
       <button class="modal-x" id="m-forgot-x">&#215;</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:.82rem;color:#888;margin-bottom:8px;">Enter your email and we&#8217;ll send you a reset link.</p>
-      <div id="fg-ok" class="ok"></div>
+      <p style="font-size:.82rem;color:#888;margin-bottom:12px;">Enter your email and we'll send you a reset link.</p>
       <div id="fg-err" class="err"></div>
-      <div style="background:#eef1ff;border:1px solid #c7d0ff;border-radius:6px;padding:9px 11px;font-size:.77rem;color:#1A3A8F;margin-bottom:12px;">&#8505;&#65039; You&#8217;ll receive a secure link. Open it <strong>on this device</strong> &mdash; it expires in 1 hour.</div>
+      <div id="fg-ok" class="ok">Reset link sent! Check your inbox and spam folder.</div>
       <div class="field"><label>Email address</label><input id="fg-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
     </div>
-    <div class="modal-foot" style="display:-webkit-box;display:-webkit-flex;display:flex;gap:8px;-webkit-box-pack:end;justify-content:flex-end;">
-      <button class="btn btn-lite" id="m-forgot-cancel" style="width:auto;display:inline-block;padding:10px 16px;margin:0;">Cancel</button>
+    <div class="modal-foot">
       <button class="btn btn-blue" id="fg-send-btn" style="width:auto;display:inline-block;padding:10px 22px;margin:0;">Send Reset Link</button>
     </div>
   </div>
@@ -503,7 +648,8 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
         <input id="m-sub-phone" type="tel" placeholder="08012345678">
       </div>
     </div>
-    <div class="modal-foot">
+    <div class="modal-foot" style="display:-webkit-box;display:-webkit-flex;display:flex;gap:8px;-webkit-box-pack:end;justify-content:flex-end;flex-wrap:wrap;">
+      <button class="btn" id="m-sub-cancel-af-btn" style="display:none;background:#fff2f2;color:#c0392b;border:1.5px solid #f5c6cb;width:auto;padding:10px 16px;margin:0;font-family:inherit;font-size:.82rem;">&#9209; Cancel Auto-Fund</button>
       <button class="btn btn-blue" id="m-sub-btn" style="width:auto;display:inline-block;padding:10px 26px;margin:0;">Subscribe Now</button>
     </div>
   </div>
@@ -577,15 +723,24 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
         <div class="card-sub" style="margin-top:10px;line-height:1.6;">Transfer to the account above. Balance updates in under 5 minutes after a successful transfer.</div>
       </div>
       <div id="fund-panel-af" style="display:none;">
-        <div style="background:#f5f6ff;border:1px solid #d0d8ff;border-radius:8px;padding:12px;margin-bottom:10px;">
-          <div style="font-size:.85rem;font-weight:800;color:#1A56DB;margin-bottom:6px;">&#128179; Auto-Fund via Card</div>
-          <p style="font-size:.77rem;color:#555;line-height:1.55;margin-bottom:12px;">This takes the stress off you &#8212; Enter an amount, pay with your card, and your account will be debited daily on your behalf — your wallet is credited instantly. You can cancel anytime.</p>
-          <label style="font-size:.78rem;font-weight:700;color:#333;display:block;margin-bottom:4px;">Amount to fund (&#8358;)</label>
-          <input type="number" id="af-fund-amt" placeholder="e.g. 1000" style="display:block;width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:6px;font-size:.93rem;color:#111;background:#fff;outline:none;-webkit-appearance:none;margin-bottom:10px;">
-          <div id="af-fund-err" class="err"></div>
-          <button class="btn btn-blue" id="af-fund-btn" style="width:100%;margin:0;">Pay with Card</button>
+        <!-- Active mandate — shown when recurring auto-fund is already running -->
+        <div id="af-active-banner" style="display:none;background:#f0fff4;border:1px solid #b2dfdb;border-radius:8px;padding:12px;margin-bottom:10px;">
+          <div style="font-size:.85rem;font-weight:800;color:#059669;margin-bottom:4px;">&#9989; Auto-Fund Active</div>
+          <div id="af-active-detail" style="font-size:.77rem;color:#444;margin-bottom:10px;">Your card is being charged daily automatically.</div>
+          <button class="btn" id="af-cancel-btn" style="background:#fff2f2;color:#c0392b;border:1.5px solid #f5c6cb;width:100%;margin:0;padding:10px;font-family:inherit;">&#9209; Cancel Auto-Fund</button>
         </div>
-        <div class="card-sub" style="text-align:center;line-height:1.5;">Your card details are secured.</div>
+        <!-- Setup form — shown when no active mandate -->
+        <div id="af-setup-form">
+          <div style="background:#f5f6ff;border:1px solid #d0d8ff;border-radius:8px;padding:12px;margin-bottom:10px;">
+            <div style="font-size:.85rem;font-weight:800;color:#1A56DB;margin-bottom:6px;">&#128179; Auto-Fund via Card</div>
+            <p style="font-size:.77rem;color:#555;line-height:1.55;margin-bottom:12px;">Enter an amount and pay once. We&#8217;ll charge your card this amount every day automatically and credit your wallet instantly. Cancel anytime.</p>
+            <label style="font-size:.78rem;font-weight:700;color:#333;display:block;margin-bottom:4px;">Amount to charge daily (&#8358;)</label>
+            <input type="number" id="af-fund-amt" placeholder="e.g. 1000" style="display:block;width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:6px;font-size:.93rem;color:#111;background:#fff;outline:none;-webkit-appearance:none;margin-bottom:10px;">
+            <div id="af-fund-err" class="err"></div>
+            <button class="btn btn-blue" id="af-fund-btn" style="width:100%;margin:0;">Start Auto-Fund</button>
+          </div>
+          <div class="card-sub" style="text-align:center;line-height:1.5;">Your card is charged daily. Cancel anytime.</div>
+        </div>
       </div>
     </div>
     <div class="modal-foot"></div>
@@ -945,39 +1100,18 @@ function doSignup() {
   );
 }
 
-function _currentCleanUrl() { return window.location.origin + window.location.pathname; }
-
 function doForgot() {
   var email = ($('fg-email').value || '').replace(/^\s+|\s+$/g, '');
   errHide('fg-err'); okHide('fg-ok');
-  if (!email) { errShow('fg-err', 'Please enter your email address.'); return; }
+  if (!email) { errShow('fg-err', 'Please enter your email.'); return; }
   btnLoad('fg-send-btn', true, 'Sending\u2026');
-  var redirectUrl = _currentCleanUrl();
-
-  function _ok() {
-    btnLoad('fg-send-btn', false, 'Send Reset Link');
-    okShow('fg-ok', '\u2705 Reset link sent! Open the email link <strong>on this device</strong>, then set your new password.');
-    setTimeout(function() { closeModal('m-forgot'); }, 7000);
-  }
-  function _err(msg) {
-    btnLoad('fg-send-btn', false, 'Send Reset Link');
-    errShow('fg-err', msg || 'Failed to send reset email. Please try again.');
-  }
-
-  if (_sb && _sb.auth && _sb.auth.resetPasswordForEmail) {
-    _sb.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl })
-      .then(function(r) { if (r && r.error) { _err(r.error.message); } else { _ok(); } })
-      .catch(function(e) { _err(e && e.message); });
-    return;
-  }
-  // Fallback: REST with redirect_to in URL
-  xhr('POST', AUTH + '/recover?redirect_to=' + encodeURIComponent(redirectUrl),
+  xhr('POST', AUTH + '/recover',
     { 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
     JSON.stringify({ email: email }),
     function(err, res) {
-      var d = (res && res.data) || {};
-      if (err || !res || !res.ok || d.error) { _err(d.error_description || d.error || d.message); return; }
-      _ok();
+      btnLoad('fg-send-btn', false, 'Send Reset Link');
+      if (err || !res || !res.ok) { errShow('fg-err', 'Failed to send reset link. Try again.'); return; }
+      okShow('fg-ok', 'Reset link sent! Check your inbox and spam folder.');
     }
   );
 }
@@ -987,61 +1121,33 @@ function doResetPassword() {
   var confirm = $('r-confirm').value || '';
   errHide('r-err'); okHide('r-ok'); $('r-exp').style.display = 'none';
   if (!pass || pass.length < 6) { errShow('r-err', 'Password must be at least 6 characters.'); return; }
-  if (pass !== confirm) { errShow('r-err', 'Passwords do not match \u2014 please check and try again.'); return; }
-
-  function _noLink() { btnLoad('r-btn', false, 'Save New Password'); $('r-exp').style.display = 'block'; }
+  if (pass !== confirm) { errShow('r-err', 'Passwords do not match.'); return; }
   btnLoad('r-btn', true, 'Saving\u2026');
-
-  // PATH 1: SDK available — use updateUser (Supabase manages the recovery session)
-  if (_sb && _sb.auth && _sb.auth.updateUser) {
-    _sb.auth.getSession().then(function(gr) {
-      var session = gr && gr.data ? gr.data.session : null;
-      if (session && session.access_token) { gRecovAT = session.access_token; gRecovRT = session.refresh_token || ''; }
-      if (!gRecovAT) { _noLink(); return; }
-      return _sb.auth.updateUser({ password: pass }).then(function(r) {
-        btnLoad('r-btn', false, 'Save New Password');
-        if (r && r.error) { errShow('r-err', r.error.message || 'Update failed. Try again.'); return; }
-        okShow('r-ok', '\u2705 Password updated! Signing you in\u2026');
-        gRecovAT = gRecovRT = '';
-        // updateUser leaves a valid session — get it and boot the app
-        _sb.auth.getSession().then(function(gr2) {
-          var sess2 = gr2 && gr2.data ? gr2.data.session : null;
-          if (sess2 && sess2.access_token) {
-            _setSession({ access_token: sess2.access_token, refresh_token: sess2.refresh_token || '', expires_in: sess2.expires_in || 3600, user: sess2.user || gUser });
-            bootApp();
-          } else if (gToken) {
-            bootApp();
-          } else {
-            showScreen('scr-l');
-          }
-        }).catch(function() { if (gToken) { bootApp(); } else { showScreen('scr-l'); } });
-      });
-    }).catch(function(e) { errShow('r-err', (e && e.message) || 'Update failed.'); btnLoad('r-btn', false, 'Save New Password'); });
-    return;
-  }
-
-  // PATH 2: No SDK — REST PUT with recovery token
-  if (!gRecovAT) { _noLink(); return; }
-  xhr('PUT', AUTH + '/user',
-    { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + gRecovAT, 'Content-Type': 'application/json' },
-    JSON.stringify({ password: pass }),
+  // Use the recovery access token to update password via Supabase REST
+  var h = { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + gRecovAT, 'Content-Type': 'application/json' };
+  xhr('PUT', AUTH + '/user', h, JSON.stringify({ password: pass }),
     function(err, res) {
       btnLoad('r-btn', false, 'Save New Password');
-      var d = (res && res.data) || {};
-      if (err || !res || !res.ok || d.error) {
-        if (d.error==='otp_expired'||d.error==='no_token'||d.error==='invalid_token'||(d.message&&d.message.indexOf('expired')!==-1)) {
+      if (err || !res || !res.ok) {
+        var d = res && res.data;
+        var ec = d && (d.error || d.error_code || '');
+        if (ec === 'otp_expired' || ec === 'invalid_token' || (d && d.message && d.message.indexOf('expired') !== -1)) {
           $('r-exp').style.display = 'block';
-        } else { errShow('r-err', d.message || d.error || 'Update failed.'); }
+        } else {
+          errShow('r-err', (d && (d.message || d.error)) || 'Update failed. Try again.');
+        }
         return;
       }
       okShow('r-ok', '\u2705 Password updated! Signing you in\u2026');
-      gRecovAT = gRecovRT = '';
-      // gToken is still valid after PUT /user — boot the app directly
-      if (gToken) {
-        bootApp();
-      } else if (gRefresh) {
-        refreshToken(function(e2) { if (!e2) { bootApp(); } else { showScreen('scr-l'); } });
-      } else { showScreen('scr-l'); }
+      // Sign in with new password
+      if (gRecovAT && gRecovRT) {
+        gToken = gRecovAT;
+        gRefresh = gRecovRT;
+        gRecovAT = gRecovRT = '';
+        refreshToken(function(err2) {
+          if (!err2) { bootApp(); } else { showScreen('scr-l'); }
+        });
+      } else { setTimeout(function() { showScreen('scr-l'); }, 1600); }
     }
   );
 }
@@ -1548,6 +1654,7 @@ function openSubModal(planIdx) {
   if (afFields) afFields.style.display = 'none';
   var afAmt = $('m-autofund-amt');
   if (afAmt) afAmt.value = '';
+  var cb2 = $('m-sub-cancel-af-btn'); if (cb2) cb2.style.display = 'none';
   openModal('m-sub');
 }
 
@@ -1580,14 +1687,6 @@ function confirmSub() {
   errHide('m-sub-err');
   if (!phone) { errShow('m-sub-err', 'Enter your phone number for data delivery.'); return; }
   if (autoFundOn && autoFundAmt < 100) { errShow('m-sub-err', 'Enter a valid Auto-Fund amount (minimum \u20A6100).'); return; }
-  // Skip balance check when Auto-Fund is ON — card payment funds the wallet
-  if (!autoFundOn) {
-    var balCalc = calcPlanDaily(gSelPlan, days);
-    if (gBal < balCalc.daily) {
-      errShow('m-sub-err', 'Insufficient balance (' + fmtN(gBal) + '). Fund your account or enable Auto-Fund above to pay by card.');
-      return;
-    }
-  }
   btnLoad('m-sub-btn', true, 'Subscribing\u2026');
   ensureToken(function(err) {
     if (err) { btnLoad('m-sub-btn', false, 'Subscribe Now'); errShow('m-sub-err', 'Session error. Please sign out and back in.'); return; }
@@ -1605,7 +1704,8 @@ function confirmSub() {
       // Fire Auto-Fund if enabled
       if (autoFundOn && autoFundAmt >= 100 && gSelPlan) {
         var pName = gSelPlan.data_size + ' (' + gSelPlan.network + ')';
-        setTimeout(function() { launchAutoFund(autoFundAmt, pName); }, 500);
+        var newSubId = (r && r.data && r.data.id) ? r.data.id : null;
+        setTimeout(function() { launchAutoFund(autoFundAmt, pName, newSubId); }, 500);
       }
       setTimeout(function() { loadDashboard(); loadSubs(); loadDashCashflow(); }, 1500);
     });
@@ -1661,6 +1761,8 @@ var gCurrentMsgId = null;
 var _autoPayBusy = false;
 var gPayDays = 7;
 var gModalPayDays = 7;
+var gWalletMandateId = null;  // active wallet auto-fund mandate id
+var gSubMandateId    = null;  // active sub auto-fund mandate id
 
 function copyText(txt) {
   var ta = document.createElement('textarea');
@@ -1673,6 +1775,7 @@ function copyText(txt) {
 
 function openFundModal() {
   errHide('m-fund-err');
+  _loadWalletMandate();
   var vaHtml = getVAHtml(true);
   $('m-fund-va').style.display = 'block';
   $('m-fund-va').innerHTML = vaHtml || '<div class="empty">No account details found yet. Please wait a moment for account generation or contact support.</div>';
@@ -1730,6 +1833,71 @@ function openVAModal() {
         gProfile.virtual_account_bank = r.data.bank_name || r.data.virtual_account_bank || gProfile.virtual_account_bank;
         $('m-va-content').innerHTML = getVAHtml(false) || '<div class="empty">Account setup is not available right now.</div>';
         loadAcct((gUser.user_metadata && gUser.user_metadata.full_name) || (gUser.email || 'User'));
+      }
+    });
+  });
+}
+
+function _loadWalletMandate() {
+  if (!gUser) return;
+  ensureToken(function(err) {
+    if (err) return;
+    xhr('GET', REST + '/auto_fund_mandates?user_id=eq.' + gUser.id + '&status=eq.active&subscription_id=is.null&select=id,amount,last_charged_at&limit=1',
+      authHdr(), null, function(e, r) {
+        var mandate = r && r.ok && r.data && r.data[0];
+        var banner  = $('af-active-banner');
+        var form    = $('af-setup-form');
+        if (mandate) {
+          gWalletMandateId = mandate.id;
+          var det = $('af-active-detail');
+          if (det) det.textContent = '\u20a6' + Number(mandate.amount).toLocaleString() + ' charged to your card daily. Last charged: ' + (mandate.last_charged_at ? mandate.last_charged_at.slice(0,10) : 'Not yet');
+          if (banner) banner.style.display = 'block';
+          if (form)   form.style.display   = 'none';
+        } else {
+          gWalletMandateId = null;
+          if (banner) banner.style.display = 'none';
+          if (form)   form.style.display   = 'block';
+        }
+      }
+    );
+  });
+}
+
+function _loadSubMandate(subscriptionId) {
+  if (!subscriptionId || !gUser) return;
+  ensureToken(function(err) {
+    if (err) return;
+    xhr('GET', REST + '/auto_fund_mandates?user_id=eq.' + gUser.id + '&subscription_id=eq.' + subscriptionId + '&status=eq.active&select=id,amount&limit=1',
+      authHdr(), null, function(e, r) {
+        var mandate = r && r.ok && r.data && r.data[0];
+        gSubMandateId = mandate ? mandate.id : null;
+        var cb = $('m-sub-cancel-af-btn');
+        if (cb) cb.style.display = mandate ? 'inline-block' : 'none';
+      }
+    );
+  });
+}
+
+function doCancelAutoFund(mandateId, subscriptionId) {
+  if (!gUser) return;
+  var cancelBtnId = mandateId === gWalletMandateId ? 'af-cancel-btn' : 'm-sub-cancel-af-btn';
+  btnLoad(cancelBtnId, true, 'Cancelling\u2026');
+  var body = { user_id: gUser.id };
+  if (mandateId)      body.mandate_id      = mandateId;
+  if (subscriptionId) body.subscription_id = subscriptionId;
+  ensureToken(function(err) {
+    if (err) { btnLoad(cancelBtnId, false, '\u23f9 Cancel Auto-Fund'); return; }
+    var h = { 'Authorization': 'Bearer ' + gToken, 'Content-Type': 'application/json', 'apikey': ANON_KEY };
+    xhr('POST', FN + '/cancelAutoFund', h, body, function(e2, r2) {
+      if (r2 && r2.ok && r2.data && r2.data.success) {
+        toast('\u2705 Auto-Fund cancelled. No more automatic charges.');
+        gWalletMandateId = null; gSubMandateId = null;
+        var banner = $('af-active-banner'); if (banner) banner.style.display = 'none';
+        var form   = $('af-setup-form');   if (form)   form.style.display   = 'block';
+        var cb = $('m-sub-cancel-af-btn'); if (cb)     cb.style.display     = 'none';
+      } else {
+        toast('Could not cancel. Please try again.');
+        btnLoad(cancelBtnId, false, '\u23f9 Cancel Auto-Fund');
       }
     });
   });
@@ -1953,188 +2121,51 @@ function esc(str) {
     .replace(/'/g,'&#39;');
 }
 
-/* ── SUPABASE SDK + GOOGLE + RECOVERY ───────────────────────── */
-var _sb = null;
-var _sbReady = false;
-var _sbCallbacks = [];
-
-function _onSbReady(cb) {
-  if (_sbReady) { cb(); return; }
-  _sbCallbacks.push(cb);
-}
-
-function _initSbClient() {
-  if (_sb) return;
-  if (!window.supabase || !window.supabase.createClient) {
-    setTimeout(_initSbClient, 50);
-    return;
-  }
-  try {
-    _sb = window.supabase.createClient(SUPA_URL, ANON_KEY, {
-      auth: {
-        persistSession:     true,
-        autoRefreshToken:   true,
-        detectSessionInUrl: true,
-        flowType:           'pkce'
-      }
-    });
-    _sb.auth.onAuthStateChange(function(event, session) {
-      if (event === 'PASSWORD_RECOVERY') {
-        if (session && session.access_token) {
-          gRecovAT = session.access_token;
-          gRecovRT = session.refresh_token || '';
-        }
-        showPage('auth'); showScreen('scr-r');
-        return;
-      }
-      if (event === 'SIGNED_IN' && session && session.access_token) {
-        if (gUser && gUser.id) return; // already booted
-        _setSession({ access_token: session.access_token, refresh_token: session.refresh_token || '', expires_in: session.expires_in || 3600, user: session.user });
-        rpc('ensure_user_setup', JSON.stringify({ p_user_id: gUser.id }), function() { bootApp(); });
-        return;
-      }
-    });
-    _sbReady = true;
-    var cbs = _sbCallbacks.slice(); _sbCallbacks = [];
-    for (var i = 0; i < cbs.length; i++) { try { cbs[i](); } catch(e2) {} }
-  } catch(e) { console.warn('[sb]', e); }
-}
-
-function doGoogleLogin(btnId) {
-  var btn = $(btnId);
-  function _resetBtn() {
-    if (!btn) return;
-    btn.disabled = false;
-    btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34A853" d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.565 24 12.255 24z"/><path fill="#FBBC05" d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 0 0 0 10.76l3.98-3.09z"/><path fill="#EA4335" d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.69 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/></svg> Continue with Google';
-  }
-  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin" style="border-top-color:#1A56DB;border-color:rgba(0,0,0,.12);border-top-color:#1A56DB;"></span> Connecting\u2026'; }
-
-  doGoogleLogin._tries = (doGoogleLogin._tries || 0);
-  function _try() {
-    if (!_sb) {
-      doGoogleLogin._tries++;
-      if (doGoogleLogin._tries > 40) { doGoogleLogin._tries = 0; toast('Google sign-in unavailable. Try again.'); _resetBtn(); return; }
-      setTimeout(_try, 100);
-      return;
-    }
-    doGoogleLogin._tries = 0;
-    _sb.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin + window.location.pathname, queryParams: { access_type: 'offline', prompt: 'consent' } }
-    }).then(function(r) {
-      if (r && r.error) { toast('Google sign-in failed: ' + (r.error.message || 'Try again.')); _resetBtn(); }
-      // Success: browser navigates to Google — no further action needed
-    }).catch(function() { toast('Google sign-in failed. Please try again.'); _resetBtn(); });
-  }
-  _try();
-}
-
-function _parsePairs(raw) {
-  var out={}, pairs=(raw||'').replace(/^#|^\?/,'').split('&'), i, eq, k, v;
-  for(i=0;i<pairs.length;i++){eq=pairs[i].indexOf('=');if(eq>-1){k=decodeURIComponent(pairs[i].slice(0,eq));v=decodeURIComponent(pairs[i].slice(eq+1));out[k]=v;}}
-  return out;
-}
-
-// PKCE Google callback (?code=... in query string — SDK exchanges automatically via detectSessionInUrl)
-function parseOAuthQueryCode() {
-  var qs = window.location.search || '';
-  if (qs.indexOf('code=') === -1 || qs.indexOf('type=recovery') !== -1) return false;
-  // SDK already handles the code exchange via detectSessionInUrl. SIGNED_IN event fires bootApp().
-  try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
-  return true; // prevent init() from proceeding to session/welcome screen
-}
-
-// Implicit Google callback (#access_token=... in hash)
-function parseOAuthHash() {
-  var raw = (window.location.hash || '').replace(/^#/, '');
-  if (!raw || raw.indexOf('access_token=') === -1 || raw.indexOf('type=recovery') !== -1) return false;
-  var p = _parsePairs(raw);
-  if (!p.access_token || p.type === 'recovery') return false;
-  gToken = p.access_token; gRefresh = p.refresh_token || '';
-  gExpiry = Date.now() + ((parseInt(p.expires_in,10)||3600)*1000);
-  try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
-  xhr('GET', AUTH+'/user', {'apikey':ANON_KEY,'Authorization':'Bearer '+gToken}, null, function(err,res) {
-    if (!err&&res&&res.ok&&res.data) { gUser=res.data; _store.set('db_sess',JSON.stringify({at:gToken,rt:gRefresh,ex:gExpiry,user:gUser})); bootApp(); }
-    else { _clearSession(); showPage('auth'); showScreen('scr-l'); toast('Google sign-in could not be completed. Try again.'); }
-  });
-  return true;
-}
-
-// Password recovery URL — handles both implicit hash tokens and PKCE
+/* ── URL HASH PARSER (password recovery) ───────────────────── */
 function parseHash() {
-  var raw = (window.location.hash || '').replace(/^#/, '');
-  var params = raw ? _parsePairs(raw) : {};
-  var qs = window.location.search || '';
-  var isRecovery = (params.type === 'recovery') || qs.indexOf('type=recovery') !== -1 || qs.indexOf('error_code=otp_expired') !== -1;
-  if (!isRecovery) return false;
-
-  function _showReset(hasToken) { showPage('auth'); showScreen('scr-r'); if(!hasToken){var exp=$('r-exp');if(exp)exp.style.display='block';} }
-  try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
-
-  if (params.access_token) {
-    gRecovAT = params.access_token; gRecovRT = params.refresh_token || '';
-    if (_sb && _sb.auth && _sb.auth.setSession && gRecovRT) {
-      _sb.auth.setSession({access_token:gRecovAT,refresh_token:gRecovRT}).then(function(){_showReset(true);}).catch(function(){_showReset(true);});
-    } else { _showReset(true); }
-    return true;
+  var hash = (window.location.hash || '').replace(/^#/, '');
+  if (!hash) return;
+  var params = {};
+  var pairs = hash.split('&');
+  var i, eq, k, v;
+  for (i = 0; i < pairs.length; i++) {
+    eq = pairs[i].indexOf('=');
+    if (eq > -1) {
+      k = decodeURIComponent(pairs[i].slice(0, eq));
+      v = decodeURIComponent(pairs[i].slice(eq + 1));
+      params[k] = v;
+    }
   }
-  // PKCE — SDK exchanged the code; get the session it stored
-  if (_sb && _sb.auth && _sb.auth.getSession) {
-    _sb.auth.getSession().then(function(r){var s=r&&r.data?r.data.session:null;if(s&&s.access_token){gRecovAT=s.access_token;gRecovRT=s.refresh_token||'';_showReset(true);}else{_showReset(false);}}).catch(function(){_showReset(false);});
-  } else { _showReset(false); }
-  return true;
+  if (params.type === 'recovery' && params.access_token) {
+    gRecovAT = params.access_token;
+    gRecovRT = params.refresh_token || '';
+    try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
+    showPage('auth');
+    showScreen('scr-r');
+  }
 }
 
 /* ── INIT ───────────────────────────────────────────────────── */
 function init() {
-  var qs   = window.location.search || '';
-  var hash = (window.location.hash  || '').replace(/^#/, '');
+  // Check for recovery hash first
+  parseHash();
 
-  var isOAuthCode = qs.indexOf('code=')           !== -1 && qs.indexOf('type=recovery') === -1;
-  var isOAuthHash = hash.indexOf('access_token=')  !== -1 && hash.indexOf('type=recovery') === -1;
-  var isRecovery  = hash.indexOf('type=recovery')  !== -1
-                 || qs.indexOf('type=recovery')    !== -1
-                 || qs.indexOf('error_code=otp_expired') !== -1;
-
-  _initSbClient(); // always start SDK
-
-  if (isOAuthCode) {
-    // Google PKCE redirect — SDK exchanges code; _onSbReady ensures it runs first
-    parseOAuthQueryCode();
-    return;
-  }
-  if (isOAuthHash) {
-    // Google implicit redirect — tokens in hash, no SDK needed
-    parseOAuthHash();
-    return;
-  }
-  if (isRecovery) {
-    // Password-recovery link
-    parseHash();
-    return;
-  }
-
-  // Normal load — check stored session (fast path, no SDK needed)
+  // Check for stored session
   if (_loadSession()) {
+    // Validate / refresh the token
     ensureToken(function(err) {
-      if (!err && gUser) { bootApp(); }
-      else { _clearSession(); showPage('auth'); showScreen('scr-w'); }
-    });
-    return;
-  }
-
-  // No stored session — check SDK session (covers returning Google users)
-  _onSbReady(function() {
-    _sb.auth.getSession().then(function(r) {
-      var session = r && r.data ? r.data.session : null;
-      if (session && session.access_token) {
-        _setSession({ access_token: session.access_token, refresh_token: session.refresh_token || '', expires_in: session.expires_in || 3600, user: session.user });
+      if (!err && gUser) {
         bootApp();
       } else {
-        showPage('auth'); showScreen('scr-w');
+        _clearSession();
+        showPage('auth');
+        showScreen('scr-w');
       }
-    }).catch(function() { showPage('auth'); showScreen('scr-w'); });
-  });
+    });
+  } else {
+    showPage('auth');
+    showScreen('scr-w');
+  }
 }
 
 /* ── BUTTON WIRING ──────────────────────────────────────────── */
@@ -2151,11 +2182,12 @@ function _loadPaystack(cb) {
   document.head.appendChild(s);
 }
 
-function launchAutoFund(amt, planLabel) {
+function launchAutoFund(amt, planLabel, subscriptionId) {
   if (!amt || amt < 100) { toast('Enter a valid amount (minimum \u20A6100).'); return; }
   if (!gUser || !gUser.email) { toast('Please sign in first.'); return; }
-  var amtKobo = Math.round(amt * 100);
-  var desc = planLabel ? ('Auto-Fund for ' + planLabel) : 'DataBulge wallet top-up';
+  var amtKobo  = Math.round(amt * 100);
+  var isWallet = !subscriptionId;
+  var desc     = planLabel ? ('Auto-Fund for ' + planLabel) : 'DataBulge wallet Auto-Fund';
   _loadPaystack(function() {
     var handler = window.PaystackPop.setup({
       key: PAYSTACK_PK,
@@ -2164,12 +2196,23 @@ function launchAutoFund(amt, planLabel) {
       currency: 'NGN',
       metadata: { custom_fields: [{ display_name: 'Purpose', variable_name: 'purpose', value: desc }] },
       callback: function(response) {
-        toast('Payment received! Crediting wallet\u2026');
+        toast('Setting up Auto-Fund\u2026');
         ensureToken(function(err) {
           if (err) return;
-          var h = { 'Authorization': 'Bearer ' + gToken, 'Content-Type': 'application/json', 'apikey': ANON_KEY };
-          xhr('POST', FN + '/verifyPaystackPayment', h, { reference: response.reference, user_id: gUser.id, amount: amt }, function(e, r) {
-            toast(r && r.ok ? '\u2705 Wallet funded!' : 'Payment received. Balance will update shortly.');
+          var h    = { 'Authorization': 'Bearer ' + gToken, 'Content-Type': 'application/json', 'apikey': ANON_KEY };
+          var body = { reference: response.reference, user_id: gUser.id, amount: amt };
+          if (subscriptionId) body.subscription_id = subscriptionId;
+          xhr('POST', FN + '/verifyPaystackPayment', h, body, function(e, r) {
+            if (r && r.ok) {
+              toast('\u2705 Auto-Fund active! Your card will be charged daily.');
+              if (isWallet) {
+                _loadWalletMandate(); // show cancel button in fund modal
+              } else {
+                _loadSubMandate(subscriptionId); // show cancel in sub modal
+              }
+            } else {
+              toast('Payment received. Auto-Fund will activate shortly.');
+            }
             setTimeout(function() { loadDashboard(); loadDashCashflow(); autoActivatePlans(); }, 1500);
           });
         });
@@ -2280,13 +2323,8 @@ function wire() {
     if (e) $('fg-email').value = e.value || '';
     errHide('fg-err'); okHide('fg-ok');
     openModal('m-forgot');
-    setTimeout(function() { var fe=$('fg-email'); if(fe) fe.focus(); }, 200);
   };
-  $('r-req-btn').onclick = function() { errHide('fg-err'); okHide('fg-ok'); openModal('m-forgot'); };
-  // Google OAuth — all 3 screens
-  $('w-google-btn').onclick = function() { doGoogleLogin('w-google-btn'); };
-  $('l-google-btn').onclick = function() { doGoogleLogin('l-google-btn'); };
-  $('s-google-btn').onclick = function() { doGoogleLogin('s-google-btn'); };
+  $('r-req-btn').onclick  = function() { closeModal('m-forgot'); openModal('m-forgot'); };
 
   // Eye toggles
   $('l-eye').onclick = function() { togglePw('l-pass', 'l-eye'); };
@@ -2298,8 +2336,7 @@ function wire() {
   $('s-pass').onkeydown  = function(e) { if ((e||window.event).keyCode === 13) doSignup(); };
 
   // Forgot modal
-  $('m-forgot-x').onclick      = function() { closeModal('m-forgot'); };
-  if ($('m-forgot-cancel')) $('m-forgot-cancel').onclick = function() { closeModal('m-forgot'); };
+  $('m-forgot-x').onclick   = function() { closeModal('m-forgot'); };
   $('fg-send-btn').onclick   = doForgot;
   $('fg-email').onkeydown   = function(e) { if ((e||window.event).keyCode === 13) doForgot(); };
 
@@ -2353,7 +2390,9 @@ function wire() {
   // Fund modal
   if ($('d-fund-btn'))    $('d-fund-btn').onclick    = openFundModal;
   if ($('plans-fund-btn')) $('plans-fund-btn').onclick = openFundModal;
-  if ($('af-fund-btn'))   $('af-fund-btn').onclick   = function() { launchAutoFund(parseFloat($('af-fund-amt').value)||0, ''); };
+  if ($('af-fund-btn'))    $('af-fund-btn').onclick    = function() { launchAutoFund(parseFloat($('af-fund-amt').value)||0, null, null); };
+  if ($('af-cancel-btn'))  $('af-cancel-btn').onclick  = function() { doCancelAutoFund(gWalletMandateId, null); };
+  if ($('m-sub-cancel-af-btn')) $('m-sub-cancel-af-btn').onclick = function() { doCancelAutoFund(gSubMandateId, null); };
 
   $('compose-btn-open').onclick = openComposeModal;
   $('mark-read-btn').onclick = markAllRead;
