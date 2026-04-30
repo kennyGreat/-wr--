@@ -363,33 +363,39 @@ html,body{background:var(--db-bg)!important;color:var(--db-text)!important;}
 .splash-line{font-size:.82rem;color:rgba(255,255,255,.62);letter-spacing:.08em;text-transform:uppercase;font-weight:700;}
 .splash-foot{margin-top:48px;font-size:1rem;font-weight:800;color:rgba(255,255,255,.55);letter-spacing:.04em;}
 
-/* Android 11 and below visual artifact fix: remove brown tap boxes, double lines and native button outlines without changing layout */
-button,.btn,.btn-blue,.btn-lite,.plan-btn,.tab,.logout-btn,.avatar,input,select,textarea,.field input,.textarea{
+
+/* ── REQUESTED MINIMAL FIX ONLY ──
+   Restored previous version; this patch only removes Android brown tap squares
+   and improves alignment on very small screens. No backend script changed. */
+button,.btn,.btn-blue,.btn-lite,.plan-btn,.tab,.logout-btn,.plan-chip,input,select,textarea{
   -webkit-tap-highlight-color:rgba(0,0,0,0)!important;
+}
+button:focus,.btn:focus,.plan-btn:focus,.tab:focus,.logout-btn:focus,.plan-chip:focus{
+  outline:none!important;
+}
+button,.btn,.plan-btn,.tab,.logout-btn,.plan-chip{
   -webkit-appearance:none!important;
   appearance:none!important;
-  outline:none!important;
-  background-clip:padding-box!important;
 }
-button:focus,.btn:focus,.plan-btn:focus,.tab:focus,.logout-btn:focus,.avatar:focus,input:focus,select:focus,textarea:focus{
-  outline:none!important;
+@media(max-width:380px){
+  .top-bar{padding:10px 10px!important;}
+  .top-bar svg{max-width:122px!important;height:32px!important;}
+  .top-bar-right{gap:6px!important;}
+  .avatar{width:30px!important;height:30px!important;font-size:.74rem!important;}
+  .logout-btn{padding:6px 8px!important;font-size:.72rem!important;border-radius:10px!important;}
+  .tabs{padding:8px 8px!important;gap:6px!important;}
+  .tab{padding:8px 10px!important;font-size:.72rem!important;}
+  .tab-content{padding:12px 10px 24px!important;}
+  .card{padding:14px!important;}
+  #plans-list{grid-template-columns:1fr!important;gap:12px!important;}
+  .plan-card{min-height:auto!important;padding:14px!important;}
+  .plan-top{gap:6px!important;}
+  .plan-price{font-size:1.22rem!important;}
+  .auth-card{margin:0 10px!important;}
+  .auth-hero{padding-left:14px!important;padding-right:14px!important;}
+  .auth-wordmark{max-width:260px!important;}
+  .splash-svg{max-width:280px!important;}
 }
-button::-moz-focus-inner{border:0!important;padding:0!important;}
-.btn,.plan-btn,.tab,.logout-btn{
-  border-style:solid!important;
-  -webkit-transform:translateZ(0);
-  transform:translateZ(0);
-  position:relative;
-  overflow:hidden;
-}
-.plan-card,.card,.modal-box,.sub-row,.tx-row,.va-box,.msg-row{
-  -webkit-transform:translateZ(0);
-  transform:translateZ(0);
-  background-clip:padding-box!important;
-}
-.avatar{cursor:pointer!important;user-select:none!important;-webkit-user-select:none!important;}
-.avatar:active{opacity:.88!important;}
-
 </style>
 </head>
 <body>
@@ -2410,23 +2416,6 @@ function loadDashCashflow() {
   });
 }
 
-function getFirstName() {
-  var name = '';
-  try {
-    if (gProfile && gProfile.full_name) name = gProfile.full_name;
-    if (!name && gUser && gUser.user_metadata && gUser.user_metadata.full_name) name = gUser.user_metadata.full_name;
-    if (!name && gUser && gUser.email) name = gUser.email.split('@')[0];
-  } catch(e) {}
-  name = (name || 'there').replace(/^\s+|\s+$/g, '');
-  if (name.indexOf(' ') > -1) name = name.split(' ')[0];
-  return name || 'there';
-}
-
-function greetUserFromAvatar() {
-  toast('Hello ' + getFirstName());
-}
-
-
 function wire() {
   // Auth navigation
   $('w-login-btn').onclick  = function() { showScreen('scr-l'); };
@@ -2536,15 +2525,6 @@ function wire() {
 
   // Logout
   $('logout-btn').onclick = doLogout;
-
-  // Avatar greeting
-  if ($('av')) {
-    $('av').onclick = greetUserFromAvatar;
-    $('av').setAttribute('role','button');
-    $('av').setAttribute('tabindex','0');
-    $('av').setAttribute('title','Tap to greet');
-    $('av').onkeydown = function(e) { e = e || window.event; var k = e.keyCode || e.which; if (k === 13 || k === 32) greetUserFromAvatar(); };
-  }
 
   // Refresh subs
   $('refresh-subs-btn').onclick = function() { loadSubs(); toast('Refreshing\u2026'); };
