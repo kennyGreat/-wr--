@@ -1,64 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DataBulge</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-body{
-  font-family: Arial;
-  margin:0;
-  background:#0f2b6b;
-  color:white;
-  text-align:center;
+function doGoogleLogin() {
+  var redirectTo = 'https://www.databulge.com/index.html';
+  var url = AUTH + '/authorize?provider=google&redirect_to=' + encodeURIComponent(redirectTo);
+  window.location.href = url;
 }
-.card{
-  background:#fff;
-  color:#111;
-  padding:20px;
-  border-radius:20px;
-  margin:40px auto;
-  width:90%;
-  max-width:400px;
-}
-</style>
-</head>
 
-<body>
+function doForgot() {
+  var email = ($('fg-email').value || '').replace(/^\s+|\s+$/g, '');
+  errHide('fg-err'); okHide('fg-ok');
 
-<div class="card">
-  <h2>Buy Data</h2>
-  <p>Main App Loaded Successfully</p>
-</div>
-
-<script>
-const supabase = window.supabase.createClient(
-  "https://YOUR_PROJECT.supabase.co",
-  "YOUR_ANON_KEY"
-);
-
-// ✅ Check session
-async function init(){
-  const { data } = await supabase.auth.getSession();
-
-  if(!data.session){
-    window.location.href = "databulge-auth.html";
+  if (!email) {
+    errShow('fg-err', 'Please enter your email.');
+    return;
   }
+
+  btnLoad('fg-send-btn', true, 'Sending\u2026');
+
+  xhr('POST', AUTH + '/recover',
+    { 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
+    JSON.stringify({
+      email: email,
+      redirect_to: 'https://www.databulge.com/databulge-auth.html'
+    }),
+    function(err, res) {
+      btnLoad('fg-send-btn', false, 'Send Reset Link');
+
+      if (err || !res || !res.ok) {
+        errShow('fg-err', 'Failed to send reset link. Try again.');
+        return;
+      }
+
+      okShow('fg-ok', 'Reset link sent! Check your inbox and spam folder.');
+    }
+  );
 }
-
-// ✅ Handle Google return
-supabase.auth.onAuthStateChange((event, session) => {
-  if(session){
-    // Always land on main app
-    window.location.href = "index.html";
-  }
-});
-
-init();
-</script>
-
-</body>
-</html>
