@@ -416,6 +416,288 @@ button,.btn,.plan-btn,.tab,.logout-btn,.plan-chip,.avatar,.avatar-menu button{
   .tab{padding:7px 9px!important;font-size:.70rem!important;}
 }
 
+
+
+/* ── BALANCED DATABULGE THEME: BLUE BRAND + WHATSAPP GREEN ACTIONS ── */
+:root{
+  --db-blue:#1A56DB !important;
+  --db-blue-dark:#173A73 !important;
+  --db-whatsapp:#25D366 !important;
+  --db-whatsapp-dark:#1ebe5d !important;
+  --db-whatsapp-deep:#128C4A !important;
+}
+
+/* Keep brand areas blue */
+#db-splash{
+  background:linear-gradient(160deg,#0f2952 0%,#1a3a72 48%,#1A56DB 100%) !important;
+}
+#pg-auth{
+  background:linear-gradient(165deg,#123363 0%,#173A73 48%,#1A56DB 100%) !important;
+}
+.top-bar svg rect[fill="#1A56DB"],
+.auth-wordmark circle[fill="#1A56DB"],
+.splash-svg circle[fill="#1A56DB"],
+.top-bar svg circle[fill="#1A56DB"]{
+  fill:#1A56DB !important;
+}
+
+/* Brand text, links, inputs and navigation stay blue */
+.txt-link,
+.forgot-btn,
+.plan-price,
+.va-bank,
+.upgrade-bar a,
+.tab.act{
+  color:#1A56DB !important;
+}
+.field input:focus,
+.textarea:focus,
+select:focus{
+  border-color:#1A56DB !important;
+  box-shadow:0 0 0 3px rgba(26,86,219,.10) !important;
+}
+.tab.act,
+.plan-chip.act{
+  background:#EEF2FF !important;
+  color:#1A56DB !important;
+  border-color:#1A56DB !important;
+}
+.tab.act::after{
+  background:#1A56DB !important;
+}
+.prog-fill{
+  background:#1A56DB !important;
+}
+
+/* Main conversion/action buttons use WhatsApp green with white text */
+.btn-blue,
+.plan-btn,
+.pay-btn,
+#m-pay-btn,
+#m-sub-btn,
+#plans-fund-btn,
+#d-fund-btn,
+#fg-send-btn,
+#m-terms-agree,
+#compose-btn-open,
+#l-btn,
+#s-btn,
+#r-btn,
+#w-login-btn{
+  background:#25D366 !important;
+  color:#ffffff !important;
+  border:none !important;
+  box-shadow:0 8px 16px rgba(37,211,102,.22) !important;
+}
+
+/* Secondary buttons stay soft blue, except direct action-like secondary choices remain clean */
+.btn-lite{
+  background:#E9EEFF !important;
+  color:#1A56DB !important;
+  border:1px solid #D6DFFF !important;
+}
+
+/* Payment duration active button should be green; inactive should be soft blue */
+#pay-days-7.btn-blue,
+#pay-days-28.btn-blue,
+#m-sub-days-7.btn-blue,
+#m-sub-days-28.btn-blue{
+  background:#25D366 !important;
+  color:#fff !important;
+  border:none !important;
+}
+#pay-days-7.btn-lite,
+#pay-days-28.btn-lite,
+#m-sub-days-7.btn-lite,
+#m-sub-days-28.btn-lite{
+  background:#E9EEFF !important;
+  color:#1A56DB !important;
+}
+
+/* Green action button press state */
+.btn-blue:active,
+.plan-btn:active,
+.pay-btn:active,
+#m-pay-btn:active,
+#m-sub-btn:active,
+#plans-fund-btn:active,
+#d-fund-btn:active,
+#fg-send-btn:active,
+#m-terms-agree:active,
+#compose-btn-open:active,
+#l-btn:active,
+#s-btn:active,
+#r-btn:active,
+#w-login-btn:active{
+  background:#1ebe5d !important;
+}
+
+/* Keep sign out calm, not loud */
+.avatar-signout,
+#logout-btn{
+  background:#F8FAFC !important;
+  color:#667085 !important;
+  border:1px solid #E5E7EB !important;
+  box-shadow:none !important;
+}
+
+/* Success and wallet positive states use green */
+.tx-amt.credit,
+.tx-amt.refund,
+.status-active,
+.wallet-status.active{
+  color:#047857 !important;
+}
+
+/* Premium green emphasis for payment-specific blocks */
+.pay-btn,
+#m-pay-btn{
+  background:#25D366 !important;
+  color:#fff !important;
+}
+
+/* Avoid accidentally turning every generic button green */
+button.tab,
+button.plan-chip,
+.modal-x,
+.eye,
+.txt-link,
+.forgot-btn{
+  box-shadow:none !important;
+}
+
+
+/* ── FINAL REQUESTED PATCH: FULL ACTIVE MENU + REAL TOGGLES ──
+   Frontend-only. Backend script/function flow untouched.
+*/
+:root{
+  --db-action-green:#25D366 !important;
+  --db-action-green-dark:#1ebe5d !important;
+  --db-brand-blue:#1A56DB !important;
+}
+
+/* Main action buttons: Fund Account, Subscribe, Subscribe Now, Start Auto-Fund */
+#d-fund-btn,
+#plans-fund-btn,
+.plan-btn,
+#m-sub-btn,
+#af-fund-btn,
+#w-login-btn,
+#l-btn,
+#s-btn,
+#r-btn,
+#fg-send-btn,
+#m-pay-btn,
+.pay-btn,
+#compose-btn-open,
+#m-terms-agree{
+  background:#25D366 !important;
+  color:#ffffff !important;
+  border:0 !important;
+  border-radius:12px !important;
+  font-weight:900 !important;
+  box-shadow:0 8px 16px rgba(37,211,102,.22) !important;
+}
+
+/* Stronger active main menu: bold, full, same confidence as Fund Account */
+.tabs .tab.act{
+  background:#25D366 !important;
+  color:#ffffff !important;
+  border-color:#25D366 !important;
+  font-weight:900 !important;
+  box-shadow:0 8px 16px rgba(37,211,102,.20) !important;
+}
+.tabs .tab.act::after{
+  display:none !important;
+}
+
+/* Inactive menu remains soft blue/grey from your design */
+.tabs .tab:not(.act){
+  background:#F5F7FB !important;
+  color:#727B8C !important;
+  border-color:#E3E7EF !important;
+  box-shadow:none !important;
+}
+
+/* Payment options: active 7 days / 28 days should look full like Fund Account */
+#pay-days-7.btn-blue,
+#pay-days-28.btn-blue,
+#m-sub-days-7.btn-blue,
+#m-sub-days-28.btn-blue{
+  background:#25D366 !important;
+  color:#ffffff !important;
+  border:0 !important;
+  border-radius:12px !important;
+  font-weight:900 !important;
+  box-shadow:0 8px 16px rgba(37,211,102,.22) !important;
+}
+#pay-days-7.btn-lite,
+#pay-days-28.btn-lite,
+#m-sub-days-7.btn-lite,
+#m-sub-days-28.btn-lite{
+  background:#E9EEFF !important;
+  color:#1A56DB !important;
+  border:1px solid #D6DFFF !important;
+  border-radius:12px !important;
+  font-weight:900 !important;
+  box-shadow:none !important;
+}
+
+/* Plan filter chips: All / Daily / Weekly / Monthly / network type active is fuller */
+.plan-chip.act{
+  background:#25D366 !important;
+  color:#ffffff !important;
+  border-color:#25D366 !important;
+  font-weight:900 !important;
+  box-shadow:0 8px 16px rgba(37,211,102,.18) !important;
+}
+.plan-chip:not(.act){
+  background:#ffffff !important;
+  color:#6B7280 !important;
+  border-color:#E0E5EF !important;
+  box-shadow:none !important;
+}
+
+/* Real toggle switch track */
+#m-sub-autofund-sl,
+#m-sub-autorenew-sl{
+  width:44px !important;
+  height:24px !important;
+  display:block !important;
+  background:#CBD5E1 !important;
+  border-radius:999px !important;
+  transition:.25s !important;
+  -webkit-transition:.25s !important;
+  box-shadow:inset 0 1px 3px rgba(15,23,42,.16) !important;
+}
+
+/* Real toggle knob inserted by frontend patch script */
+#m-sub-autofund-sl .db-toggle-knob,
+#m-sub-autorenew-sl .db-toggle-knob{
+  position:absolute !important;
+  height:18px !important;
+  width:18px !important;
+  left:3px !important;
+  bottom:3px !important;
+  background:#fff !important;
+  border-radius:50% !important;
+  transition:.25s !important;
+  -webkit-transition:.25s !important;
+  box-shadow:0 2px 6px rgba(15,23,42,.25) !important;
+}
+
+/* Active toggle appearance */
+#m-sub-autofund:checked + #m-sub-autofund-sl,
+#m-sub-autorenew:checked + #m-sub-autorenew-sl{
+  background:#25D366 !important;
+}
+
+/* Labels around toggle should feel clickable */
+label:has(#m-sub-autofund),
+label:has(#m-sub-autorenew){
+  cursor:pointer !important;
+}
+
 </style>
 </head>
 <body>
@@ -2502,5 +2784,86 @@ if (document.readyState === 'loading') {
   hideSplashSoon(); wire(); init();
 }
 </script>
+
+<script>
+/* Final requested frontend-only toggle patch.
+   It does not change subscription/autofund backend logic.
+*/
+(function(){
+  function $(id){ return document.getElementById(id); }
+
+  function ensureKnob(sl){
+    if (!sl) return;
+    var found = false;
+    var children = sl.children || [];
+    for (var i=0; i<children.length; i++){
+      if (String(children[i].className).indexOf('db-toggle-knob') >= 0) found = true;
+    }
+    if (!found){
+      var knob = document.createElement('span');
+      knob.className = 'db-toggle-knob';
+      knob.style.cssText = 'position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;-webkit-transition:.25s;transition:.25s;box-shadow:0 2px 6px rgba(15,23,42,.25);';
+      sl.appendChild(knob);
+    }
+  }
+
+  window._syncSl = function(slId, on){
+    var sl = $(slId);
+    if (!sl) return;
+    ensureKnob(sl);
+    sl.style.background = on ? '#25D366' : '#CBD5E1';
+    var knob = sl.getElementsByTagName('span')[0];
+    if (knob){
+      knob.style.webkitTransform = on ? 'translateX(20px)' : 'translateX(0)';
+      knob.style.transform = on ? 'translateX(20px)' : 'translateX(0)';
+    }
+  };
+
+  function bindToggle(inputId, slideId, fieldsId){
+    var input = $(inputId);
+    var slide = $(slideId);
+    if (!input || !slide) return;
+    ensureKnob(slide);
+    window._syncSl(slideId, input.checked);
+
+    slide.onclick = function(e){
+      if (e && e.preventDefault) e.preventDefault();
+      input.checked = !input.checked;
+      window._syncSl(slideId, input.checked);
+      if (fieldsId && $(fieldsId)){
+        $(fieldsId).style.display = input.checked ? 'block' : 'none';
+      }
+      if (typeof input.onchange === 'function') input.onchange();
+    };
+
+    input.onchange = function(){
+      window._syncSl(slideId, input.checked);
+      if (fieldsId && $(fieldsId)){
+        $(fieldsId).style.display = input.checked ? 'block' : 'none';
+      }
+    };
+  }
+
+  function init(){
+    bindToggle('m-sub-autofund','m-sub-autofund-sl','m-autofund-fields');
+    bindToggle('m-sub-autorenew','m-sub-autorenew-sl',null);
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  var oldOpenSubModal = window.openSubModal;
+  if (typeof oldOpenSubModal === 'function'){
+    window.openSubModal = function(planIdx){
+      oldOpenSubModal(planIdx);
+      setTimeout(init, 0);
+    };
+  }
+})();
+</script>
+
 </body>
 </html>
