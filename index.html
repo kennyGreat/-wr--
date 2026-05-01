@@ -59,8 +59,6 @@ html,body{width:100%;min-height:100%;background:#fff;font-family:Arial,Helvetica
 .link-row{text-align:center;font-size:.81rem;color:#888;margin-top:12px;}
 .txt-link{background:none;border:none;cursor:pointer;color:#1A56DB;font-weight:700;font-size:inherit;padding:0;font-family:inherit;}
 .forgot-btn{display:block;text-align:right;background:none;border:none;cursor:pointer;color:#1A56DB;font-size:.78rem;font-weight:700;padding:0;margin-bottom:13px;font-family:inherit;}
-.btn-google{background:#fff;color:#3c4043;border:1.5px solid #dadce0;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08);}
-.btn-google:active{background:#f8f8f8;}
 .err{display:none;background:#fff2f2;border:1px solid #f5c6cb;color:#c0392b;padding:9px 11px;border-radius:6px;font-size:.8rem;margin-bottom:12px;}
 .err.on{display:block;}
 .ok{display:none;background:#f0fff4;border:1px solid #b2dfdb;color:#1a7a4a;padding:9px 11px;border-radius:6px;font-size:.8rem;margin-bottom:12px;}
@@ -242,7 +240,6 @@ html,body{background:var(--db-bg)!important;color:var(--db-text)!important;}
 .divdr:before,.divdr:after{background:#E4E7EE!important;}
 .divdr span{color:#A5ADBA!important;}
 .err,.ok{border-radius:14px!important;}
-.btn-google{border-radius:12px!important;min-height:42px!important;background:#fff!important;border:1.5px solid #E1E5EF!important;color:#3c4043!important;font-weight:700!important;box-shadow:0 2px 8px rgba(0,0,0,.06)!important;}
 
 /* App shell */
 #pg-app{background:var(--db-bg)!important;min-height:100vh!important;padding-bottom:22px!important;}
@@ -359,8 +356,8 @@ html,body{background:var(--db-bg)!important;color:var(--db-text)!important;}
 
 
 /* ── SPLASH SCREEN ── */
-#db-splash{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:linear-gradient(160deg,#0f2952 0%,#1a3a72 48%,#1A56DB 100%);display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;text-align:center;padding:24px;}
-#db-splash.hide{display:none;}
+#db-splash{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;background:linear-gradient(160deg,#0f2952 0%,#1a3a72 48%,#1A56DB 100%);display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;text-align:center;padding:24px;-webkit-transition:opacity .4s ease;transition:opacity .4s ease;opacity:1;}
+#db-splash.hide{opacity:0;pointer-events:none;}
 .splash-inner{width:100%;max-width:360px;margin:0 auto;}
 .splash-svg{display:block;width:100%;max-width:320px;margin:0 auto 20px;}
 .splash-line{font-size:.82rem;color:rgba(255,255,255,.62);letter-spacing:.08em;text-transform:uppercase;font-weight:700;}
@@ -497,11 +494,11 @@ button,.btn,.plan-btn,.tab,.logout-btn,.plan-chip,.avatar,.avatar-menu button{
       <div class="auth-sub">Buy mobile data and pay in daily installments.</div>
       <button class="btn btn-blue" id="w-login-btn">Log In with Email</button>
       <div class="divdr"><span>OR</span></div>
-      <button class="btn btn-google" id="w-google-btn" onclick="window.location.href='databulge.html'">
-        <svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align:middle;margin-right:8px;" xmlns="http://www.w3.org/2000/svg"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/><path d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 6.293C4.672 4.166 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+      <button class="btn btn-lite" id="w-google-btn" style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;align-items:center;-webkit-box-pack:center;justify-content:center;gap:8px;">
+        <svg width="18" height="18" viewBox="0 0 18 18" style="-webkit-flex-shrink:0;flex-shrink:0;" xmlns="http://www.w3.org/2000/svg"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
         Continue with Google
       </button>
-      <div class="divdr"><span>NEW HERE</span></div>
+      <div class="divdr"><span>NEW?</span></div>
       <button class="btn btn-lite" id="w-signup-btn">Create New Account</button>
     </div>
 
@@ -562,145 +559,6 @@ button,.btn,.plan-btn,.tab,.logout-btn,.plan-chip,.avatar,.avatar-menu button{
 </div><!-- /.auth-wrap -->
 </div><!-- /#pg-auth -->
 
-<!-- ═══ MAIN APP ═══════════════════════════════════════════════ -->
-<div id="pg-app" class="pg">
-
-  <div class="top-bar">
-    <div class="top-bar-title" style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;align-items:center;line-height:1;">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" height="38" style="display:block;border-radius:10px;" role="img" aria-label="DataBulge">
-        <style>
-          @-webkit-keyframes breathe{0%,100%{opacity:1}50%{opacity:.55}}
-          @keyframes breathe{0%,100%{opacity:1}50%{opacity:.55}}
-          .wm-b1{-webkit-animation:breathe 1.8s ease-in-out 0s infinite;animation:breathe 1.8s ease-in-out 0s infinite}
-          .wm-b2{-webkit-animation:breathe 1.8s ease-in-out .2s infinite;animation:breathe 1.8s ease-in-out .2s infinite}
-          .wm-b3{-webkit-animation:breathe 1.8s ease-in-out .4s infinite;animation:breathe 1.8s ease-in-out .4s infinite}
-          .wm-b4{-webkit-animation:breathe 1.8s ease-in-out .6s infinite;animation:breathe 1.8s ease-in-out .6s infinite}
-          @media(prefers-reduced-motion:reduce){.wm-b1,.wm-b2,.wm-b3,.wm-b4{-webkit-animation:none;animation:none}}
-        </style>
-        <!-- Pill background -->
-        <rect x="0" y="0" width="640" height="160" rx="24" fill="#1A56DB"/>
-        <!-- Decorative circles top-right -->
-        <circle cx="580" cy="110" r="60" fill="#FFFFFF" opacity=".05"/>
-        <circle cx="615" cy="135" r="38" fill="#FFFFFF" opacity=".05"/>
-        <!-- Icon mark: white ring -->
-        <circle cx="88" cy="80" r="52" fill="#FFFFFF" opacity=".15"/>
-        <circle cx="88" cy="80" r="42" fill="#FFFFFF"/>
-        <!-- Blue cutout -->
-        <circle cx="88" cy="80" r="28" fill="#1A56DB"/>
-        <!-- Signal bars -->
-        <rect x="66" y="84"  width="8" height="16" rx="3" fill="#FFFFFF" class="wm-b1"/>
-        <rect x="78" y="76"  width="8" height="24" rx="3" fill="#FFFFFF" class="wm-b2"/>
-        <rect x="90" y="66"  width="8" height="34" rx="3" fill="#FFFFFF" class="wm-b3"/>
-        <rect x="102" y="56" width="8" height="44" rx="3" fill="#FFFFFF" class="wm-b4"/>
-        <!-- Anchor dot -->
-        <circle cx="50" cy="104" r="6" fill="#FFFFFF"/>
-        <!-- Vertical divider -->
-        <line x1="152" y1="24" x2="152" y2="136" stroke="#FFFFFF" stroke-width="1" opacity=".2"/>
-        <!-- Wordmark -->
-        <text x="176" y="72" font-family="'Syne','DM Sans','Helvetica Neue',Arial,sans-serif" font-size="50" font-weight="300" fill="#FFFFFF" opacity=".9" letter-spacing="-1">data</text>
-        <text x="176" y="128" font-family="'Syne','DM Sans','Helvetica Neue',Arial,sans-serif" font-size="50" font-weight="700" fill="#FFFFFF" letter-spacing="-1">bulge</text>
-        <!-- Tagline -->
-        <text x="594" y="66" font-family="'DM Sans','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#FFFFFF" opacity=".5" text-anchor="end" letter-spacing="1.8">DATA ON YOUR</text>
-        <text x="594" y="82" font-family="'DM Sans','Helvetica Neue',Arial,sans-serif" font-size="11" font-weight="400" fill="#FFFFFF" opacity=".5" text-anchor="end" letter-spacing="1.8">OWN TERMS</text>
-      </svg>
-    </div>
-    <div class="top-bar-right">
-      <div class="user-greeting" id="user-greeting">Hello</div>
-      <div class="avatar-wrap">
-        <button class="avatar" id="av" type="button" aria-label="Open account menu" onclick="toggleAvatarMenu()"></button>
-        <div class="avatar-menu" id="avatar-menu">
-          <div class="wallet-status normal" id="wallet-status">Normal Wallet</div>
-          <button class="avatar-signout" type="button" onclick="doLogout()">Sign out</button>
-        </div>
-      </div>
-      <button class="logout-btn" id="logout-btn">Sign out</button>
-    </div>
-  </div>
-
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab" id="tab-dash" data-t="dash">Dashboard</button>
-    <button class="tab act" id="tab-plans" data-t="plans">Buy Data</button>
-    <button class="tab" id="tab-subs" data-t="subs">My Plan</button>
-    <button class="tab" id="tab-wallet" data-t="wallet">Account</button>
-    <button class="tab" id="tab-inbox" data-t="inbox">&#128276; Messages<span id="inbox-badge" style="display:none;background:#f43f5e;color:#fff;border-radius:10px;font-size:.62rem;font-weight:800;padding:1px 5px;vertical-align:middle;margin-left:3px;"></span></button>
-  </div>
-
-  <!-- DASHBOARD TAB -->
-  <div id="tc-dash" class="tab-content">
-    <div class="card">
-      <div style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;-webkit-box-align:center;-webkit-align-items:center;align-items:center;gap:10px;">
-        <div>
-          <div class="card-title">Account Balance</div>
-          <div class="card-val" id="d-bal-dash">&#8358;0.00</div>
-          <div class="card-sub" id="d-va-dash" style="margin-top:3px;">Loading&#8230;</div>
-        </div>
-        <button class="btn btn-blue" id="d-fund-btn" style="margin:0;padding:9px 14px;font-size:.82rem;-webkit-flex-shrink:0;flex-shrink:0;width:auto;">+ Fund Account</button>
-      </div>
-    </div>
-    <div style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;gap:9px;margin-bottom:12px;">
-      <div style="-webkit-box-flex:1;-webkit-flex:1 1 80px;flex:1 1 80px;border:1px solid #e5e7eb;border-radius:8px;padding:11px;background:#fff;min-width:0;">
-        <div style="font-size:.66rem;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:3px;">Today Funded</div>
-        <div style="font-size:1.05rem;font-weight:900;color:#059669;" id="cf-in-d">&#8358;0.00</div>
-      </div>
-      <div style="-webkit-box-flex:1;-webkit-flex:1 1 80px;flex:1 1 80px;border:1px solid #e5e7eb;border-radius:8px;padding:11px;background:#fff;min-width:0;">
-        <div style="font-size:.66rem;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:3px;">Today Spent</div>
-        <div style="font-size:1.05rem;font-weight:900;color:#dc2626;" id="cf-out-d">&#8358;0.00</div>
-      </div>
-      <div style="-webkit-box-flex:1;-webkit-flex:1 1 80px;flex:1 1 80px;border:1px solid #e5e7eb;border-radius:8px;padding:11px;background:#fff;min-width:0;">
-        <div style="font-size:.66rem;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:3px;">Completed</div>
-        <div style="font-size:1.05rem;font-weight:900;color:#111;" id="cf-done-d">0</div>
-      </div>
-    </div>
-    <div class="sec-title">Active Plans</div>
-    <div id="dash-subs-d"><div class="empty">Loading&#8230;</div></div>
-  </div>
-
-  <!-- Buy Data -->
-  <div id="tc-plans" class="tab-content on">
-    <div class="card" style="margin-bottom:12px;">
-      <div style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;-webkit-box-align:center;-webkit-align-items:center;align-items:center;gap:10px;">
-        <div>
-          <div class="card-title">Account Balance</div>
-          <div class="card-val" id="d-bal">&#8358;0.00</div>
-          <div class="card-sub" id="d-va" style="margin-top:2px;">Loading&#8230;</div>
-        </div>
-        <button class="btn btn-blue" id="plans-fund-btn" style="margin:0;padding:9px 14px;font-size:.82rem;-webkit-flex-shrink:0;flex-shrink:0;width:auto;">+ Fund Account</button>
-      </div>
-    </div>
-    <div class="card" style="margin-bottom:12px;">
-      <div class="sec-title">Payment Option</div>
-      <div id="pay-toggle-wrap" style="display:flex;gap:8px;">
-        <button class="btn btn-blue" id="pay-days-7" style="margin:0;flex:1;">7 Days</button>
-        <button class="btn btn-lite" id="pay-days-28" style="margin:0;flex:1;">28 Days</button>
-      </div>
-      <div class="card-sub" style="margin-top:10px;">Daily payment updates automatically based on the payment option you choose.</div>
-    </div>
-    <div id="plans-list"><div class="empty">Loading plans&hellip;</div></div>
-  </div>
-
-  <!-- My Plans -->
-  <div id="tc-subs" class="tab-content">
-    <button class="btn btn-lite" id="refresh-subs-btn" style="margin-bottom:12px;">&#8635; Refresh</button>
-    <div id="subs-list"><div class="empty">Loading&hellip;</div></div>
-  </div>
-
-  <!-- Account -->
-  <div id="tc-wallet" class="tab-content">
-    <div id="wallet-tab-content"><div class="empty">Loading account&hellip;</div></div>
-  </div>
-
-  <!-- Inbox -->
-  <div id="tc-inbox" class="tab-content">
-    <div class="tab-actions">
-      <button class="btn btn-lite" id="mark-read-btn">Mark all read</button>
-      <button class="btn btn-blue" id="compose-btn-open">New Message</button>
-    </div>
-    <div id="inbox-list"><div class="empty">Loading&hellip;</div></div>
-    <div style="text-align:center;padding:18px 14px 8px;font-size:.73rem;color:#bbb;">&#169; 2026 Vortexedge Limited. All rights reserved.</div>
-  </div>
-
-</div><!-- /#pg-app -->
 
 <!-- FORGOT PASSWORD MODAL -->
 <div class="modal" id="m-forgot">
@@ -721,83 +579,6 @@ button,.btn,.plan-btn,.tab,.logout-btn,.plan-chip,.avatar,.avatar-menu button{
   </div>
 </div>
 
-<!-- SUBSCRIBE MODAL -->
-<div class="modal" id="m-sub">
-  <div class="modal-box">
-    <div class="modal-hdr">
-      <div class="modal-title" id="m-sub-title">Subscribe</div>
-      <button class="modal-x" id="m-sub-x">&#215;</button>
-    </div>
-    <div class="modal-body">
-      <div id="m-sub-err" class="err"></div>
-      <div id="m-sub-info" style="font-size:.82rem;color:#444;margin-bottom:12px;"></div>
-
-      <div class="field">
-        <label style="font-weight:700;color:#333;margin-bottom:7px;display:block;">Payment Duration</label>
-        <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:8px;">
-          <button class="btn btn-blue" id="m-sub-days-7" type="button" style="margin:0;-webkit-box-flex:1;-webkit-flex:1;flex:1;">7 Days</button>
-          <button class="btn btn-lite" id="m-sub-days-28" type="button" style="margin:0;-webkit-box-flex:1;-webkit-flex:1;flex:1;">28 Days</button>
-        </div>
-      </div>
-
-      <div class="field" style="border:1px solid #d0d8ff;border-radius:8px;padding:12px;background:#f5f6ff;margin-bottom:12px;">
-        <div style="font-size:.87rem;font-weight:800;color:#1A56DB;margin-bottom:6px;">&#128179; Auto-Fund</div>
-        <p style="font-size:.76rem;color:#555;margin-bottom:10px;line-height:1.5;">This takes the stress off you &#8212; enter an amount, pay with your card, your account is debited on your behalf daily with that amount and your wallet is credited instantly. you can cancel anytime.</p>
-        <div style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;gap:8px;margin-bottom:0;">
-          <span style="font-size:.82rem;color:#333;font-weight:600;">Enable Auto-Fund</span>
-          <label style="position:relative;display:inline-block;width:40px;height:22px;-webkit-flex-shrink:0;flex-shrink:0;">
-            <input type="checkbox" id="m-sub-autofund" style="opacity:0;width:0;height:0;position:absolute;">
-            <span id="m-sub-autofund-sl" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:22px;-webkit-transition:.25s;transition:.25s;"></span>
-          </label>
-        </div>
-        <div id="m-autofund-fields" style="display:none;margin-top:10px;">
-          <label style="font-size:.77rem;color:#555;margin-bottom:4px;display:block;">Amount to auto-debit each time (&#8358;)</label>
-          <input type="number" id="m-autofund-amt" placeholder="e.g. 500" style="display:block;width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:6px;font-size:.93rem;color:#111;background:#fff;outline:none;-webkit-appearance:none;">
-        </div>
-      </div>
-
-      <div class="field" style="margin-bottom:12px;">
-        <div style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;-webkit-box-align:center;-webkit-align-items:center;align-items:center;">
-          <div>
-            <div style="font-size:.85rem;font-weight:700;color:#333;">Auto-Renew</div>
-            <div style="font-size:.73rem;color:#888;margin-top:2px;">Auto-renew when complete</div>
-          </div>
-          <label style="position:relative;display:inline-block;width:40px;height:22px;-webkit-flex-shrink:0;flex-shrink:0;">
-            <input type="checkbox" id="m-sub-autorenew" style="opacity:0;width:0;height:0;position:absolute;">
-            <span id="m-sub-autorenew-sl" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:22px;-webkit-transition:.25s;transition:.25s;"></span>
-          </label>
-        </div>
-      </div>
-
-      <div class="field">
-        <label style="font-weight:700;color:#333;margin-bottom:6px;display:block;">Phone Number for Delivery</label>
-        <input id="m-sub-phone" type="tel" placeholder="08012345678">
-      </div>
-    </div>
-    <div class="modal-foot" style="display:-webkit-box;display:-webkit-flex;display:flex;gap:8px;-webkit-box-pack:end;justify-content:flex-end;flex-wrap:wrap;">
-      <button class="btn" id="m-sub-cancel-af-btn" style="display:none;background:#fff2f2;color:#c0392b;border:1.5px solid #f5c6cb;width:auto;padding:10px 16px;margin:0;font-family:inherit;font-size:.82rem;">&#9209; Cancel Auto-Fund</button>
-      <button class="btn btn-blue" id="m-sub-btn" style="width:auto;display:inline-block;padding:10px 26px;margin:0;">Subscribe Now</button>
-    </div>
-  </div>
-</div>
-
-<!-- PAY INSTALLMENT MODAL -->
-<div class="modal" id="m-pay">
-  <div class="modal-box">
-    <div class="modal-hdr">
-      <div class="modal-title">Pay Installment</div>
-      <button class="modal-x" id="m-pay-x">&#215;</button>
-    </div>
-    <div class="modal-body">
-      <div id="m-pay-err" class="err"></div>
-      <div id="m-pay-info" style="font-size:.82rem;color:#444;margin-bottom:12px;"></div>
-      <div class="field"><label>Amount to Pay (&#8358;)</label><input id="m-pay-amt" type="number" placeholder="0"></div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-blue" id="m-pay-btn" style="width:auto;display:inline-block;padding:10px 22px;margin:0;background:#059669;">Pay from Wallet</button>
-    </div>
-  </div>
-</div>
 
 <!-- TERMS MODAL -->
 <div class="modal" id="m-terms">
@@ -828,90 +609,6 @@ button,.btn,.plan-btn,.tab,.logout-btn,.plan-chip,.avatar,.avatar-menu button{
     <div class="modal-foot">
       <button class="btn btn-blue" id="m-terms-agree" style="width:auto;display:inline-block;padding:10px 22px;margin:0;">I Agree</button>
     </div>
-  </div>
-</div>
-
-
-
-
-<div class="modal" id="m-fund">
-  <div class="modal-box">
-    <div class="modal-hdr"><div class="modal-title">Fund Account</div><button class="modal-x" id="m-fund-x">&#215;</button></div>
-    <div class="modal-body">
-      <div id="m-fund-err" class="err"></div>
-      <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:0;margin-bottom:14px;position:relative;-webkit-transform:translateZ(0);transform:translateZ(0);">
-        <div style="position:absolute;left:0;right:0;bottom:0;height:2px;background:#eee;"></div>
-        <button id="fund-tab-va" onclick="switchFundTab('va')" style="padding:8px 14px;background:none;border:none;position:relative;color:#1A56DB;font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem;z-index:1;-webkit-tap-highlight-color:transparent;"><span style="position:absolute;left:0;right:0;bottom:0;height:2px;background:#1A56DB;-webkit-transform:translateZ(0);transform:translateZ(0);"></span>Bank Transfer</button>
-        <button id="fund-tab-af" onclick="switchFundTab('af')" style="padding:8px 14px;background:none;border:none;position:relative;color:#888;font-weight:700;cursor:pointer;font-family:inherit;font-size:.82rem;z-index:1;-webkit-tap-highlight-color:transparent;"><span id="fund-tab-af-ind" style="position:absolute;left:0;right:0;bottom:0;height:2px;background:transparent;-webkit-transform:translateZ(0);transform:translateZ(0);"></span>Auto-Fund (Card) &#128179;</button>
-      </div>
-      <div id="fund-panel-va">
-        <div id="m-fund-va" class="va-box" style="display:none;"></div>
-        <div class="card-sub" style="margin-top:10px;line-height:1.6;">Transfer to the account above. Balance updates in under 5 minutes after a successful transfer.</div>
-      </div>
-      <div id="fund-panel-af" style="display:none;">
-        <!-- Active mandate — shown when recurring auto-fund is already running -->
-        <div id="af-active-banner" style="display:none;background:#f0fff4;border:1px solid #b2dfdb;border-radius:8px;padding:12px;margin-bottom:10px;">
-          <div style="font-size:.85rem;font-weight:800;color:#059669;margin-bottom:4px;">&#9989; Auto-Fund Active</div>
-          <div id="af-active-detail" style="font-size:.77rem;color:#444;margin-bottom:10px;">Your card is being charged daily automatically.</div>
-          <button class="btn" id="af-cancel-btn" style="background:#fff2f2;color:#c0392b;border:1.5px solid #f5c6cb;width:100%;margin:0;padding:10px;font-family:inherit;">&#9209; Cancel Auto-Fund</button>
-        </div>
-        <!-- Setup form — shown when no active mandate -->
-        <div id="af-setup-form">
-          <div style="background:#f5f6ff;border:1px solid #d0d8ff;border-radius:8px;padding:12px;margin-bottom:10px;">
-            <div style="font-size:.85rem;font-weight:800;color:#1A56DB;margin-bottom:6px;">&#128179; Auto-Fund via Card</div>
-            <p style="font-size:.77rem;color:#555;line-height:1.55;margin-bottom:12px;">Enter an amount and pay once. We&#8217;ll charge your card this amount every day automatically and credit your wallet instantly. Cancel anytime.</p>
-            <label style="font-size:.78rem;font-weight:700;color:#333;display:block;margin-bottom:4px;">Amount to charge daily (&#8358;)</label>
-            <input type="number" id="af-fund-amt" placeholder="e.g. 1000" style="display:block;width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:6px;font-size:.93rem;color:#111;background:#fff;outline:none;-webkit-appearance:none;margin-bottom:10px;">
-            <div id="af-fund-err" class="err"></div>
-            <button class="btn btn-blue" id="af-fund-btn" style="width:100%;margin:0;">Start Auto-Fund</button>
-          </div>
-          <div class="card-sub" style="text-align:center;line-height:1.5;">Your card is charged daily. Cancel anytime.</div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-foot"></div>
-  </div>
-</div>
-
-<!-- VIRTUAL ACCOUNT MODAL -->
-<div class="modal" id="m-va">
-  <div class="modal-box">
-    <div class="modal-hdr"><div class="modal-title">Account Details</div><button class="modal-x" id="m-va-x">&#215;</button></div>
-    <div class="modal-body"><div id="m-va-content"><div class="empty">Loading&hellip;</div></div></div>
-  </div>
-</div>
-
-<!-- COMPOSE MESSAGE MODAL -->
-<div class="modal" id="m-compose">
-  <div class="modal-box">
-    <div class="modal-hdr"><div class="modal-title">New Message</div><button class="modal-x" id="m-compose-x">&#215;</button></div>
-    <div class="modal-body">
-      <div id="m-compose-err" class="err"></div>
-      <div class="field"><label>Subject</label><input id="compose-subject" type="text" placeholder="What do you need help with?"></div>
-      <div class="field"><label>Type</label>
-        <select id="compose-type" style="display:block;width:100%;padding:11px 12px;border:1.5px solid #ddd;border-radius:6px;font-size:.94rem;color:#111;background:#fff;outline:none;-webkit-appearance:none;">
-          <option value="support">Support</option>
-          <option value="billing">Billing</option>
-          <option value="refund">Refund</option>
-          <option value="delivery">Delivery</option>
-          <option value="general">General</option>
-        </select>
-      </div>
-      <div class="field"><label>Message</label><textarea id="compose-body" class="textarea" placeholder="Write your message here"></textarea></div>
-    </div>
-    <div class="modal-foot"><button class="btn btn-blue" id="compose-send-btn" style="width:auto;display:inline-block;padding:10px 22px;margin:0;">Send Message</button></div>
-  </div>
-</div>
-
-<!-- MESSAGE DETAIL MODAL -->
-<div class="modal" id="m-msg-detail">
-  <div class="modal-box">
-    <div class="modal-hdr"><div class="modal-title" id="msg-detail-title">Message</div><button class="modal-x" id="m-msg-detail-x">&#215;</button></div>
-    <div class="modal-body">
-      <div id="msg-detail-body" style="font-size:.84rem;color:#444;line-height:1.7;margin-bottom:12px;"></div>
-      <div class="field"><label>Reply</label><textarea id="msg-reply-text" class="textarea" placeholder="Type your reply"></textarea></div>
-    </div>
-    <div class="modal-foot"><button class="btn btn-blue" id="reply-btn" style="width:auto;display:inline-block;padding:10px 22px;margin:0;">Send Reply</button></div>
   </div>
 </div>
 
@@ -1179,7 +876,7 @@ function doLogin() {
         return;
       }
       _setSession(res.data);
-      bootApp();
+      window.location.href = 'app.html';
     }
   );
 }
@@ -1214,7 +911,7 @@ function doSignup() {
         _setSession(res.data);
         // Update profile with name + phone
         restPatch('/profiles', 'user_id=eq.' + gUser.id, { full_name: name, phone: phone }, function() {});
-        bootApp();
+        window.location.href = 'app.html';
       } else {
         // Email confirmation required
         okShow('s-ok');
@@ -1224,6 +921,13 @@ function doSignup() {
       }
     }
   );
+}
+
+function doGoogleLogin() {
+  // Redirect to Supabase Google OAuth — it will return back with token in hash
+  var redirectTo = window.location.href.split('#')[0].replace('auth.html', 'app.html');
+  var url = AUTH + '/authorize?provider=google&redirect_to=' + encodeURIComponent(redirectTo);
+  window.location.href = url;
 }
 
 function doForgot() {
@@ -1265,21 +969,61 @@ function doResetPassword() {
         return;
       }
       okShow('r-ok', '\u2705 Password updated! Signing you in\u2026');
-      // Sign in with new password
-      if (gRecovAT && gRecovRT) {
-        gToken = gRecovAT;
-        gRefresh = gRecovRT;
+      // PUT /auth/v1/user returns the updated user object — use it directly
+      // so gUser is set before bootApp() checks it
+      var updatedUser = res && res.data && res.data.id ? res.data : null;
+      if (updatedUser) {
+        gUser    = updatedUser;
+        gToken   = gRecovAT;
+        gRefresh = gRecovRT || gRefresh;
+        gExpiry  = Date.now() + 3600000;
         gRecovAT = gRecovRT = '';
-        refreshToken(function(err2) {
-          if (!err2) { bootApp(); } else { showScreen('scr-l'); }
-        });
-      } else { setTimeout(function() { showScreen('scr-l'); }, 1600); }
+        _store.set('db_sess', JSON.stringify({ at: gToken, rt: gRefresh, ex: gExpiry, user: gUser }));
+        window.location.href = 'app.html';
+      } else if (gRecovAT) {
+        // Fallback: fetch user explicitly with recovery token
+        gToken   = gRecovAT;
+        gRefresh = gRecovRT || gRefresh;
+        gExpiry  = Date.now() + 3600000;
+        gRecovAT = gRecovRT = '';
+        xhr('GET', AUTH + '/user',
+          { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + gToken },
+          null,
+          function(e2, r2) {
+            if (!e2 && r2 && r2.ok && r2.data && r2.data.id) {
+              gUser = r2.data;
+              _store.set('db_sess', JSON.stringify({ at: gToken, rt: gRefresh, ex: gExpiry, user: gUser }));
+            }
+            // Boot regardless — bootApp guards against missing user below
+            bootApp();
+          }
+        );
+      } else {
+        // Last resort — token already set, just go to app
+        window.location.href = 'app.html';
+      }
     }
   );
 }
 
 /* ── BOOT APP ───────────────────────────────────────────────── */
 function bootApp() {
+  // If gUser is missing but we have a token, fetch user then re-call
+  if (!gUser && gToken) {
+    xhr('GET', AUTH + '/user',
+      { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + gToken },
+      null,
+      function(e, r) {
+        if (!e && r && r.ok && r.data && r.data.id) {
+          gUser = r.data;
+          _store.set('db_sess', JSON.stringify({ at: gToken, rt: gRefresh, ex: gExpiry, user: gUser }));
+          bootApp();
+        }
+        // If that also fails, silently stay — don't redirect to auth
+      }
+    );
+    return;
+  }
   if (!gUser) return;
   var meta = gUser.user_metadata || {};
   var name = meta.full_name || gUser.email.split('@')[0];
@@ -1291,7 +1035,6 @@ function bootApp() {
   updateGreeting(name);
   updateWalletLabel();
 
-  showPage('app');
   showTab('plans');
   updatePayDaysUI();
 
@@ -1386,7 +1129,6 @@ function doLogout() {
     );
   }
   _clearSession();
-  showPage('auth');
   showScreen('scr-w');
   toast('Signed out');
 }
@@ -2317,10 +2059,10 @@ function esc(str) {
     .replace(/'/g,'&#39;');
 }
 
-/* ── URL HASH PARSER (password recovery) ───────────────────── */
+/* ── URL HASH PARSER (password recovery + OAuth) ────────────── */
 function parseHash() {
   var hash = (window.location.hash || '').replace(/^#/, '');
-  if (!hash) return;
+  if (!hash) return false;
   var params = {};
   var pairs = hash.split('&');
   var i, eq, k, v;
@@ -2332,34 +2074,64 @@ function parseHash() {
       params[k] = v;
     }
   }
-  if (params.type === 'recovery' && params.access_token) {
-    gRecovAT = params.access_token;
-    gRecovRT = params.refresh_token || '';
-    try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
-    showPage('auth');
-    showScreen('scr-r');
+  // Always clear the hash from the URL
+  try { window.history.replaceState({}, document.title, window.location.pathname); } catch(e) {}
+
+  if (params.access_token) {
+    if (params.type === 'recovery') {
+      // Password reset link — show reset screen, do NOT boot app
+      gRecovAT = params.access_token;
+      gRecovRT = params.refresh_token || '';
+      showScreen('scr-r');
+      return 'recovery'; // show reset screen
+    }
+    // Google OAuth / magic link / email confirm — log straight in
+    _setSession({
+      access_token:  params.access_token,
+      refresh_token: params.refresh_token || '',
+      expires_in:    parseInt(params.expires_in, 10) || 3600,
+      token_type:    params.token_type || 'bearer',
+      user:          null // bootApp will fetch user via ensureToken → refreshToken
+    });
+    return 'oauth'; // signal init() to boot app
   }
+  return false;
 }
 
 /* ── INIT ───────────────────────────────────────────────────── */
 function init() {
-  // Check for recovery hash first
-  parseHash();
+  // Hash check is always first and overrides everything
+  var hashResult = parseHash();
+  if (hashResult === 'recovery') return; // show reset screen, done
+  if (hashResult === 'oauth') {
+    // OAuth token in hash — fetch user then boot straight to Buy Data
+    xhr('GET', AUTH + '/user',
+      { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + gToken },
+      null,
+      function(err, res) {
+        if (!err && res && res.ok && res.data && res.data.id) {
+          gUser = res.data;
+          _store.set('db_sess', JSON.stringify({ at: gToken, rt: gRefresh, ex: gExpiry, user: gUser }));
+          window.location.href = 'app.html';
+        } else {
+          window.location.href = 'app.html';
+        }
+      }
+    );
+    return;
+  }
 
-  // Check for stored session
+  // No hash — check stored session as normal
   if (_loadSession()) {
-    // Validate / refresh the token
     ensureToken(function(err) {
       if (!err && gUser) {
-        bootApp();
+        window.location.href = 'app.html';
       } else {
         _clearSession();
-        showPage('auth');
         showScreen('scr-w');
       }
     });
   } else {
-    showPage('auth');
     showScreen('scr-w');
   }
 }
@@ -2504,6 +2276,7 @@ function wire() {
   // Auth navigation
   $('w-login-btn').onclick  = function() { showScreen('scr-l'); };
   $('w-signup-btn').onclick = function() { showScreen('scr-s'); };
+  if ($('w-google-btn')) $('w-google-btn').onclick = doGoogleLogin;
   $('l-back-btn').onclick   = function() { showScreen('scr-w'); };
   $('s-back-btn').onclick   = function() { showScreen('scr-w'); };
   $('l-to-s').onclick       = function() { showScreen('scr-s'); };
@@ -2515,7 +2288,10 @@ function wire() {
   $('s-btn').onclick      = doSignup;
   $('r-btn').onclick      = doResetPassword;
   $('l-forgot-btn').onclick = function() {
-    window.location.href = 'databulge.html';
+    var e = $('l-email');
+    if (e) $('fg-email').value = e.value || '';
+    errHide('fg-err'); okHide('fg-ok');
+    openModal('m-forgot');
   };
   $('r-req-btn').onclick  = function() { closeModal('m-forgot'); openModal('m-forgot'); };
 
@@ -2547,63 +2323,8 @@ function wire() {
     if ($('s-terms').checked) $('s-terms-err').className = 'terms-err';
   };
 
-  // App tabs
-  var tabIds = ['tab-dash','tab-plans','tab-subs','tab-wallet','tab-inbox'];
-  var i;
-  for (i = 0; i < tabIds.length; i++) {
-    (function(t) { $(t).onclick = function() { showTab(t.replace('tab-', '')); }; })(tabIds[i]);
-  }
 
-  // Subscribe modal
-  $('m-sub-x').onclick  = function() { closeModal('m-sub'); };
-  $('m-sub-btn').onclick = confirmSub;
-
-  // Pay modal
-  $('m-pay-x').onclick   = function() { closeModal('m-pay'); };
-  $('m-pay-btn').onclick = confirmPay;
-
-  // Wallet + message modals
-  $('m-fund-x').onclick = function() { closeModal('m-fund'); };
-  if ($('m-fund-btn')) $('m-fund-btn').onclick = confirmFund;
-  $('m-va-x').onclick = function() { closeModal('m-va'); };
-  $('pay-days-7').onclick  = function() { setPayDays(7); };
-  $('pay-days-28').onclick = function() { setPayDays(28); };
-  // Subscribe modal day buttons
-  $('m-sub-days-7').onclick  = function() { gModalPayDays = 7;  updateSubDaysUI(); };
-  $('m-sub-days-28').onclick = function() { gModalPayDays = 28; updateSubDaysUI(); };
-  // Subscribe modal toggles
-  $('m-sub-autofund').onchange = function() {
-    _syncSl('m-sub-autofund-sl', $('m-sub-autofund').checked);
-    var f = $('m-autofund-fields');
-    if (f) f.style.display = $('m-sub-autofund').checked ? 'block' : 'none';
-  };
-  $('m-sub-autorenew').onchange = function() {
-    _syncSl('m-sub-autorenew-sl', $('m-sub-autorenew').checked);
-  };
-  // Fund modal
-  if ($('d-fund-btn'))    $('d-fund-btn').onclick    = openFundModal;
-  if ($('plans-fund-btn')) $('plans-fund-btn').onclick = openFundModal;
-  if ($('af-fund-btn'))    $('af-fund-btn').onclick    = function() { launchAutoFund(parseFloat($('af-fund-amt').value)||0, null, null); };
-  if ($('af-cancel-btn'))  $('af-cancel-btn').onclick  = function() { doCancelAutoFund(gWalletMandateId, null); };
-  if ($('m-sub-cancel-af-btn')) $('m-sub-cancel-af-btn').onclick = function() { doCancelAutoFund(gSubMandateId, null); };
-
-  $('compose-btn-open').onclick = openComposeModal;
-  $('mark-read-btn').onclick = markAllRead;
-  $('m-compose-x').onclick = function() { closeModal('m-compose'); };
-  $('compose-send-btn').onclick = sendMessage;
-  $('m-msg-detail-x').onclick = function() { closeModal('m-msg-detail'); };
-  $('reply-btn').onclick = sendReply;
-
-  // Backdrop close
-  $('m-forgot').onclick  = function(e) { if (e.target === $('m-forgot'))  closeModal('m-forgot'); };
-  $('m-terms').onclick   = function(e) { if (e.target === $('m-terms'))   closeModal('m-terms'); };
-  $('m-sub').onclick     = function(e) { if (e.target === $('m-sub'))     closeModal('m-sub'); };
-  $('m-pay').onclick     = function(e) { if (e.target === $('m-pay'))     closeModal('m-pay'); };
-  $('m-fund').onclick    = function(e) { if (e.target === $('m-fund'))    closeModal('m-fund'); };
-  $('m-va').onclick      = function(e) { if (e.target === $('m-va'))      closeModal('m-va'); };
-  $('m-compose').onclick = function(e) { if (e.target === $('m-compose')) closeModal('m-compose'); };
-  $('m-msg-detail').onclick = function(e) { if (e.target === $('m-msg-detail')) closeModal('m-msg-detail'); };
-
+  // (app tab/modal wiring lives in app.html)
   document.onclick = function(e) {
     e = e || window.event;
     var t = e.target || e.srcElement;
@@ -2618,11 +2339,30 @@ function wire() {
   $('refresh-subs-btn').onclick = function() { loadSubs(); toast('Refreshing\u2026'); };
 }
 
+var SPLASH_MS = 10000; // 10 seconds — like WhatsApp
+
 function hideSplashSoon() {
   var sp = document.getElementById('db-splash');
   if (!sp) return;
-  setTimeout(function(){ sp.className = 'hide'; }, 3500);
+  setTimeout(function(){ sp.className = 'hide'; }, SPLASH_MS);
 }
+
+function showSplash() {
+  var sp = document.getElementById('db-splash');
+  if (!sp) return;
+  sp.className = ''; // remove 'hide'
+  setTimeout(function(){ sp.className = 'hide'; }, SPLASH_MS);
+}
+
+// Show splash every time user returns to the app (like WhatsApp)
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible') { showSplash(); }
+});
+
+// Also catches iOS Safari home-screen app resume
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) { showSplash(); }
+});
 
 // Start
 if (document.readyState === 'loading') {
