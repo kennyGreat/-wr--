@@ -795,6 +795,7 @@ label:has(#m-sub-autorenew){
     <button class="tab" id="tab-subs" data-t="subs">My Plan</button>
     <button class="tab" id="tab-wallet" data-t="wallet">Account</button>
     <button class="tab" id="tab-inbox" data-t="inbox">&#128276; Messages<span id="inbox-badge" style="display:none;background:#f43f5e;color:#fff;border-radius:10px;font-size:.62rem;font-weight:800;padding:1px 5px;vertical-align:middle;margin-left:3px;"></span></button>
+    <button class="tab" id="tab-earn" data-t="earn">&#127873; Earn</button>
   </div>
 
   <!-- DASHBOARD TAB -->
@@ -869,6 +870,112 @@ label:has(#m-sub-autorenew){
     </div>
     <div id="inbox-list"><div class="empty">Loading&hellip;</div></div>
     <div style="text-align:center;padding:18px 14px 8px;font-size:.73rem;color:#bbb;">&#169; 2026 Vortexedge Limited. All rights reserved.</div>
+  </div>
+
+  <!-- ── EARN TAB ─────────────────────────────────────────────── -->
+  <div id="tc-earn" class="tab-content">
+
+    <!-- Balance row -->
+    <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:10px;margin-bottom:14px;">
+      <div class="card" style="margin-bottom:0;-webkit-box-flex:1;-webkit-flex:1;flex:1;padding:14px!important;">
+        <div class="card-title">Wallet Balance</div>
+        <div class="card-val" id="earn-wallet-bal" style="font-size:1.3rem!important;">&#8358;&#8212;</div>
+        <div class="card-sub">Available</div>
+      </div>
+      <div class="card" style="margin-bottom:0;-webkit-box-flex:1;-webkit-flex:1;flex:1;padding:14px!important;border-color:#FEF08A!important;">
+        <div class="card-title" style="color:#854d0e!important;">Ad Discount</div>
+        <div class="card-val" id="earn-discount-bal" style="font-size:1.3rem!important;color:#854d0e!important;">&#8358;&#8212;</div>
+        <div class="card-sub">On installments</div>
+      </div>
+    </div>
+
+    <!-- Cooldown notice -->
+    <div id="earn-cooldown-bar" style="display:none;background:#FEF9C3;border:1px solid #FDE047;border-radius:12px;padding:11px 14px;margin-bottom:12px;font-size:.8rem;color:#713F12;">
+      &#9203; Next ad available in <strong id="earn-cooldown-time">&#8212;</strong>
+    </div>
+
+    <!-- Main earn card -->
+    <div class="card" style="margin-bottom:12px;padding:0!important;overflow:hidden;position:relative;">
+      <div style="height:3px;background:linear-gradient(90deg,#1A56DB,#25D366);"></div>
+      <div style="padding:16px;">
+
+        <!-- Ad slot -->
+        <div id="earn-ad-slot" onclick="earnStartAd()" style="background:#F8FAFC;border:1.5px dashed #CBD5E1;border-radius:12px;height:150px;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-orient:vertical;-webkit-flex-direction:column;flex-direction:column;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;gap:8px;margin-bottom:14px;cursor:pointer;position:relative;-webkit-tap-highlight-color:rgba(0,0,0,0);">
+          <div style="position:absolute;top:7px;right:9px;font-size:.68rem;background:#E5E7EB;color:#9CA3AF;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em;">Ad</div>
+          <div style="font-size:2.2rem;">&#9654;&#65039;</div>
+          <div style="font-size:.8rem;color:#9CA3AF;text-align:center;">Tap to watch a short ad<br/>and earn your reward</div>
+        </div>
+
+        <!-- Timer bar (hidden until ad starts) -->
+        <div id="earn-timer-wrap" style="display:none;margin-bottom:14px;">
+          <div style="display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;font-size:.75rem;color:#6B7280;margin-bottom:5px;">
+            <span>Watching ad&#8230;</span><span id="earn-timer-count" style="color:#1A56DB;font-weight:700;">30s</span>
+          </div>
+          <div style="height:5px;background:#E5E7EB;border-radius:4px;overflow:hidden;">
+            <div id="earn-timer-fill" style="height:100%;background:linear-gradient(90deg,#1A56DB,#25D366);border-radius:4px;width:0%;-webkit-transition:width 1s linear;transition:width 1s linear;"></div>
+          </div>
+        </div>
+
+        <!-- Reward chips -->
+        <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:8px;margin-bottom:14px;">
+          <div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:10px;-webkit-box-flex:1;-webkit-flex:1;flex:1;padding:10px;text-align:center;">
+            <div style="font-size:1.3rem;margin-bottom:2px;">&#128176;</div>
+            <div style="font-size:.95rem;font-weight:900;color:#059669;">+&#8358;15</div>
+            <div style="font-size:.72rem;color:#6B7280;margin-top:1px;">Wallet credit</div>
+          </div>
+          <div id="earn-discount-chip" style="background:#FEFCE8;border:1px solid #FDE047;border-radius:10px;-webkit-box-flex:1;-webkit-flex:1;flex:1;padding:10px;text-align:center;">
+            <div style="font-size:1.3rem;margin-bottom:2px;">&#127991;&#65039;</div>
+            <div style="font-size:.95rem;font-weight:900;color:#854d0e;">+&#8358;10</div>
+            <div style="font-size:.72rem;color:#6B7280;margin-top:1px;" id="earn-discount-lbl">Installment discount</div>
+          </div>
+        </div>
+
+        <!-- CTA button -->
+        <button id="earn-watch-btn" onclick="earnStartAd()" class="btn btn-blue" style="width:100%;margin:0;font-size:.92rem;">Watch Ad &amp; Earn</button>
+      </div>
+    </div>
+
+    <!-- Daily progress -->
+    <div style="margin-bottom:14px;">
+      <div class="sec-title" style="margin-bottom:10px;">Today&#8217;s Progress</div>
+      <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:8px;" id="earn-daily-slots">
+        <div id="earn-slot-0" style="background:#fff;border:1px solid #E5E7EB;border-radius:10px;-webkit-box-flex:1;-webkit-flex:1;flex:1;padding:10px 6px;text-align:center;">
+          <div style="font-size:1.3rem;margin-bottom:3px;">&#128250;</div>
+          <div style="font-size:.72rem;color:#9CA3AF;">Ad 1</div>
+        </div>
+        <div id="earn-slot-1" style="background:#fff;border:1px solid #E5E7EB;border-radius:10px;-webkit-box-flex:1;-webkit-flex:1;flex:1;padding:10px 6px;text-align:center;">
+          <div style="font-size:1.3rem;margin-bottom:3px;">&#128250;</div>
+          <div style="font-size:.72rem;color:#9CA3AF;">Ad 2</div>
+        </div>
+        <div id="earn-slot-2" style="background:#fff;border:1px solid #E5E7EB;border-radius:10px;-webkit-box-flex:1;-webkit-flex:1;flex:1;padding:10px 6px;text-align:center;">
+          <div style="font-size:1.3rem;margin-bottom:3px;">&#128250;</div>
+          <div style="font-size:.72rem;color:#9CA3AF;">Ad 3</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How it works -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="sec-title" style="margin-bottom:12px;">How It Works</div>
+      <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:10px;-webkit-box-align:flex-start;-webkit-align-items:flex-start;align-items:flex-start;margin-bottom:10px;">
+        <div style="width:22px;height:22px;background:#EEF2FF;border:1px solid #1A56DB;border-radius:50%;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;font-size:.7rem;font-weight:900;color:#1A56DB;-webkit-flex-shrink:0;flex-shrink:0;">1</div>
+        <div style="font-size:.8rem;color:#6B7280;line-height:1.55;">Watch a short ad (30 seconds). <strong style="color:#111;">Up to 3 ads per day.</strong></div>
+      </div>
+      <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:10px;-webkit-box-align:flex-start;-webkit-align-items:flex-start;align-items:flex-start;margin-bottom:10px;">
+        <div style="width:22px;height:22px;background:#EEF2FF;border:1px solid #1A56DB;border-radius:50%;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;font-size:.7rem;font-weight:900;color:#1A56DB;-webkit-flex-shrink:0;flex-shrink:0;">2</div>
+        <div style="font-size:.8rem;color:#6B7280;line-height:1.55;">Earn <strong style="color:#111;">&#8358;15 wallet credit</strong> instantly after every completed ad.</div>
+      </div>
+      <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:10px;-webkit-box-align:flex-start;-webkit-align-items:flex-start;align-items:flex-start;margin-bottom:10px;">
+        <div style="width:22px;height:22px;background:#EEF2FF;border:1px solid #1A56DB;border-radius:50%;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;font-size:.7rem;font-weight:900;color:#1A56DB;-webkit-flex-shrink:0;flex-shrink:0;">3</div>
+        <div style="font-size:.8rem;color:#6B7280;line-height:1.55;">On an installment plan? Also earn <strong style="color:#111;">&#8358;10 off your next payment</strong> &#8212; discounts never expire.</div>
+      </div>
+      <div style="display:-webkit-box;display:-webkit-flex;display:flex;gap:10px;-webkit-box-align:flex-start;-webkit-align-items:flex-start;align-items:flex-start;">
+        <div style="width:22px;height:22px;background:#EEF2FF;border:1px solid #1A56DB;border-radius:50%;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;font-size:.7rem;font-weight:900;color:#1A56DB;-webkit-flex-shrink:0;flex-shrink:0;">4</div>
+        <div style="font-size:.8rem;color:#6B7280;line-height:1.55;">Discount auto-applies when you pay your installment &#8212; <strong style="color:#111;">up to 50% off per payment.</strong></div>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:6px 14px 8px;font-size:.73rem;color:#bbb;">Ads are strictly optional. You choose when to watch.</div>
   </div>
 
 </div><!-- /#pg-app -->
@@ -2863,6 +2970,342 @@ if (document.readyState === 'loading') {
     };
   }
 })();
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     EARN TAB + ADMOB INTEGRATION
+     ES5 only — matches existing app code style.
+     No existing functions or variables modified.
+     AdMob App ID:     ca-app-pub-9059847852972551~2189539471
+     AdMob Ad Unit ID: ca-app-pub-9059847852972551/7330185515
+════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── Earn tab state ─────────────────────────────────────── */
+var _earnStatus       = null;  // cached get_ad_status result
+var _earnTimerInt     = null;  // countdown interval
+var _earnCooldownInt  = null;  // cooldown display interval
+var _earnTimerSecs    = 30;
+var _earnAdInProgress = false;
+
+/* ── Wire earn tab into existing showTab ────────────────── */
+(function() {
+  // Extend tab list so tab-earn button works
+  var origShowTab = window.showTab;
+  window.showTab = function(t) {
+    // Handle earn tab ourselves, pass everything else to original
+    var earnBtn = document.getElementById('tab-earn');
+    var earnTc  = document.getElementById('tc-earn');
+    if (t === 'earn') {
+      // Deactivate all existing tabs
+      var tabs = ['dash','plans','subs','wallet','inbox'];
+      var i;
+      for (i = 0; i < tabs.length; i++) {
+        var btn = document.getElementById('tab-' + tabs[i]);
+        var tc  = document.getElementById('tc-' + tabs[i]);
+        if (btn) btn.className = 'tab';
+        if (tc)  tc.className  = 'tab-content';
+      }
+      if (earnBtn) earnBtn.className = 'tab act';
+      if (earnTc)  earnTc.className  = 'tab-content on';
+      earnLoadStatus();
+    } else {
+      if (earnBtn) earnBtn.className = 'tab';
+      if (earnTc)  earnTc.className  = 'tab-content';
+      origShowTab(t);
+    }
+  };
+
+  // Wire earn tab button click
+  function wireEarnTab() {
+    var btn = document.getElementById('tab-earn');
+    if (btn) btn.onclick = function() { window.showTab('earn'); };
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wireEarnTab);
+  } else {
+    wireEarnTab();
+  }
+})();
+
+/* ── Load ad status from Supabase ───────────────────────── */
+function earnLoadStatus() {
+  if (!gUser || !gToken) return;
+  rpc('get_ad_status', JSON.stringify({ p_user_id: gUser.id }), function(err, res) {
+    if (err || !res || !res.ok || !res.data) return;
+    _earnStatus = res.data;
+    earnRenderUI();
+  });
+}
+
+/* ── Render earn tab UI from status ─────────────────────── */
+function earnRenderUI() {
+  if (!_earnStatus) return;
+  var s = _earnStatus;
+
+  // Balances
+  var walletEl   = document.getElementById('earn-wallet-bal');
+  var discountEl = document.getElementById('earn-discount-bal');
+  if (walletEl)   walletEl.textContent   = fmtN(s.wallet_balance   || 0);
+  if (discountEl) discountEl.textContent = fmtN(s.discount_balance || 0);
+
+  // Discount chip — dim if no active subscription
+  var chip = document.getElementById('earn-discount-chip');
+  var lbl  = document.getElementById('earn-discount-lbl');
+  if (chip) chip.style.opacity = '1';
+  if (lbl)  lbl.textContent = 'Installment discount';
+
+  // Daily slots
+  var watched = parseInt(s.ads_watched_today, 10) || 0;
+  var i;
+  for (i = 0; i < 3; i++) {
+    var slot = document.getElementById('earn-slot-' + i);
+    if (!slot) continue;
+    var icon = slot.getElementsByTagName ? slot.getElementsByTagName('div')[0] : null;
+    var lbl2 = slot.getElementsByTagName ? slot.getElementsByTagName('div')[1] : null;
+    if (i < watched) {
+      slot.style.background    = '#F0FDF4';
+      slot.style.borderColor   = '#86EFAC';
+      if (icon) icon.textContent = '\u2705';
+      if (lbl2) { lbl2.textContent = 'Earned'; lbl2.style.color = '#059669'; }
+    } else if (i === watched && s.can_watch) {
+      slot.style.background    = '#EEF2FF';
+      slot.style.borderColor   = '#1A56DB';
+      if (icon) icon.textContent = '\uD83D\uDCFA';
+      if (lbl2) { lbl2.textContent = 'Ad ' + (i + 1); lbl2.style.color = '#1A56DB'; }
+    } else {
+      slot.style.background    = '#fff';
+      slot.style.borderColor   = '#E5E7EB';
+      if (icon) icon.textContent = '\uD83D\uDCFA';
+      if (lbl2) { lbl2.textContent = 'Ad ' + (i + 1); lbl2.style.color = '#9CA3AF'; }
+    }
+  }
+
+  // Button state
+  var btn     = document.getElementById('earn-watch-btn');
+  var adSlot  = document.getElementById('earn-ad-slot');
+  var coolBar = document.getElementById('earn-cooldown-bar');
+  if (!btn) return;
+
+  if (watched >= 3) {
+    btn.disabled         = true;
+    btn.textContent      = 'All 3 ads watched today \u2713';
+    btn.style.background = '#E5E7EB';
+    btn.style.color      = '#9CA3AF';
+    btn.style.boxShadow  = 'none';
+    if (adSlot) { adSlot.style.opacity = '.45'; adSlot.style.cursor = 'not-allowed'; }
+    if (coolBar) coolBar.style.display = 'none';
+  } else if (!s.can_watch && s.next_ad_at) {
+    btn.disabled         = true;
+    btn.textContent      = 'Cooldown active\u2026';
+    btn.style.background = '#E5E7EB';
+    btn.style.color      = '#9CA3AF';
+    btn.style.boxShadow  = 'none';
+    earnStartCooldown(new Date(s.next_ad_at));
+  } else {
+    btn.disabled         = false;
+    btn.textContent      = 'Watch Ad & Earn';
+    btn.style.background = '';
+    btn.style.color      = '';
+    btn.style.boxShadow  = '';
+    if (adSlot) { adSlot.style.opacity = '1'; adSlot.style.cursor = 'pointer'; }
+    if (coolBar) coolBar.style.display = 'none';
+  }
+}
+
+/* ── Cooldown countdown display ─────────────────────────── */
+function earnStartCooldown(nextAt) {
+  var bar     = document.getElementById('earn-cooldown-bar');
+  var timeEl  = document.getElementById('earn-cooldown-time');
+  if (bar) bar.style.display = 'block';
+  if (_earnCooldownInt) clearInterval(_earnCooldownInt);
+  _earnCooldownInt = setInterval(function() {
+    var diff = nextAt - Date.now();
+    if (diff <= 0) {
+      clearInterval(_earnCooldownInt);
+      if (bar) bar.style.display = 'none';
+      if (_earnStatus) { _earnStatus.can_watch = true; _earnStatus.next_ad_at = null; }
+      earnRenderUI();
+      return;
+    }
+    var h = Math.floor(diff / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000);
+    var s = Math.floor((diff % 60000) / 1000);
+    if (timeEl) timeEl.textContent = (h > 0 ? h + 'h ' : '') + m + 'm ' + s + 's';
+  }, 1000);
+}
+
+/* ── Start ad flow ──────────────────────────────────────── */
+function earnStartAd() {
+  var btn = document.getElementById('earn-watch-btn');
+  if (!btn || btn.disabled || _earnAdInProgress) return;
+  if (!gUser || !gToken) { toast('Please log in first.'); return; }
+
+  _earnAdInProgress = true;
+
+  // Detect if running inside Capacitor (native Android/iOS)
+  var isNative = (typeof window.Capacitor !== 'undefined' && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+
+  if (isNative) {
+    earnShowNativeAd();
+  } else {
+    earnShowWebTimer();
+  }
+}
+
+/* ── Web fallback: 30-second timer ──────────────────────── */
+function earnShowWebTimer() {
+  var adSlot    = document.getElementById('earn-ad-slot');
+  var timerWrap = document.getElementById('earn-timer-wrap');
+  var fill      = document.getElementById('earn-timer-fill');
+  var count     = document.getElementById('earn-timer-count');
+  var btn       = document.getElementById('earn-watch-btn');
+
+  // Show ad slot as playing
+  if (adSlot) {
+    adSlot.innerHTML = '<div style="position:absolute;top:7px;right:9px;font-size:.68rem;background:#DBEAFE;color:#1A56DB;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em;">Ad</div>' +
+      '<div style="font-size:2rem;">\u23F8\uFE0F</div>' +
+      '<div style="font-size:.8rem;color:#1A56DB;text-align:center;font-weight:700;">Ad playing\u2026<br/>Please wait</div>';
+    adSlot.style.borderColor = '#1A56DB';
+    adSlot.style.background  = '#EEF2FF';
+    adSlot.style.cursor      = 'not-allowed';
+  }
+  if (btn) { btn.disabled = true; btn.textContent = 'Watching\u2026'; }
+  if (timerWrap) timerWrap.style.display = 'block';
+
+  _earnTimerSecs = 30;
+  // Trigger fill animation
+  setTimeout(function() { if (fill) fill.style.width = '100%'; }, 80);
+
+  _earnTimerInt = setInterval(function() {
+    _earnTimerSecs--;
+    if (count) count.textContent = _earnTimerSecs + 's';
+    if (_earnTimerSecs <= 0) {
+      clearInterval(_earnTimerInt);
+      _earnTimerInt = null;
+      earnOnComplete();
+    }
+  }, 1000);
+}
+
+/* ── Native AdMob rewarded ad ───────────────────────────── */
+function earnShowNativeAd() {
+  // Uses @capacitor-community/admob loaded via Capacitor
+  var AdMob = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob;
+  if (!AdMob) {
+    // Plugin not available — fall back to web timer
+    earnShowWebTimer();
+    return;
+  }
+
+  var btn = document.getElementById('earn-watch-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Loading ad\u2026'; }
+
+  AdMob.prepareRewardVideoAd({ adId: 'ca-app-pub-9059847852972551/7330185515', isTesting: false })
+    .then(function() {
+      return AdMob.showRewardVideoAd();
+    })
+    .then(function(reward) {
+      // reward = { amount: 15, type: 'Naira' }
+      earnOnComplete();
+    })
+    .catch(function(err) {
+      _earnAdInProgress = false;
+      earnResetAdSlot();
+      if (btn) { btn.disabled = false; btn.textContent = 'Watch Ad & Earn'; }
+      toast('No ad available right now. Try again soon.');
+    });
+
+  // Listen for reward callback (some Capacitor versions use events)
+  if (AdMob.addListener) {
+    AdMob.addListener('onRewardedVideoAdRewarded', function() { earnOnComplete(); });
+    AdMob.addListener('onRewardedVideoAdFailedToLoad', function() {
+      _earnAdInProgress = false;
+      earnResetAdSlot();
+      if (btn) { btn.disabled = false; btn.textContent = 'Watch Ad & Earn'; }
+      toast('No ad available right now. Try again soon.');
+    });
+  }
+}
+
+/* ── Called after ad completes (web or native) ──────────── */
+function earnOnComplete() {
+  var btn = document.getElementById('earn-watch-btn');
+  if (btn) { btn.textContent = 'Claiming reward\u2026'; }
+
+  var platform = (typeof window.Capacitor !== 'undefined' && window.Capacitor.getPlatform) ? window.Capacitor.getPlatform() : 'web';
+
+  rpc('grant_ad_reward', JSON.stringify({ p_user_id: gUser.id, p_platform: platform }), function(err, res) {
+    _earnAdInProgress = false;
+    earnResetAdSlot();
+
+    if (!err && res && res.ok && res.data && res.data.success) {
+      var d = res.data;
+      // Update local state
+      if (_earnStatus) {
+        _earnStatus.wallet_balance    = d.new_wallet_balance;
+        _earnStatus.discount_balance  = (_earnStatus.discount_balance || 0) + (d.discount_credited || 0);
+        _earnStatus.ads_watched_today = d.ads_watched_today;
+        _earnStatus.ads_remaining_today = d.ads_remaining_today;
+        if (d.ads_remaining_today > 0) {
+          _earnStatus.can_watch  = false;
+          var nextAt = new Date(Date.now() + 2 * 60 * 60 * 1000);
+          _earnStatus.next_ad_at = nextAt.toISOString();
+        }
+      }
+      // Sync main wallet balance display
+      if (typeof gBal !== 'undefined') { gBal = parseFloat(d.new_wallet_balance) || gBal; }
+      var dbBal  = document.getElementById('d-bal');
+      var dbBal2 = document.getElementById('d-bal-dash');
+      if (dbBal)  dbBal.textContent  = fmtN(d.new_wallet_balance);
+      if (dbBal2) dbBal2.textContent = fmtN(d.new_wallet_balance);
+
+      var msg = '\uD83C\uDF81 +\u20A6' + d.wallet_credited;
+      if (d.discount_credited > 0) msg += ' + \u20A6' + d.discount_credited + ' discount!';
+      else msg += ' earned!';
+      toast(msg, 4000);
+
+      earnRenderUI();
+      if (_earnStatus && _earnStatus.next_ad_at) {
+        earnStartCooldown(new Date(_earnStatus.next_ad_at));
+      }
+    } else {
+      var errMsg = (res && res.data && res.data.message) ? res.data.message : 'Could not claim reward. Try again.';
+      toast('\u26A0\uFE0F ' + errMsg);
+      earnRenderUI();
+    }
+  });
+}
+
+/* ── Reset ad slot to default state ─────────────────────── */
+function earnResetAdSlot() {
+  var adSlot    = document.getElementById('earn-ad-slot');
+  var timerWrap = document.getElementById('earn-timer-wrap');
+  var fill      = document.getElementById('earn-timer-fill');
+
+  if (adSlot) {
+    adSlot.innerHTML = '<div style="position:absolute;top:7px;right:9px;font-size:.68rem;background:#E5E7EB;color:#9CA3AF;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em;">Ad</div>' +
+      '<div style="font-size:2.2rem;">\u25B6\uFE0F</div>' +
+      '<div style="font-size:.8rem;color:#9CA3AF;text-align:center;">Tap to watch a short ad<br/>and earn your reward</div>';
+    adSlot.style.borderColor = '#CBD5E1';
+    adSlot.style.background  = '#F8FAFC';
+    adSlot.style.cursor      = 'pointer';
+    adSlot.onclick           = earnStartAd;
+  }
+  if (timerWrap) timerWrap.style.display = 'none';
+  if (fill) {
+    fill.style.webkitTransition = 'none';
+    fill.style.transition       = 'none';
+    fill.style.width            = '0%';
+    setTimeout(function() {
+      fill.style.webkitTransition = 'width 1s linear';
+      fill.style.transition       = 'width 1s linear';
+    }, 60);
+  }
+}
 </script>
 
 </body>
