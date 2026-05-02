@@ -38,17 +38,39 @@ jobs:
           mkdir -p www
           cp index.html www/index.html
           cp admob.js www/admob.js
-          [ -f favicon.ico ] && cp favicon.ico www/favicon.ico || true
-          [ -f favicon-48x48.png ] && cp favicon-48x48.png www/favicon-48x48.png || true
-          [ -f apple-touch-icon.png ] && cp apple-touch-icon.png www/apple-touch-icon.png || true
-          [ -f logo-512.png ] && cp logo-512.png www/logo-512.png || true
-          [ -f site.webmanifest ] && cp site.webmanifest www/site.webmanifest || true
+          [ -f favicon.ico ] && cp favicon.ico www/ || true
+          [ -f favicon-48x48.png ] && cp favicon-48x48.png www/ || true
+          [ -f apple-touch-icon.png ] && cp apple-touch-icon.png www/ || true
+          [ -f logo-512.png ] && cp logo-512.png www/ || true
+          [ -f site.webmanifest ] && cp site.webmanifest www/ || true
 
       - name: Add Android platform
         run: npx cap add android
 
       - name: Sync Capacitor
         run: npx cap sync android
+
+      - name: Patch AndroidManifest.xml
+        run: |
+          MANIFEST=android/app/src/main/AndroidManifest.xml
+          # Add internet permission if missing
+          if ! grep -q "android.permission.INTERNET" $MANIFEST; then
+            sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <application/' $MANIFEST
+          fi
+          # Add AdMob App ID if missing
+          if ! grep -q "com.google.android.gms.ads.APPLICATION_ID" $MANIFEST; then
+            sed -i 's/<\/application>/    <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-9059847852972551~2189539471"\/>\n    <\/application>/' $MANIFEST
+          fi
+          echo "--- Patched Manifest ---"
+          cat $MANIFEST
+
+      - name: Patch build.gradle for minimum SDK
+        run: |
+          GRADLE=android/app/build.gradle
+          # Ensure minSdkVersion is at least 22 (required by AdMob)
+          sed -i 's/minSdkVersion [0-9]*/minSdkVersion 22/' $GRADLE
+          echo "--- Patched build.gradle ---"
+          cat $GRADLE
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
@@ -58,21 +80,9 @@ jobs:
           cd android
           ./gradlew assembleDebug --no-daemon
 
-      - name: Build Release APK
-        run: |
-          cd android
-          ./gradlew assembleRelease --no-daemon
-
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: DataBulge-Debug-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 30
-
-      - name: Upload Release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: DataBulge-Release-APK
-          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
           retention-days: 30
