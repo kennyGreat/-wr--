@@ -1,7 +1,7 @@
 {
   "appId": "com.vortexedge.databulge",
   "appName": "DataBulge",
-  "webDir": ".",
+  "webDir": "www",
   "plugins": {
     "AdMob": {
       "appIdAndroid": "ca-app-pub-9059847852972551~2189539471",
