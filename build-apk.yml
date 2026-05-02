@@ -1,0 +1,81 @@
+name: Build DataBulge APK
+
+# Triggers: runs every time you push to main branch
+# You can also trigger it manually from GitHub → Actions tab
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # allows manual trigger from GitHub UI
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ── 1. Checkout your repo ──────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Set up Node.js ─────────────────────────────────
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ── 3. Install dependencies ───────────────────────────
+      - name: Install npm dependencies
+        run: npm install
+
+      # ── 4. Set up Java (required for Android build) ───────
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # ── 5. Set up Android SDK ─────────────────────────────
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      # ── 6. Sync Capacitor with Android ────────────────────
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      # ── 7. Make gradlew executable ────────────────────────
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      # ── 8. Build debug APK ────────────────────────────────
+      #    Debug APK = for testing on your own device
+      #    For Play Store you need a signed release APK (step 9)
+      - name: Build Debug APK
+        run: |
+          cd android
+          ./gradlew assembleDebug --no-daemon
+
+      # ── 9. Build release APK (unsigned — for signing later)
+      - name: Build Release APK
+        run: |
+          cd android
+          ./gradlew assembleRelease --no-daemon
+
+      # ── 10. Upload Debug APK as artifact ─────────────────
+      #    After build: GitHub → Actions → your run → Artifacts → download
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: DataBulge-Debug-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+
+      # ── 11. Upload Release APK as artifact ───────────────
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: DataBulge-Release-APK
+          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          retention-days: 30

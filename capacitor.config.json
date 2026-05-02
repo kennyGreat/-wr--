@@ -1,0 +1,17 @@
+{
+  "appId": "com.vortexedge.databulge",
+  "appName": "DataBulge",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "plugins": {
+    "AdMob": {
+      "appIdAndroid": "ca-app-pub-9059847852972551~2189539471",
+      "appIdIos": "REPLACE_WITH_IOS_APP_ID_WHEN_READY"
+    }
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  }
+}
