@@ -33,6 +33,17 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Prepare www folder
+        run: |
+          mkdir -p www
+          cp index.html www/index.html
+          cp admob.js www/admob.js
+          [ -f favicon.ico ] && cp favicon.ico www/favicon.ico || true
+          [ -f favicon-48x48.png ] && cp favicon-48x48.png www/favicon-48x48.png || true
+          [ -f apple-touch-icon.png ] && cp apple-touch-icon.png www/apple-touch-icon.png || true
+          [ -f logo-512.png ] && cp logo-512.png www/logo-512.png || true
+          [ -f site.webmanifest ] && cp site.webmanifest www/site.webmanifest || true
+
       - name: Add Android platform
         run: npx cap add android
 
