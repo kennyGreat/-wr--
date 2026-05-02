@@ -38,6 +38,7 @@ jobs:
           mkdir -p www
           cp index.html www/index.html
           cp admob.js www/admob.js
+          cp databulge-auth.html www/databulge-auth.html
           [ -f favicon.ico ] && cp favicon.ico www/ || true
           [ -f favicon-48x48.png ] && cp favicon-48x48.png www/ || true
           [ -f apple-touch-icon.png ] && cp apple-touch-icon.png www/ || true
@@ -49,6 +50,21 @@ jobs:
 
       - name: Sync Capacitor
         run: npx cap sync android
+
+      - name: Install app icons
+        run: |
+          RES=android/app/src/main/res
+          cp icons/mipmap-mdpi/ic_launcher.png       $RES/mipmap-mdpi/ic_launcher.png
+          cp icons/mipmap-mdpi/ic_launcher_round.png $RES/mipmap-mdpi/ic_launcher_round.png
+          cp icons/mipmap-hdpi/ic_launcher.png       $RES/mipmap-hdpi/ic_launcher.png
+          cp icons/mipmap-hdpi/ic_launcher_round.png $RES/mipmap-hdpi/ic_launcher_round.png
+          cp icons/mipmap-xhdpi/ic_launcher.png       $RES/mipmap-xhdpi/ic_launcher.png
+          cp icons/mipmap-xhdpi/ic_launcher_round.png $RES/mipmap-xhdpi/ic_launcher_round.png
+          cp icons/mipmap-xxhdpi/ic_launcher.png       $RES/mipmap-xxhdpi/ic_launcher.png
+          cp icons/mipmap-xxhdpi/ic_launcher_round.png $RES/mipmap-xxhdpi/ic_launcher_round.png
+          cp icons/mipmap-xxxhdpi/ic_launcher.png       $RES/mipmap-xxxhdpi/ic_launcher.png
+          cp icons/mipmap-xxxhdpi/ic_launcher_round.png $RES/mipmap-xxxhdpi/ic_launcher_round.png
+          echo "Icons installed successfully"
 
       - name: Patch AndroidManifest.xml
         run: |
