@@ -53,24 +53,12 @@ jobs:
       - name: Patch AndroidManifest.xml
         run: |
           MANIFEST=android/app/src/main/AndroidManifest.xml
-          # Add internet permission if missing
           if ! grep -q "android.permission.INTERNET" $MANIFEST; then
             sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <application/' $MANIFEST
           fi
-          # Add AdMob App ID if missing
           if ! grep -q "com.google.android.gms.ads.APPLICATION_ID" $MANIFEST; then
-            sed -i 's/<\/application>/    <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-9059847852972551~2189539471"\/>\n    <\/application>/' $MANIFEST
+            sed -i 's/<\/application>/    <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-9059847852972551~2189539471"\/>\n<\/application>/' $MANIFEST
           fi
-          echo "--- Patched Manifest ---"
-          cat $MANIFEST
-
-      - name: Patch build.gradle for minimum SDK
-        run: |
-          GRADLE=android/app/build.gradle
-          # Ensure minSdkVersion is at least 22 (required by AdMob)
-          sed -i 's/minSdkVersion [0-9]*/minSdkVersion 22/' $GRADLE
-          echo "--- Patched build.gradle ---"
-          cat $GRADLE
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
