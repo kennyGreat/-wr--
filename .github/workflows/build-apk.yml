@@ -51,20 +51,45 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Install app icons
+      - name: Install Python icon tools
+        run: pip install cairosvg pillow --break-system-packages -q
+
+      - name: Generate and install app icons
         run: |
-          RES=android/app/src/main/res
-          cp icons/mipmap-mdpi/ic_launcher.png       $RES/mipmap-mdpi/ic_launcher.png
-          cp icons/mipmap-mdpi/ic_launcher_round.png $RES/mipmap-mdpi/ic_launcher_round.png
-          cp icons/mipmap-hdpi/ic_launcher.png       $RES/mipmap-hdpi/ic_launcher.png
-          cp icons/mipmap-hdpi/ic_launcher_round.png $RES/mipmap-hdpi/ic_launcher_round.png
-          cp icons/mipmap-xhdpi/ic_launcher.png       $RES/mipmap-xhdpi/ic_launcher.png
-          cp icons/mipmap-xhdpi/ic_launcher_round.png $RES/mipmap-xhdpi/ic_launcher_round.png
-          cp icons/mipmap-xxhdpi/ic_launcher.png       $RES/mipmap-xxhdpi/ic_launcher.png
-          cp icons/mipmap-xxhdpi/ic_launcher_round.png $RES/mipmap-xxhdpi/ic_launcher_round.png
-          cp icons/mipmap-xxxhdpi/ic_launcher.png       $RES/mipmap-xxxhdpi/ic_launcher.png
-          cp icons/mipmap-xxxhdpi/ic_launcher_round.png $RES/mipmap-xxxhdpi/ic_launcher_round.png
-          echo "Icons installed successfully"
+          python3 << 'EOF'
+          import cairosvg, os
+
+          svg = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" width="280" height="280">
+            <rect x="0" y="0" width="280" height="280" rx="60" fill="#1A56DB"/>
+            <circle cx="140" cy="148" r="80" fill="#FFFFFF"/>
+            <circle cx="140" cy="148" r="58" fill="#1A56DB"/>
+            <rect x="100" y="158" width="15" height="28" rx="5" fill="#FFFFFF"/>
+            <rect x="120" y="144" width="15" height="42" rx="5" fill="#FFFFFF"/>
+            <rect x="140" y="128" width="15" height="58" rx="5" fill="#FFFFFF"/>
+            <rect x="160" y="112" width="15" height="74" rx="5" fill="#FFFFFF"/>
+            <circle cx="78" cy="196" r="9" fill="#FFFFFF"/>
+          </svg>"""
+
+          svg_bytes = svg.encode('utf-8')
+          res = 'android/app/src/main/res'
+
+          sizes = {
+            'mipmap-mdpi':    48,
+            'mipmap-hdpi':    72,
+            'mipmap-xhdpi':   96,
+            'mipmap-xxhdpi':  144,
+            'mipmap-xxxhdpi': 192,
+          }
+
+          for folder, size in sizes.items():
+            path = f'{res}/{folder}'
+            os.makedirs(path, exist_ok=True)
+            for name in ['ic_launcher.png', 'ic_launcher_round.png']:
+              cairosvg.svg2png(bytestring=svg_bytes, write_to=f'{path}/{name}', output_width=size, output_height=size)
+              print(f'✓ {folder}/{name} ({size}px)')
+
+          print('All icons installed!')
+          EOF
 
       - name: Patch AndroidManifest.xml
         run: |
